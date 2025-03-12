@@ -1,0 +1,20 @@
+# application-dev.yml
+
+spring:
+  datasource:
+    url: ${MYSQL_URL_DEV}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  docker:
+    compose:
+      enabled: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST_DEV}
+      port: ${REDIS_PORT_DEV}
+
+url:
+  base: http://localhost:3000

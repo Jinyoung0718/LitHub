@@ -1,0 +1,32 @@
+# docker-compose --env-file /c/Users/Sojinyoung/Desktop/LitHub/backend/.env -f /c/Users/Sojinyoung/Desktop/LitHub/backend/docker/dev/docker-compose.dev.yaml up -d up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ${MYSQL_CONTAINER_NAME_DEV}
+    ports:
+      - "${MYSQL_PORT_DEV}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_DEV}
+    volumes:
+      - ${VOLUME_MYSQL}:/var/lib/mysql
+    networks:
+      - ${NETWORK_NAME_DEV}
+
+  redis:
+    image: redis:latest
+    container_name: ${REDIS_CONTAINER_NAME_DEV}
+    ports:
+      - "${REDIS_PORT_MAPPING_DEV}"
+    volumes:
+      - ${VOLUME_REDIS}:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  dev_network:
+    driver: bridge

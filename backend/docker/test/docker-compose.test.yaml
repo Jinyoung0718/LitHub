@@ -1,0 +1,25 @@
+# docker-compose --env-file /c/Users/Sojinyoung/Desktop/LitHub/backend/.env -f /c/Users/Sojinyoung/Desktop/LitHub/backend/docker/test/docker-compose.test.yaml up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ${MYSQL_CONTAINER_NAME_TEST}
+    ports:
+      - "${MYSQL_PORT_TEST}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_TEST}
+    networks:
+      - ${NETWORK_NAME_TEST}
+
+  redis:
+    image: redis:latest
+    container_name: ${REDIS_CONTAINER_NAME_TEST}
+    ports:
+      - "${REDIS_PORT_MAPPING_TEST}"
+    networks:
+      - ${NETWORK_NAME_TEST}
+
+networks:
+  test_network:
+    driver: bridge
