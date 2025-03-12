@@ -21,7 +21,10 @@ bin/
 
 # 상위 폴더의 .idea도 무시
 .idea/
+../.idea
 .github/**/.idea/
+backend/.idea/
+frontend/.idea/
 
 ### IntelliJ IDEA ###
 .idea
