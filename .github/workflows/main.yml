@@ -25,14 +25,6 @@ jobs:
       REDIS_HOST_TEST: ${{ secrets.REDIS_HOST_TEST }}
       REDIS_PORT_TEST: ${{ secrets.REDIS_PORT_TEST }}
 
-      NAVER_CLIENT_ID_DEV: ${{ secrets.NAVER_CLIENT_ID_DEV }}
-      NAVER_CLIENT_SECRET_DEV: ${{ secrets.NAVER_CLIENT_SECRET_DEV }}
-      NAVER_REDIRECT_URI_DEV: ${{ secrets.NAVER_REDIRECT_URI_DEV }}
-
-      GOOGLE_CLIENT_ID_DEV: ${{ secrets.GOOGLE_CLIENT_ID_DEV }}
-      GOOGLE_CLIENT_SECRET_DEV: ${{ secrets.GOOGLE_CLIENT_SECRET_DEV }}
-      GOOGLE_REDIRECT_URI_DEV: ${{ secrets.GOOGLE_REDIRECT_URI_DEV }}
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -42,6 +34,11 @@ jobs:
         with:
           java-version: "17"
           distribution: "temurin"
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Set up Docker Compose
         run: |
