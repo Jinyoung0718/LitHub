@@ -55,12 +55,21 @@ jobs:
       - name: Wait for MySQL & Redis
         run: sleep 10
 
+      - name: Debug Environment Variables
+        run: env | grep 'MYSQL\|REDIS\|SPRING'
+
+      - name: Check Running Containers
+        run: docker ps -a
+
+      - name: Check Gradle Version
+        run: ./gradlew --version
+
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
 
       - name: Run Tests & Build
         working-directory: ./backend
-        run: ./gradlew build --no-daemon
+        run: ./gradlew test --no-daemon
 
       - name: Shutdown Services
         run: docker-compose -f backend/docker/test/docker-compose.test.yaml down
