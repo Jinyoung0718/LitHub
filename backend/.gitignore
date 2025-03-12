@@ -1,3 +1,5 @@
+# backend/gitignore
+
 HELP.md
 .gradle
 build/
@@ -18,8 +20,8 @@ bin/
 !**/src/test/**/bin/
 
 # 상위 폴더의 .idea도 무시
-../.idea/
-.github/**/*.idea/
+.idea/
+.github/**/.idea/
 
 ### IntelliJ IDEA ###
 .idea

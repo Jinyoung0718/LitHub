@@ -25,6 +25,14 @@ jobs:
       REDIS_HOST_TEST: ${{ secrets.REDIS_HOST_TEST }}
       REDIS_PORT_TEST: ${{ secrets.REDIS_PORT_TEST }}
 
+      MYSQL_CONTAINER_NAME_TEST: ${{ secrets.MYSQL_CONTAINER_NAME_TEST }}
+      MYSQL_PORT_TEST: ${{ secrets.MYSQL_PORT_TEST }}
+      MYSQL_DATABASE_TEST: ${{ secrets.MYSQL_DATABASE_TEST }}
+      NETWORK_NAME_TEST: ${{ secrets.NETWORK_NAME_TEST }}
+
+      REDIS_CONTAINER_NAME_TEST: ${{ secrets.REDIS_CONTAINER_NAME_TEST }}
+      REDIS_PORT_MAPPING_TEST: ${{ secrets.REDIS_PORT_MAPPING_TEST }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
