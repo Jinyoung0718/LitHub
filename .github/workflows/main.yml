@@ -55,6 +55,9 @@ jobs:
       - name: Wait for MySQL & Redis
         run: sleep 10
 
+      - name: Grant execute permission to Gradle Wrapper
+        run: chmod +x backend/gradlew
+
       - name: Run Tests & Build
         working-directory: ./backend
         run: ./gradlew build --no-daemon
