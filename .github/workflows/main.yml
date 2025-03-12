@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build-test:
@@ -61,11 +61,15 @@ jobs:
       - name: Check Running Containers
         run: docker ps -a
 
-      - name: Check Gradle Version
-        run: ./gradlew --version
+      - name: Check if Gradlew Exists
+        run: ls -l backend/gradlew
 
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
+
+      - name: Check Gradle Version
+        working-directory: ./backend
+        run: ./gradlew --version
 
       - name: Run Tests & Build
         working-directory: ./backend
