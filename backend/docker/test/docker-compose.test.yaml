@@ -7,10 +7,8 @@ services:
     ports:
       - "${MYSQL_PORT_TEST}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD_TEST}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE_TEST}
-      MYSQL_USER: ${MYSQL_USERNAME_TEST}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD_TEST}
     networks:
       - ${NETWORK_NAME_TEST}
 
@@ -19,7 +17,6 @@ services:
     container_name: ${REDIS_CONTAINER_NAME_TEST}
     ports:
       - "${REDIS_PORT_MAPPING_TEST}"
-    command: redis-server --appendonly yes
     networks:
       - ${NETWORK_NAME_TEST}
 
