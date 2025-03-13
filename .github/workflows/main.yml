@@ -49,8 +49,16 @@ jobs:
 
       - name: Debug Environment Variables (GitHub Secrets 확인)
         run: |
+          echo "🔍 환경 변수 확인"
+          echo "MYSQL_HOST_TEST: $MYSQL_HOST_TEST"
           echo "MYSQL_PORT_TEST: $MYSQL_PORT_TEST"
+          echo "MYSQL_DATABASE_TEST: $MYSQL_DATABASE_TEST"
+          echo "MYSQL_USERNAME_TEST: $MYSQL_USERNAME_TEST"
+          echo "MYSQL_PASSWORD_TEST: $MYSQL_PASSWORD_TEST"
+          echo "REDIS_HOST_TEST: $REDIS_HOST_TEST"
+          echo "REDIS_PORT_TEST: $REDIS_PORT_TEST"
           echo "REDIS_PORT_MAPPING_TEST: $REDIS_PORT_MAPPING_TEST"
+          echo "NETWORK_NAME_TEST: $NETWORK_NAME_TEST"
 
           if [ -z "$MYSQL_PORT_TEST" ]; then 
             echo "MYSQL_PORT_TEST is not set!"; 
@@ -62,23 +70,34 @@ jobs:
             exit 1; 
           fi
 
-      - name: Set up Docker Compose (환경 변수 직접 주입)
+      - name: Set up Docker Compose
         run: |
-          export MYSQL_PORT_TEST=${{ secrets.MYSQL_PORT_TEST }}
-          export REDIS_PORT_MAPPING_TEST=${{ secrets.REDIS_PORT_MAPPING_TEST }}
           docker-compose -f backend/docker/test/docker-compose.test.yaml up -d
 
       - name: Wait for MySQL & Redis
         run: |
-          echo "Waiting for MySQL & Redis..."
+          echo "⏳ MySQL & Redis 컨테이너 대기 중..."
           for i in {1..30}; do
-            nc -z localhost $MYSQL_PORT_TEST && echo "MySQL is up!" && break
+            if docker exec $MYSQL_CONTAINER_NAME_TEST mysqladmin ping -h"$MYSQL_HOST_TEST" --silent; then
+              echo "✅ MySQL is up!"
+              break
+            fi
             sleep 2
           done
+
           for i in {1..30}; do
-            nc -z localhost $REDIS_PORT_TEST && echo "Redis is up!" && break
+            if nc -z $REDIS_HOST_TEST $REDIS_PORT_TEST; then
+              echo "Redis is up!"
+              break
+            fi
             sleep 2
           done
+
+          echo "MySQL 컨테이너 로그 출력"
+          docker logs $MYSQL_CONTAINER_NAME_TEST || true
+
+          echo "Redis 컨테이너 로그 출력"
+          docker logs $REDIS_CONTAINER_NAME_TEST || true
 
       - name: Check Docker Compose Config (환경 변수 적용 확인)
         run: docker-compose -f backend/docker/test/docker-compose.test.yaml config
