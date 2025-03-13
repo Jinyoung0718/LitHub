@@ -58,9 +58,32 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            if mysql -h localhost -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" &> /dev/null; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Debug MySQL Connection
+        run: mysql -h localhost -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "USE LitHub-test; SHOW TABLES;"
+
+      - name: Debug Redis Connection
+        run: redis-cli -h localhost -p ${REDIS_PORT_TEST} PING
+
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
 
       - name: Run Tests & Build
         working-directory: ./backend
-        run: ./gradlew test --no-daemon
+        run: |
+          ./gradlew test --no-daemon \
+            -Dspring.datasource.url=${MYSQL_URL_TEST} \
+            -Dspring.datasource.username=${MYSQL_USERNAME} \
+            -Dspring.datasource.password=${MYSQL_PASSWORD} \
+            -Dspring.redis.host=${REDIS_HOST_TEST} \
+            -Dspring.redis.port=${REDIS_PORT_TEST}
