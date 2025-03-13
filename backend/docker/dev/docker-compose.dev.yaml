@@ -7,8 +7,10 @@ services:
     ports:
       - "${MYSQL_PORT_DEV}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD_DEV}
       MYSQL_DATABASE: ${MYSQL_DATABASE_DEV}
+      MYSQL_USER: ${MYSQL_USERNAME_DEV}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_DEV}
     volumes:
       - ${VOLUME_MYSQL}:/var/lib/mysql
     networks:
@@ -22,6 +24,8 @@ services:
     volumes:
       - ${VOLUME_REDIS}:/data
     command: redis-server --appendonly yes
+    networks:
+      - ${NETWORK_NAME_DEV}
 
 volumes:
   mysql_data:

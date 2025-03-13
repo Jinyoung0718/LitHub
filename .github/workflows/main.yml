@@ -18,20 +18,19 @@ jobs:
       MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
-      MYSQL_URL_TEST: ${{ secrets.MYSQL_URL_TEST }}
-      MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_HOST_TEST: ${{ secrets.MYSQL_HOST_TEST }}
+      MYSQL_PORT_TEST: ${{ secrets.MYSQL_PORT_TEST }}
+      MYSQL_USERNAME_TEST: ${{ secrets.MYSQL_USERNAME_TEST }}
+      MYSQL_PASSWORD_TEST: ${{ secrets.MYSQL_PASSWORD_TEST }}
+      MYSQL_DATABASE_TEST: ${{ secrets.MYSQL_DATABASE_TEST }}
 
       REDIS_HOST_TEST: ${{ secrets.REDIS_HOST_TEST }}
       REDIS_PORT_TEST: ${{ secrets.REDIS_PORT_TEST }}
+      REDIS_PORT_MAPPING_TEST: ${{ secrets.REDIS_PORT_MAPPING_TEST }}
 
       MYSQL_CONTAINER_NAME_TEST: ${{ secrets.MYSQL_CONTAINER_NAME_TEST }}
-      MYSQL_PORT_TEST: ${{ secrets.MYSQL_PORT_TEST }}
-      MYSQL_DATABASE_TEST: ${{ secrets.MYSQL_DATABASE_TEST }}
-      NETWORK_NAME_TEST: ${{ secrets.NETWORK_NAME_TEST }}
-
       REDIS_CONTAINER_NAME_TEST: ${{ secrets.REDIS_CONTAINER_NAME_TEST }}
-      REDIS_PORT_MAPPING_TEST: ${{ secrets.REDIS_PORT_MAPPING_TEST }}
+      NETWORK_NAME_TEST: ${{ secrets.NETWORK_NAME_TEST }}
 
     steps:
       - name: Checkout Repository
