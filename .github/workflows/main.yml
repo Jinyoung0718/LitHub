@@ -39,9 +39,9 @@ jobs:
           - 3306:3306
         options: >-
           --health-cmd "mysqladmin ping --silent"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
       redis:
         image: redis:latest
@@ -58,31 +58,24 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Install Docker Compose
+      - name: Wait for MySQL to be ready
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+          for i in {1..30}; do
+            if mysql -h mysql -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" &> /dev/null; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
 
-      - name: Wait for MySQL & Redis
-        run: sleep 10
-
-      - name: Debug Environment Variables
-        run: env | grep 'MYSQL\|REDIS\|SPRING'
-
-      - name: Check Running Containers
-        run: docker ps -a
-
-      - name: Check if Gradlew Exists
-        run: ls -l backend/gradlew
+      - name: Check MySQL Tables
+        run: |
+          mysql -h mysql -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "USE LitHub-test; SHOW TABLES;"
 
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
 
-      - name: Check Gradle Version
-        working-directory: ./backend
-        run: ./gradlew --version
-
       - name: Run Tests & Build
         working-directory: ./backend
         run: ./gradlew test --no-daemon
-
