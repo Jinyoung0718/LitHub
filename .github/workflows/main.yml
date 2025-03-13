@@ -52,9 +52,16 @@ jobs:
         run: |
           echo "MYSQL_PORT_TEST: $MYSQL_PORT_TEST"
           echo "REDIS_PORT_MAPPING_TEST: $REDIS_PORT_MAPPING_TEST"
-          echo "REDIS_PORT_MAPPING_TEST: $REDIS_PORT_MAPPING_TEST"
-          if [ -z "$MYSQL_PORT_TEST" ]; then echo "❌ MYSQL_PORT_TEST is not set!"; exit 1; fi"
-          if [ -z "$REDIS_PORT_MAPPING_TEST" ]; then echo "❌ REDIS_PORT_MAPPING_TEST is not set!"; exit 1; fi"
+
+          if [ -z "$MYSQL_PORT_TEST" ]; then 
+            echo "❌ MYSQL_PORT_TEST is not set!"; 
+            exit 1; 
+          fi
+
+          if [ -z "$REDIS_PORT_MAPPING_TEST" ]; then 
+            echo "❌ REDIS_PORT_MAPPING_TEST is not set!"; 
+            exit 1; 
+          fi
 
       - name: Set up Docker Compose (환경 변수 전달)
         run: |
