@@ -48,15 +48,30 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Set up Docker Compose
+      - name: Debug Environment Variables (GitHub Secrets 확인)
         run: |
-          docker-compose -f backend/docker/test/docker-compose.test.yaml up -d
+          echo "MYSQL_PORT_TEST: $MYSQL_PORT_TEST"
+          echo "REDIS_PORT_MAPPING_TEST: $REDIS_PORT_MAPPING_TEST"
+
+      - name: Set up Docker Compose (환경 변수 전달)
+        run: |
+          docker-compose --env-file <(env | grep 'MYSQL\|REDIS\|NETWORK') \
+          -f backend/docker/test/docker-compose.test.yaml up -d
 
       - name: Wait for MySQL & Redis
-        run: sleep 10
+        run: |
+          echo "Waiting for MySQL & Redis..."
+          for i in {1..30}; do
+            nc -z localhost $MYSQL_PORT_TEST && echo "MySQL is up!" && break
+            sleep 2
+          done
+          for i in {1..30}; do
+            nc -z localhost $REDIS_PORT_TEST && echo "Redis is up!" && break
+            sleep 2
+          done
 
-      - name: Debug Environment Variables
-        run: env | grep 'MYSQL\|REDIS\|SPRING'
+      - name: Check Docker Compose Config (환경 변수 적용 확인)
+        run: docker-compose -f backend/docker/test/docker-compose.test.yaml config
 
       - name: Check Running Containers
         run: docker ps -a

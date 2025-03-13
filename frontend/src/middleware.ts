@@ -6,7 +6,6 @@ export async function middleware(request: NextRequest) {
   const myCookies = await cookies();
   const accessToken = myCookies.get("accessToken");
 
-  // ✅ 인증이 필요 없는 경로는 미들웨어 실행 제외
   if (isPublicRoute(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
@@ -27,14 +26,12 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// ✅ 로그인 없이 접근 가능한 페이지 정의
 function isPublicRoute(pathname: string): boolean {
   return ["/", "/login", "/signup", "/about", "/login-register"].includes(
     pathname
   );
 }
 
-// ✅ 로그인 상태 확인 (백엔드 `/api/user/check` 호출)
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
     const response = await client.GET("/api/user/check", {
@@ -50,7 +47,6 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
   }
 }
 
-// ✅ 미인증 상태 처리
 function handleUnauthorized(): NextResponse {
   return new NextResponse("로그인이 필요합니다.", {
     status: 401,
@@ -60,7 +56,6 @@ function handleUnauthorized(): NextResponse {
   });
 }
 
-// ✅ matcher 수정: 로그인 필요 없는 페이지 제외
 export const config = {
   matcher: [
     "/((?!api/auth|api/public|favicon.ico|_next/static|_next/image|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.svg$|.*\\.css$|.*\\.js$).*)",
