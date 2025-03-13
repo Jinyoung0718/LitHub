@@ -20,6 +20,7 @@ jobs:
       MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
+      # CI 환경에서는 서비스 컨테이너가 Runner의 TCP 포트를 통해 접근되므로, 호스트는 127.0.0.1
       MYSQL_URL_TEST: jdbc:mysql://127.0.0.1:3306/LitHub-test
       MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
@@ -58,14 +59,20 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      - name: Install Redis CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y redis-tools
+
       - name: Wait for MySQL to be ready
         run: |
+          echo "Waiting for MySQL to be ready..."
           for i in {1..30}; do
             if mysql -h 127.0.0.1 -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" &> /dev/null; then
               echo "MySQL is ready!"
               break
             fi
-            echo "Waiting for MySQL..."
+            echo "Waiting for MySQL... ($i/30)"
             sleep 2
           done
 
