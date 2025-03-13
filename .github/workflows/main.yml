@@ -54,19 +54,19 @@ jobs:
           echo "REDIS_PORT_MAPPING_TEST: $REDIS_PORT_MAPPING_TEST"
 
           if [ -z "$MYSQL_PORT_TEST" ]; then 
-            echo "❌ MYSQL_PORT_TEST is not set!"; 
+            echo "MYSQL_PORT_TEST is not set!"; 
             exit 1; 
           fi
 
           if [ -z "$REDIS_PORT_MAPPING_TEST" ]; then 
-            echo "❌ REDIS_PORT_MAPPING_TEST is not set!"; 
+            echo "REDIS_PORT_MAPPING_TEST is not set!"; 
             exit 1; 
           fi
 
-      - name: Set up Docker Compose (환경 변수 전달)
+      - name: Set up Docker Compose (환경 변수 직접 주입)
         run: |
-          MYSQL_PORT_TEST=${{ secrets.MYSQL_PORT_TEST }} \
-          REDIS_PORT_MAPPING_TEST=${{ secrets.REDIS_PORT_MAPPING_TEST }} \
+          export MYSQL_PORT_TEST=${{ secrets.MYSQL_PORT_TEST }}
+          export REDIS_PORT_MAPPING_TEST=${{ secrets.REDIS_PORT_MAPPING_TEST }}
           docker-compose -f backend/docker/test/docker-compose.test.yaml up -d
 
       - name: Wait for MySQL & Redis
