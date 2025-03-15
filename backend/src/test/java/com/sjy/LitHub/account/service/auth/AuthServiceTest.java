@@ -9,11 +9,16 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
@@ -25,11 +30,15 @@ import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 
 import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
-@ActiveProfiles("test")
 @Transactional
-public class AuthServiceTest {
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+public class AuthServiceTest extends TestContainerConfig {
 
     @Autowired
     private AuthService authService;

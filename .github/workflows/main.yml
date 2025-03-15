@@ -12,85 +12,24 @@ jobs:
 
     env:
       SPRING_PROFILES_ACTIVE: test
-
+      GITHUB_ACTIONS: true
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
       MAIL_HOST: ${{ secrets.MAIL_HOST }}
       MAIL_PORT: ${{ secrets.MAIL_PORT }}
       MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
-      # CI 환경에서는 서비스 컨테이너가 Runner의 TCP 포트를 통해 접근되므로, 호스트는 127.0.0.1
-      MYSQL_URL_TEST: jdbc:mysql://127.0.0.1:3306/LitHub-test
-      MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-
-      REDIS_HOST_TEST: 127.0.0.1
-      REDIS_PORT_TEST: 6379
-
-      MYSQL_DATABASE_TEST: LitHub-test
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_DATABASE: LitHub-test
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "mysqladmin ping --silent"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
-
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
-          java-version: "17"
-          distribution: "temurin"
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Install Redis CLI
+      - name: Build and Run Tests
         run: |
-          sudo apt-get update
-          sudo apt-get install -y redis-tools
-
-      - name: Wait for MySQL to be ready
-        run: |
-          echo "Waiting for MySQL to be ready..."
-          for i in {1..30}; do
-            if mysql -h 127.0.0.1 -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "SHOW DATABASES;" &> /dev/null; then
-              echo "MySQL is ready!"
-              break
-            fi
-            echo "Waiting for MySQL... ($i/30)"
-            sleep 2
-          done
-
-      - name: Debug MySQL Connection
-        run: mysql -h 127.0.0.1 -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "USE LitHub-test; SHOW TABLES;"
-
-      - name: Debug Redis Connection
-        run: redis-cli -h 127.0.0.1 -p ${REDIS_PORT_TEST} PING
-
-      - name: Grant execute permission to Gradle Wrapper
-        run: chmod +x backend/gradlew
-
-      - name: Run Tests & Build
-        working-directory: ./backend
-        run: |
-          ./gradlew test --no-daemon \
-            -Dspring.datasource.url=${MYSQL_URL_TEST} \
-            -Dspring.datasource.username=${MYSQL_USERNAME} \
-            -Dspring.datasource.password=${MYSQL_PASSWORD} \
-            -Dspring.redis.host=${REDIS_HOST_TEST} \
-            -Dspring.redis.port=${REDIS_PORT_TEST}
+          chmod +x gradlew
+          ./gradlew clean test --info

@@ -1,11 +1,10 @@
 package com.sjy.LitHub.global.security.oauth2.service;
 
-import com.sjy.LitHub.account.entity.User;
-import com.sjy.LitHub.account.model.req.signup.SocialSignupDTO;
-import com.sjy.LitHub.account.repository.user.UserRepository;
-import com.sjy.LitHub.global.exception.custom.InvalidUserException;
-import com.sjy.LitHub.global.security.util.AuthConst;
-import jakarta.servlet.http.Cookie;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,20 +20,23 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Map;
+import com.sjy.LitHub.TestContainerConfig;
+import com.sjy.LitHub.account.entity.User;
+import com.sjy.LitHub.account.model.req.signup.SocialSignupDTO;
+import com.sjy.LitHub.account.repository.OAuthUserRepository;
+import com.sjy.LitHub.account.repository.user.UserRepository;
+import com.sjy.LitHub.global.exception.custom.InvalidUserException;
+import com.sjy.LitHub.global.security.util.AuthConst;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @AutoConfigureMockMvc
-@Transactional
-public class FirstOAuthSignUpServiceTest {
+public class FirstOAuthSignUpServiceTest extends TestContainerConfig {
 
     @Autowired
     private TempTokenService tempTokenService;
@@ -47,6 +49,9 @@ public class FirstOAuthSignUpServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OAuthUserRepository oAuthUserRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,6 +72,8 @@ public class FirstOAuthSignUpServiceTest {
                 connection.serverCommands().flushAll();
             }
         }
+        oAuthUserRepository.deleteAll();
+        userRepository.deleteAll();
 
         validTempToken = tempTokenService.createTempSignupToken(
             "test@example.com",

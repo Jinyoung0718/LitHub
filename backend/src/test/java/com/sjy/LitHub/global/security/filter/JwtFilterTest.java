@@ -1,5 +1,6 @@
 package com.sjy.LitHub.global.security.filter;
 
+import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.global.exception.custom.InvalidTokenException;
 import com.sjy.LitHub.global.security.service.TokenService;
@@ -29,9 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @AutoConfigureMockMvc
-public class JwtFilterTest {
+public class JwtFilterTest extends TestContainerConfig {
 
     @Autowired
     private RedisBlacklistUtil redisBlacklistUtil;

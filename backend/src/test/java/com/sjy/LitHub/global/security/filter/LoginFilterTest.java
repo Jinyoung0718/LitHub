@@ -1,5 +1,6 @@
 package com.sjy.LitHub.global.security.filter;
 
+import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
@@ -31,10 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @AutoConfigureMockMvc
-@Transactional
-class LoginFilterTest {
+class LoginFilterTest extends TestContainerConfig {
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,6 +50,8 @@ class LoginFilterTest {
 
     @BeforeEach
     void setUp() {
+        userRepository.deleteAll();
+
         String rawPassword = "korean12@";
         String encodedPassword = passwordEncoder.encode(rawPassword);
 

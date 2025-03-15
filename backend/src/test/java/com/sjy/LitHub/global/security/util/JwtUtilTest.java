@@ -1,5 +1,6 @@
 package com.sjy.LitHub.global.security.util;
 
+import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.authenum.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @AutoConfigureMockMvc
-public class JwtUtilTest {
+public class JwtUtilTest extends TestContainerConfig {
 
     @Autowired
     private JwtUtil jwtUtil;

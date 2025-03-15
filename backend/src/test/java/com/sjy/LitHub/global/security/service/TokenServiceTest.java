@@ -1,29 +1,36 @@
 package com.sjy.LitHub.global.security.service;
 
+import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.global.security.model.UserPrincipal;
 import com.sjy.LitHub.global.security.util.AuthConst;
 import com.sjy.LitHub.global.security.util.JwtUtil;
 import com.sjy.LitHub.global.security.util.RedisRefreshTokenUtil;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-public class TokenServiceTest {
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+public class TokenServiceTest extends TestContainerConfig {
 
     @Autowired
     private TokenService tokenService;
