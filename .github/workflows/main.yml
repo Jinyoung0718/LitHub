@@ -17,52 +17,44 @@ jobs:
       MAIL_PORT: ${{ secrets.MAIL_PORT }}
       MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      TESTCONTAINERS_RYUK_DISABLED: true
+      TESTCONTAINERS_CHECKS_DISABLE: true
+      DOCKER_HOST: "tcp://localhost:2375"
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 🛠 Debug Environment Variables
-        run: |
-          echo "🔍 환경 변수 확인:"
-          env | sort | grep -E "SPRING|MAIL|JWT_SECRET"
-          echo "🔍 현재 작업 디렉토리: $(pwd)"
-          echo "🔍 디렉토리 목록:"
-          ls -la
-        shell: bash
-
-      - name: 🛠 Check Docker Status
-        run: |
-          echo "🐳 Docker 상태 확인"
-          docker info
-          echo "🐳 실행 중인 컨테이너 목록:"
-          docker ps -a
-        shell: bash
-
-      - name: ⚡ Setup Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: ☕ Set up JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: 🔄 Setup Gradle with Caching
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          cache-read-only: false
-
-      - name: 🔑 Grant execute permission to Gradle Wrapper
+      - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
 
-      - name: 🏗️ Build with Gradle & Debug
+      - name: Check test configuration files
+        run: ls -la backend/src/test/resources
+
+      - name: Check running containers
+        run: docker ps -a
+
+      - name: Wait for TestContainers
+        run: |
+          echo "Waiting for TestContainers to start..."
+          sleep 10
+          docker ps -a
+
+      - name: Run Tests with Debugging
         working-directory: ./backend
         run: |
-          echo "🚀 Gradle 빌드 및 테스트 실행"
-          ./gradlew build test --no-daemon || (
-            echo "🛑 테스트 실패! TestContainers 로그 확인:";
-            ls -la build/testcontainers || echo "❌ TestContainers 로그 디렉토리 없음";
-            cat build/testcontainers/*.log || echo "❌ TestContainers 로그 파일 없음"
-          )
-        shell: bash
+          echo "🔍 TestContainers 환경 확인"
+          docker ps -a
+          echo "🔍 MySQL, Redis 컨테이너 로그 확인"
+          docker logs $(docker ps -q) || echo "No running containers found"
+          echo "🚀 Gradle 테스트 실행"
+          ./gradlew test --stacktrace --info

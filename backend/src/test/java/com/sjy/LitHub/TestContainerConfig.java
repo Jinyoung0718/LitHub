@@ -19,13 +19,11 @@ public abstract class TestContainerConfig {
 	static {
 		MYSQL_CONTAINER = new MySQLContainer<>(DockerImageName.parse("mysql:8"))
 			.withUsername("root")
-			.withPassword("")
-			.withReuse(true);
+			.withPassword("");
 		MYSQL_CONTAINER.start();
 
 		REDIS_CONTAINER = new GenericContainer<>(DockerImageName.parse("redis:latest"))
-			.withExposedPorts(6379)
-			.withReuse(true);
+			.withExposedPorts(6379);
 		REDIS_CONTAINER.start();
 	}
 
