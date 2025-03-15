@@ -22,7 +22,7 @@ bin/
 # 상위 폴더의 .idea도 무시
 .idea/
 ../.idea/
-../.github/**/
+../.github/.idea/
 backend/.idea/
 frontend/.idea/
 
