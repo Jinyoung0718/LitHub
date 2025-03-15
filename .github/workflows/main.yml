@@ -20,6 +20,9 @@ jobs:
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
     steps:
+      - name: Check Environment Variables (All)
+        run: env | sort
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -40,6 +43,16 @@ jobs:
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
 
+      - name: Check Docker Status
+        run: docker info
+
+      - name: Check Running Containers
+        run: docker ps -a
+
       - name: Run Tests & Build
         working-directory: ./backend
-        run: ./gradlew test --no-daemon
+        run: ./gradlew test --no-daemon || (echo "TestContainers Logs:" && cat backend/build/testcontainers/*.log)
+
+      - name: Print Test Report (If Test Fails)
+        if: failure()
+        run: cat backend/build/reports/tests/test/index.html || echo "No test report found."
