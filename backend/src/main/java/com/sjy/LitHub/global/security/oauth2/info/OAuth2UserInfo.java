@@ -7,6 +7,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public abstract class OAuth2UserInfo {
+
     protected final Map<String, Object> attributes;
 
     protected final ProviderInfo providerInfo;

@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 @RequiredArgsConstructor
 public class DefaultOAuthFailureStrategy implements OAuthFailureHandlerStrategy {
+
     @Value("${url.base}")
     private String REDIRECT_URL;
 
@@ -32,16 +33,17 @@ public class DefaultOAuthFailureStrategy implements OAuthFailureHandlerStrategy 
     public void handle(HttpServletRequest request, HttpServletResponse response, BaseResponseStatus status) throws IOException {
         BaseResponseStatus responseStatus = (status != null) ? status : BaseResponseStatus.UNAUTHORIZED;
 
-        response.setStatus(responseStatus.getHttpStatus());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-
-        objectMapper.writeValue(response.getWriter(), BaseResponse.error(responseStatus, responseStatus.getMessage()));
+        if (!response.isCommitted()) {
+            response.setStatus(responseStatus.getHttpStatus());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            objectMapper.writeValue(response.getWriter(), BaseResponse.error(responseStatus, responseStatus.getMessage()));
+        }
 
         String redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL + "/login")
-                .queryParam("error", responseStatus.getMessage())
-                .build()
-                .toUriString();
+            .queryParam("error", responseStatus.getMessage())
+            .build()
+            .toUriString();
 
         response.sendRedirect(redirectUrl);
     }

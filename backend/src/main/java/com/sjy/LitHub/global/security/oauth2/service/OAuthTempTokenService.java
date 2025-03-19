@@ -9,10 +9,13 @@ import com.sjy.LitHub.global.security.util.AuthConst;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthTempTokenService {
@@ -20,13 +23,14 @@ public class OAuthTempTokenService {
     private final JwtUtil jwtUtil;
     private final TempTokenService tempTokenService;
 
+
     public Map<String, String> extractTokenData(HttpServletRequest request) {
         String tempToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_TEMP);
         if (tempToken == null || tempToken.isEmpty()) {
             throw new InvalidUserException(BaseResponseStatus.USER_TEMP_SESSION_EXPIRED);
-        } // 예외가 날 시, 프론트는 로그인 페이지로 다시 리다이렉트
+        }
 
-        return tempTokenService.validateTempSignupToken(tempToken);
+		return tempTokenService.validateTempSignupToken(tempToken);
     }
 
     public void generateAndSetTokens(HttpServletResponse response, User newUser) {

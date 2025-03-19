@@ -9,4 +9,4 @@ spring:
       ddl-auto: create
 
 url:
-  base: http://localhost:8080
+  base: http://localhost:5173

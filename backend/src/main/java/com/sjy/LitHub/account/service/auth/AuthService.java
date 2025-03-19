@@ -4,7 +4,7 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.mapper.UserMapper;
 import com.sjy.LitHub.account.model.req.signup.SignupDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
-import com.sjy.LitHub.account.service.email.RedisEmailService;
+import com.sjy.LitHub.global.redis.RedisService;
 import com.sjy.LitHub.account.util.PasswordManager;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
@@ -20,7 +20,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordManager passwordManager;
-    private final RedisEmailService redisEmailService;
+    private final RedisService redisService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     private static final String REDIS_KEY_PREFIX = "emailAuth:";
@@ -28,7 +28,7 @@ public class AuthService {
 
     @Transactional
     public void signup(SignupDTO signupDTO) {
-        SignupValidationStatus.validateAll(signupDTO, userRepository, redisEmailService, passwordManager);
+        SignupValidationStatus.validateAll(signupDTO, userRepository, redisService, passwordManager);
         createUser(signupDTO);
     }
 
@@ -36,7 +36,7 @@ public class AuthService {
         User user = userMapper.ofSignupDTO(signupDTO);
         user.encodePassword(passwordEncoder);
         userRepository.save(user);
-        redisEmailService.deleteData(REDIS_KEY_PREFIX + signupDTO.getUserEmail() + REDIS_KEY_SUFFIX);
+        redisService.deleteData(REDIS_KEY_PREFIX + signupDTO.getUserEmail() + REDIS_KEY_SUFFIX);
     }
 
     @Transactional

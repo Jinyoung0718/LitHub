@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,7 +24,7 @@ import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
 import com.sjy.LitHub.account.model.req.signup.SignupDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.account.service.UserInfo.MyPageService;
-import com.sjy.LitHub.account.service.email.RedisEmailService;
+import com.sjy.LitHub.global.redis.RedisService;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 
@@ -53,7 +52,7 @@ public class AuthServiceTest extends TestContainerConfig {
     private EntityManager entityManager;
 
     @Autowired
-    private RedisEmailService redisEmailService;
+    private RedisService redisService;
 
     @AfterEach
     public void tearDown() {
@@ -66,8 +65,8 @@ public class AuthServiceTest extends TestContainerConfig {
         );
 
         for (String email : testEmails) {
-            redisEmailService.deleteData("emailAuth:" + email + ":verified");
-            redisEmailService.deleteData("emailAuth:" + email + ":requestLock");
+            redisService.deleteData("emailAuth:" + email + ":verified");
+            redisService.deleteData("emailAuth:" + email + ":requestLock");
         }
     }
 
@@ -93,7 +92,7 @@ public class AuthServiceTest extends TestContainerConfig {
                 "weak"
         );
 
-        redisEmailService.setData("emailAuth:passwordinvalid@example.com:verified", "true", 600);
+        redisService.setData("emailAuth:passwordinvalid@example.com:verified", "true", 600);
         InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
         assertEquals(BaseResponseStatus.USER_PASSWORD_INVALID, thrown.getStatus());
     }
@@ -115,7 +114,7 @@ public class AuthServiceTest extends TestContainerConfig {
                 "korean12@"
         );
 
-        redisEmailService.setData("emailAuth:duplicatenickname@example.com:verified", "true", 600);
+        redisService.setData("emailAuth:duplicatenickname@example.com:verified", "true", 600);
         InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
         assertEquals(BaseResponseStatus.USER_NICKNAME_DUPLICATE, thrown.getStatus());
     }
@@ -138,7 +137,7 @@ public class AuthServiceTest extends TestContainerConfig {
                 "korean12@"
         );
 
-        redisEmailService.setData("emailAuth:existinguser@example.com:verified", "true", 600);
+        redisService.setData("emailAuth:existinguser@example.com:verified", "true", 600);
         InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
         assertEquals(BaseResponseStatus.USER_ALREADY_EXISTS, thrown.getStatus());
     }
@@ -153,7 +152,7 @@ public class AuthServiceTest extends TestContainerConfig {
                 "korean12@"
         );
 
-        redisEmailService.setData("emailAuth:testuser@example.com:verified", "true", 600);
+        redisService.setData("emailAuth:testuser@example.com:verified", "true", 600);
         authService.signup(signupDto);
         User savedUser = userRepository.findByUserEmailAll(signupDto.getUserEmail())
                 .orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));

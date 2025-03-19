@@ -5,6 +5,7 @@ import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.global.model.Empty;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
         return BaseResponse.error(e.getStatus());
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public BaseResponse<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()

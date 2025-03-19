@@ -1,5 +1,11 @@
 package com.sjy.LitHub.account.controller;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
 import com.sjy.LitHub.account.model.req.signup.EmailAuthDTO;
 import com.sjy.LitHub.account.model.req.signup.EmailAuthVerificationDTO;
@@ -10,6 +16,7 @@ import com.sjy.LitHub.account.service.email.EmailService;
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
 import com.sjy.LitHub.global.security.oauth2.service.FirstOAuthSignUpService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,8 +25,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

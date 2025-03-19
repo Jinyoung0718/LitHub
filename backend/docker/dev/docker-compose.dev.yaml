@@ -1,4 +1,4 @@
-# docker-compose --env-file /c/Users/Sojinyoung/Desktop/LitHub/backend/.env -f /c/Users/Sojinyoung/Desktop/LitHub/backend/docker/dev/docker-compose.dev.yaml up -d up -d
+# docker-compose --env-file /c/Users/Sojinyoung/Desktop/LitHub/backend/.env -f /c/Users/Sojinyoung/Desktop/LitHub/backend/docker/dev/docker-compose.dev.yaml up -d
 
 services:
   mysql:

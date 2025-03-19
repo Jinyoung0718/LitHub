@@ -83,6 +83,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,"/api/auth/**").permitAll()
+                        .requestMatchers("/api/info/temp-check").permitAll()
+                        .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
@@ -101,7 +103,6 @@ public class SecurityConfig {
         http
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService)))
-                        .loginPage("/api/auth/oauth/login")
                         .successHandler(customOAuth2SuccessHandler)
                         .failureHandler(customOAuth2FailureHandler)
                         .clientRegistrationRepository(clientRegistrationRepository.clientRegistrationRepository())

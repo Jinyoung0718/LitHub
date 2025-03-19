@@ -26,7 +26,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
         if (accessToken != null && !jwtUtil.isExpired(accessToken)) {
             long ttl = jwtUtil.getExpiration(accessToken);
-            redisBlacklistUtil.addToBlacklist(accessToken, ttl); // 블랙리스트 추가
+            redisBlacklistUtil.addToBlacklist(accessToken, ttl);
         }
 
         String refreshToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_REFRESH);
