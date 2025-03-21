@@ -23,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCommandRe
 	Optional<User> findByUserEmailActive(@Param("userEmail") String userEmail);
 
 	@Query("SELECT u FROM User u WHERE u.userEmail = :userEmail AND u.deletedAt IS NOT NULL")
-	Optional<User> findByUserEmailDeleted (@Param("userEmail") String userEmail);
+	Optional<User> findByUserEmailDeleted(@Param("userEmail") String userEmail);
 
 	@Query("SELECT u.password FROM User u WHERE u.id = :userId")
 	String findPasswordById(@Param("userId") Long userId);

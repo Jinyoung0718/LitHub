@@ -15,10 +15,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.DelegatingServletInputStream;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,7 +42,7 @@ import com.sjy.LitHub.global.security.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
 
-@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class LoginFilterTest {
 
     @InjectMocks
@@ -81,11 +81,19 @@ class LoginFilterTest {
         String password = "korean12@";
 
         Map<String, String> credentials = Map.of("username", email, "password", password);
-
         when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
             .thenReturn(credentials);
 
-        when(userRepository.findByUserEmailAll(email)).thenReturn(Optional.empty());
+        User normalUser = User.builder()
+            .userEmail(email)
+            .nickName("normal")
+            .password("encoded")
+            .profileImageUrlSmall("x")
+            .profileImageUrlLarge("x")
+            .deletedAt(null)
+            .build();
+
+        when(userRepository.findByUserEmailAll(email)).thenReturn(Optional.of(normalUser));
         when(authenticationManager.authenticate(any(Authentication.class)))
             .thenReturn(mock(Authentication.class));
 
@@ -121,8 +129,6 @@ class LoginFilterTest {
         String email = "deleted@example.com";
         String password = "pass";
         Map<String, String> credentials = Map.of("username", email, "password", password);
-        when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
-            .thenReturn(credentials);
 
         User deletedUser = User.builder()
             .userEmail(email)
@@ -133,7 +139,10 @@ class LoginFilterTest {
             .deletedAt(LocalDateTime.now())
             .build();
 
-        when(userRepository.findByUserEmailAll(email)).thenReturn(Optional.of(deletedUser));
+        when(userRepository.findByUserEmailDeleted(email)).thenReturn(Optional.of(deletedUser));
+
+        when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
+            .thenReturn(credentials);
 
         assertThrows(BadCredentialsException.class, () -> loginFilter.attemptAuthentication(request, response));
         assertInstanceOf(InvalidAuthenticationException.class, request.getAttribute("exception"));

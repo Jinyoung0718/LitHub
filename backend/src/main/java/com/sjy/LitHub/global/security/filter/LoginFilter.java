@@ -1,19 +1,9 @@
 package com.sjy.LitHub.global.security.filter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sjy.LitHub.account.entity.authenum.Role;
-import com.sjy.LitHub.account.repository.user.UserRepository;
-import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
-import com.sjy.LitHub.global.model.BaseResponse;
-import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.global.model.Empty;
-import com.sjy.LitHub.global.security.model.UserPrincipal;
-import com.sjy.LitHub.global.security.service.TokenService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,9 +14,21 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.account.repository.user.UserRepository;
+import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
+import com.sjy.LitHub.global.model.BaseResponse;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.model.Empty;
+import com.sjy.LitHub.global.security.model.UserPrincipal;
+import com.sjy.LitHub.global.security.service.TokenService;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -55,7 +57,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             if (isAccountDeleted(userEmail)) {
                 SecurityContextHolder.clearContext();
                 req.setAttribute("exception", new InvalidAuthenticationException(BaseResponseStatus.USER_LOGIN_RECOVERY_REQUIRED));
-                throw new BadCredentialsException(BaseResponseStatus.USER_LOGIN_RECOVERY_REQUIRED.getMessage()); // Security 흐름 타도록 변경
+                throw new BadCredentialsException(BaseResponseStatus.USER_LOGIN_RECOVERY_REQUIRED.getMessage());
             }
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, password);
@@ -69,7 +71,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     // 논리 삭제 유저 확인
     private boolean isAccountDeleted(String userEmail) {
-        return userRepository.findByUserEmailDeleted(userEmail).isEmpty();
+        return userRepository.findByUserEmailDeleted(userEmail).isPresent();
     }
 
     @Override
