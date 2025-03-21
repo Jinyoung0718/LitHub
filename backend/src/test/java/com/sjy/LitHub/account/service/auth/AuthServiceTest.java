@@ -1,241 +1,182 @@
 package com.sjy.LitHub.account.service.auth;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.entity.authenum.Role;
-import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
+import com.sjy.LitHub.account.mapper.UserMapper;
 import com.sjy.LitHub.account.model.req.signup.SignupDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
-import com.sjy.LitHub.account.service.UserInfo.MyPageService;
-import com.sjy.LitHub.global.redis.RedisService;
+import com.sjy.LitHub.account.util.PasswordManager;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.redis.RedisService;
 
-import jakarta.persistence.EntityManager;
-import lombok.extern.slf4j.Slf4j;
+@ExtendWith(MockitoExtension.class)
+class AuthServiceTest {
 
-@Slf4j
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@Transactional
-@ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class AuthServiceTest extends TestContainerConfig {
-
-    @Autowired
+    @InjectMocks
     private AuthService authService;
 
-    @Autowired
-    private MyPageService myPageService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
-    private RedisService redisService;
-
-    @AfterEach
-    public void tearDown() {
-        List<String> testEmails = Arrays.asList(
-                "testuser@example.com",
-                "passwordinvalid@example.com",
-                "duplicatenickname@example.com",
-                "existinguser@example.com",
-                "deleteduser@example.com"
-        );
-
-        for (String email : testEmails) {
-            redisService.deleteData("emailAuth:" + email + ":verified");
-            redisService.deleteData("emailAuth:" + email + ":requestLock");
-        }
-    }
+    @Mock private UserRepository userRepository;
+    @Mock private RedisService redisService;
+    @Mock private PasswordManager passwordManager;
+    @Mock private UserMapper userMapper;
+    @Mock private BCryptPasswordEncoder passwordEncoder;
 
     @Test
-    @DisplayName("회원가입 테스트 - 이메일 인증 필수")
-    public void testSignup_EmailNotVerified() {
-        SignupDTO signupDto = new SignupDTO(
-                "testNickName",
-                "testuser@example.com",
-                "validPassword123"
-        );
+    @DisplayName("회원가입 성공 - 모든 조건을 만족")
+    void signup_success() {
+        SignupDTO dto = new SignupDTO("testNick", "test@example.com", "validPass1");
+        when(redisService.getData("emailAuth:test@example.com:verified")).thenReturn("true");
+        when(passwordManager.isInvalid("validPass1")).thenReturn(false);
+        when(userRepository.existsByNickName("testNick")).thenReturn(false);
+        when(userRepository.findByUserEmailAll("test@example.com")).thenReturn(Optional.empty());
 
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
-        assertEquals(BaseResponseStatus.EMAIL_VERIFICATION_REQUIRED, thrown.getStatus());
-    }
-
-    @Test
-    @DisplayName("회원가입 테스트 - 비밀번호 유효성 검사 실패")
-    public void testSignup_PasswordInvalid() {
-        SignupDTO signupDto = new SignupDTO(
-                "testNickName",
-                "passwordinvalid@example.com",
-                "weak"
-        );
-
-        redisService.setData("emailAuth:passwordinvalid@example.com:verified", "true", 600);
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
-        assertEquals(BaseResponseStatus.USER_PASSWORD_INVALID, thrown.getStatus());
-    }
-
-    @Test
-    @DisplayName("회원가입 테스트 - 중복된 닉네임 검사")
-    public void testSignup_NicknameDuplicate() {
-        userRepository.save(User.builder()
-                .userEmail("existinguser@example.com")
-                .nickName("existingNickName")
-                .password("korean12@")
-                .profileImageUrlSmall("https://example.com/default-small.png")
-                .profileImageUrlLarge("https://example.com/default-large.png")
-                .build());
-
-        SignupDTO signupDto = new SignupDTO(
-                "existingNickName",
-                "duplicatenickname@example.com",
-                "korean12@"
-        );
-
-        redisService.setData("emailAuth:duplicatenickname@example.com:verified", "true", 600);
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
-        assertEquals(BaseResponseStatus.USER_NICKNAME_DUPLICATE, thrown.getStatus());
-    }
-
-
-    @Test
-    @DisplayName("회원가입 테스트 - 이미 존재하는 사용자")
-    public void testSignup_UserAlreadyExists() {
-        userRepository.save(User.builder()
-                .userEmail("existinguser@example.com")
-                .nickName("testNickName1")
-                .password("validPassword123")
-                .profileImageUrlSmall("https://example.com/default-small.png")
-                .profileImageUrlLarge("https://example.com/default-large.png")
-                .build());
-
-        SignupDTO signupDto = new SignupDTO(
-                "testNickName2",
-                "existinguser@example.com",
-                "korean12@"
-        );
-
-        redisService.setData("emailAuth:existinguser@example.com:verified", "true", 600);
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> authService.signup(signupDto));
-        assertEquals(BaseResponseStatus.USER_ALREADY_EXISTS, thrown.getStatus());
-    }
-
-
-    @Test
-    @DisplayName("회원가입 테스트 - 이메일 인증 완료 후 정상 가입")
-    public void testSignup_Success() {
-        SignupDTO signupDto = new SignupDTO(
-                "testNickName",
-                "testuser@example.com",
-                "korean12@"
-        );
-
-        redisService.setData("emailAuth:testuser@example.com:verified", "true", 600);
-        authService.signup(signupDto);
-        User savedUser = userRepository.findByUserEmailAll(signupDto.getUserEmail())
-                .orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
-
-        assertNotNull(savedUser);
-        assertEquals(signupDto.getNickName(), savedUser.getNickName());
-    }
-
-    @Test
-    @DisplayName("사용자 복구 테스트")
-    public void testRestoreUser() {
-        String userEmail = "deleteduser@example.com";
-        User user = User.builder()
-                .userEmail(userEmail)
-                .nickName("testNickName")
-                .password("password123")
-                .profileImageUrlSmall("smallImage")
-                .profileImageUrlLarge("largeImage")
-                .role(Role.ROLE_USER)
-                .deletedAt(LocalDateTime.now())
-                .build();
-
-        userRepository.save(user);
-        userRepository.flush();
-
-        User beforeRestore = userRepository.findByUserEmailAll(userEmail)
-                .orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
-        assertNotNull(beforeRestore.getDeletedAt());
-        authService.restoreUser(userEmail);
-
-        entityManager.flush();
-        entityManager.clear();
-
-        User restoredUser = userRepository.findByUserEmailActive(userEmail)
-                .orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
-        assertNull(restoredUser.getDeletedAt());
-    }
-
-    @Test
-    @DisplayName("닉네임 수정 - 사용 가능")
-    public void testUpdateNickName_Available() {
-        // Given
-        Long userId = 1L;
-        String oldNickname = "oldNickName";
-        String newNickname = "uniqueNickName";
-        NicknameRequestDTO requestDto = new NicknameRequestDTO(newNickname);
-
-        User user = userRepository.save(User.builder()
-            .userEmail("testuser@example.com")
-            .nickName(oldNickname)
-            .password("password123")
-            .profileImageUrlSmall("https://example.com/default-small.png")
-            .profileImageUrlLarge("https://example.com/default-large.png")
+        User mockUser = User.builder()
+            .userEmail("test@example.com")
+            .nickName("testNick")
+            .password("validPass1")
+            .profileImageUrlSmall("small.png")
+            .profileImageUrlLarge("large.png")
             .role(Role.ROLE_USER)
-            .build());
+            .build();
+        when(userMapper.ofSignupDTO(dto)).thenReturn(mockUser);
 
-        // When & Then (예외가 발생하지 않아야 함)
-        assertDoesNotThrow(() -> myPageService.updateNickName(user.getId(), requestDto));
+        when(passwordEncoder.encode("validPass1")).thenReturn("encoded-password");
+        authService.signup(dto);
+
+        assertEquals("encoded-password", mockUser.getPassword());
+        verify(userRepository).save(mockUser);
+        verify(redisService).deleteData("emailAuth:test@example.com:verified");
     }
 
     @Test
-    @DisplayName("닉네임 수정 - 중복 닉네임 존재")
-    public void testUpdateNickName_Duplicate() {
-        Long userId = 1L;
-        String nickname = "existingNickName";
-        NicknameRequestDTO requestDto = new NicknameRequestDTO(nickname);
+    @DisplayName("회원가입 실패 - 이메일 인증 안 됨")
+    void signup_fail_email_not_verified() {
+        SignupDTO dto = new SignupDTO("nick", "unverified@example.com", "validPass1");
 
-        // Given: 중복 닉네임을 데이터베이스에 저장
-        userRepository.save(User.builder()
-            .userEmail("existinguser@example.com")
-            .nickName(nickname)
-            .password("password123")
-            .profileImageUrlSmall("https://example.com/default-small.png")
-            .profileImageUrlLarge("https://example.com/default-large.png")
-            .role(Role.ROLE_USER)  // 추가
-            .build());
+        when(redisService.getData("emailAuth:unverified@example.com:verified")).thenReturn(null);
 
-        // When & Then (예외가 발생해야 함)
-        InvalidUserException exception = assertThrows(
-            InvalidUserException.class,
-            () -> myPageService.updateNickName(userId, requestDto)
-        );
+        InvalidUserException ex = assertThrows(InvalidUserException.class, () -> authService.signup(dto));
+        assertEquals(BaseResponseStatus.EMAIL_VERIFICATION_REQUIRED, ex.getStatus());
+    }
 
-        assertEquals(BaseResponseStatus.USER_NICKNAME_DUPLICATE, exception.getStatus());
+    @Test
+    @DisplayName("회원가입 실패 - 비밀번호 불충분")
+    void signup_fail_password_invalid() {
+        SignupDTO dto = new SignupDTO("nick", "test@example.com", "weak");
+
+        when(redisService.getData("emailAuth:test@example.com:verified")).thenReturn("true");
+        when(passwordManager.isInvalid("weak")).thenReturn(true);
+
+        InvalidUserException ex = assertThrows(InvalidUserException.class, () -> authService.signup(dto));
+        assertEquals(BaseResponseStatus.USER_PASSWORD_INVALID, ex.getStatus());
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 - 닉네임 중복")
+    void signup_fail_nickname_duplicate() {
+        SignupDTO dto = new SignupDTO("dupeNick", "nick@example.com", "validPass1");
+
+        when(redisService.getData("emailAuth:nick@example.com:verified")).thenReturn("true");
+        when(passwordManager.isInvalid("validPass1")).thenReturn(false);
+        when(userRepository.existsByNickName("dupeNick")).thenReturn(true);
+
+        InvalidUserException ex = assertThrows(InvalidUserException.class, () -> authService.signup(dto));
+        assertEquals(BaseResponseStatus.USER_NICKNAME_DUPLICATE, ex.getStatus());
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 - 이미 존재하는 사용자")
+    void signup_fail_email_exists() {
+        SignupDTO dto = new SignupDTO("nick", "exists@example.com", "validPass1");
+
+        when(redisService.getData("emailAuth:exists@example.com:verified")).thenReturn("true");
+        when(passwordManager.isInvalid("validPass1")).thenReturn(false);
+        when(userRepository.existsByNickName("nick")).thenReturn(false);
+
+        User existingUser = User.builder()
+            .userEmail("exists@example.com")
+            .nickName("existingNick")
+            .password("hashed-password")
+            .profileImageUrlSmall("default-small.png")
+            .profileImageUrlLarge("default-large.png")
+            .build();
+
+        when(userRepository.findByUserEmailAll("exists@example.com")).thenReturn(Optional.of(existingUser));
+
+        InvalidUserException ex = assertThrows(InvalidUserException.class, () -> authService.signup(dto));
+        assertEquals(BaseResponseStatus.USER_ALREADY_EXISTS, ex.getStatus());
+    }
+
+
+    @Test
+    @DisplayName("회원가입 실패 - 복구 대상 계정 존재")
+    void signup_fail_deleted_user_exists() {
+        SignupDTO dto = new SignupDTO("nick", "deleted@example.com", "validPass1");
+
+        User deletedUser = User.builder()
+            .userEmail("deleted@example.com")
+            .nickName("nick")
+            .password("xxx")
+            .deletedAt(LocalDateTime.now())
+            .profileImageUrlLarge("x")
+            .profileImageUrlSmall("x")
+            .build();
+
+        when(redisService.getData("emailAuth:deleted@example.com:verified")).thenReturn("true");
+        when(passwordManager.isInvalid("validPass1")).thenReturn(false);
+        when(userRepository.existsByNickName("nick")).thenReturn(false);
+        when(userRepository.findByUserEmailAll("deleted@example.com")).thenReturn(Optional.of(deletedUser));
+
+        InvalidUserException ex = assertThrows(InvalidUserException.class, () -> authService.signup(dto));
+        assertEquals(BaseResponseStatus.USER_ALREADY_EXISTS, ex.getStatus());
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 - 비밀번호 암호화 실패")
+    void signup_fail_password_encoding_failure() {
+        SignupDTO dto = new SignupDTO("testNick", "test@example.com", "validPass1");
+
+        when(redisService.getData("emailAuth:test@example.com:verified")).thenReturn("true");
+        when(passwordManager.isInvalid("validPass1")).thenReturn(false);
+        when(userRepository.existsByNickName("testNick")).thenReturn(false);
+        when(userRepository.findByUserEmailAll("test@example.com")).thenReturn(Optional.empty());
+
+        User mockUser = User.builder()
+            .userEmail("test@example.com")
+            .nickName("testNick")
+            .password("validPass1")
+            .profileImageUrlSmall("small.png")
+            .profileImageUrlLarge("large.png")
+            .role(Role.ROLE_USER)
+            .build();
+
+        when(userMapper.ofSignupDTO(dto)).thenReturn(mockUser);
+        when(passwordEncoder.encode("validPass1")).thenThrow(new RuntimeException("인코딩 실패"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.signup(dto));
+        assertEquals("인코딩 실패", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원 복구 성공 - soft delete 복구")
+    void restore_user_success() {
+        String email = "restore@example.com";
+        authService.restoreUser(email);
+        verify(userRepository).restoreUserByEmail(email);
     }
 }

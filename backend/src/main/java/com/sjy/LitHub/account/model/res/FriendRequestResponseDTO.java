@@ -6,12 +6,21 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import org.springframework.lang.NonNull;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class FriendRequestResponseDTO {
+    @NonNull
     private Long requestId;
+
+    @NonNull
     private String requesterNickName;
+
+    @NonNull
     private String requesterProfileImageUrl;
+
+    @NonNull
     private LocalDateTime createdAt;
 }

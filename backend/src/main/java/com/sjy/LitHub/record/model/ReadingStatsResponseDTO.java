@@ -1,28 +1,43 @@
 package com.sjy.LitHub.record.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.*;
-import org.springframework.lang.NonNull;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.lang.NonNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @EqualsAndHashCode
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 public class ReadingStatsResponseDTO {
 
-    @NonNull
-    private final Integer readingStreak;
+	@NonNull
+	private final int readingStreak; // 최고 연속 기록
 
-    @NonNull
-    @Builder.Default
-    private final List<ReadingRecordResponseDTO> readingRecords = Collections.emptyList();
+	@NonNull
+	@Builder.Default
+	private final List<ReadingRecordResponseDTO> readingRecords = Collections.emptyList();
 
-    @NonNull
-    @Builder.Default
-    private final List<MonthlyReadingStatsResponseDTO> monthlyStats = Collections.emptyList();
+	@NonNull
+	@Builder.Default
+	private final List<MonthlyReadingStatsResponseDTO> monthlyStats = Collections.emptyList();
+
+	public static ReadingStatsResponseDTO of(
+        int readingStreak,
+        List<MonthlyReadingStatsResponseDTO> monthlyStats,
+		List<ReadingRecordResponseDTO> readingRecords) {
+
+		return ReadingStatsResponseDTO.builder()
+			.readingStreak(readingStreak)
+			.monthlyStats(monthlyStats != null ? monthlyStats : Collections.emptyList())
+			.readingRecords(readingRecords != null ? readingRecords : Collections.emptyList())
+			.build();
+	}
 }

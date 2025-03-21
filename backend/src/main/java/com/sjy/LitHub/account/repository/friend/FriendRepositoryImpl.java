@@ -1,29 +1,30 @@
 package com.sjy.LitHub.account.repository.friend;
 
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sjy.LitHub.account.entity.QFriend;
-import com.sjy.LitHub.account.entity.QUser;
-import com.sjy.LitHub.account.entity.User;
-import com.sjy.LitHub.account.entity.authenum.FriendStatus;
-import com.sjy.LitHub.account.model.res.FriendListResponseDTO;
-import com.sjy.LitHub.account.model.res.FriendRequestResponseDTO;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sjy.LitHub.account.entity.Friend;
+import com.sjy.LitHub.account.entity.QFriend;
+import com.sjy.LitHub.account.entity.QUser;
+import com.sjy.LitHub.account.entity.authenum.FriendStatus;
+import com.sjy.LitHub.account.mapper.FriendMapper;
+import com.sjy.LitHub.account.model.res.FriendListResponseDTO;
+import com.sjy.LitHub.account.model.res.FriendRequestResponseDTO;
+
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
 public class FriendRepositoryImpl implements FriendRepositoryCustom {
 
 	private final JPAQueryFactory queryFactory;
+	private final EntityManager entityManager;
+	private final FriendMapper friendMapper;
 	private final QFriend friend = QFriend.friend;
 	private final QUser user1 = new QUser("user1");
 	private final QUser user2 = new QUser("user2");
@@ -31,27 +32,24 @@ public class FriendRepositoryImpl implements FriendRepositoryCustom {
 	// 친구 요청 존재 여부 확인
 	@Override
 	public long insertIfNotExists(Long requesterId, Long receiverId) {
-		return queryFactory.insert(friend)
-			.columns(friend.requester, friend.receiver, friend.status, friend.createdAt)
-			.select(
-				JPAExpressions
-					.select(
-						Expressions.constant(User.builder().id(requesterId).build()),
-						Expressions.constant(User.builder().id(receiverId).build()),
-						Expressions.constant(FriendStatus.PENDING),
-						Expressions.constant(LocalDateTime.now())
-					)
-					.where(
-						JPAExpressions
-							.selectFrom(friend)
-							.where(
-								(friend.requester.id.eq(requesterId).and(friend.receiver.id.eq(receiverId)))
-									.or(friend.requester.id.eq(receiverId).and(friend.receiver.id.eq(requesterId)))
-							)
-							.notExists()
-					)
-			)
-			.execute();
+		boolean exists = queryFactory
+			.selectOne()
+			.from(friend)
+			.where(friend.requester.id.eq(requesterId).and(friend.receiver.id.eq(receiverId)))
+			.fetchFirst() != null;
+
+		if (!exists) {
+			exists = queryFactory
+				.selectOne()
+				.from(friend)
+				.where(friend.requester.id.eq(receiverId).and(friend.receiver.id.eq(requesterId)))
+				.fetchFirst() != null;
+		}
+
+		if (exists) return 0;
+		Friend newFriend = friendMapper.toEntity(requesterId, receiverId);
+		entityManager.persist(newFriend);
+		return 1;
 	}
 
 	// 친구 요청 수락

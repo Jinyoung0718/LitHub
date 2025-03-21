@@ -1,17 +1,24 @@
 package com.sjy.LitHub.account.model.res;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.sjy.LitHub.account.entity.authenum.Tier;
 import org.springframework.lang.NonNull;
-import lombok.*;
+
+import com.sjy.LitHub.account.entity.authenum.Tier;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @EqualsAndHashCode
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 public class UserProfileResponseDTO {
+
+    @NonNull
+    private final Long userId;
 
     @NonNull
     private final String email;
@@ -26,5 +33,5 @@ public class UserProfileResponseDTO {
     private final Tier tier;
 
     @NonNull
-    private final Integer point;
+    private final int point;
 }

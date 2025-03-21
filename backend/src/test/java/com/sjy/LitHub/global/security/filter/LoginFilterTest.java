@@ -1,166 +1,156 @@
 package com.sjy.LitHub.global.security.filter;
 
-import com.sjy.LitHub.TestContainerConfig;
-import com.sjy.LitHub.account.entity.User;
-import com.sjy.LitHub.account.repository.user.UserRepository;
-import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.global.security.util.AuthConst;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.DelegatingServletInputStream;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sjy.LitHub.account.entity.User;
+import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.account.repository.user.UserRepository;
+import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.security.model.UserPrincipal;
+import com.sjy.LitHub.global.security.service.TokenService;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletInputStream;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@AutoConfigureMockMvc
-class LoginFilterTest extends TestContainerConfig {
+@ExtendWith(MockitoExtension.class)
+class LoginFilterTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private LoginFilter loginFilter;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Mock
+    private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+    @Mock
+    private ObjectMapper objectMapper;
 
-    @Autowired
+    @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private TokenService tokenService;
+
+    private MockHttpServletRequest request;
+
+    private MockHttpServletResponse response;
+
+    private FilterChain filterChain;
+
     @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
-
-        String rawPassword = "korean12@";
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-
-        System.out.println("Encoded Password: " + encodedPassword); // 인코딩된 비밀번호 출력
-
-        userRepository.save(User.builder()
-                .userEmail("1234@naver.com")
-                .nickName("existingNickName")
-                .password(encodedPassword)
-                .profileImageUrlSmall("https://example.com/default-small.png")
-                .profileImageUrlLarge("https://example.com/default-large.png")
-                .build());
-
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(springSecurity())
-                .build();
+    void setup() {
+        loginFilter = new LoginFilter(authenticationManager, objectMapper, userRepository, tokenService);
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        filterChain = mock(FilterChain.class);
     }
 
     @Test
-    @DisplayName("비밀번호 검증 테스트")
-    void testPasswordEncoding() {
-        User user = userRepository.findByUserEmailActive("1234@naver.com")
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @DisplayName("1. 정상 로그인 시 AuthenticationManager 호출")
+    void testAttemptAuthenticationSuccess() throws Exception {
+        String email = "test@example.com";
+        String password = "korean12@";
 
-        System.out.println("Stored Encoded Password: " + user.getPassword());
-        assertTrue(passwordEncoder.matches("korean12@", user.getPassword()));
+        Map<String, String> credentials = Map.of("username", email, "password", password);
+
+        when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
+            .thenReturn(credentials);
+
+        when(userRepository.findByUserEmailAll(email)).thenReturn(Optional.empty());
+        when(authenticationManager.authenticate(any(Authentication.class)))
+            .thenReturn(mock(Authentication.class));
+
+        Authentication auth = loginFilter.attemptAuthentication(request, response);
+        assertNotNull(auth);
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
-    @DisplayName("정상적인 로그인 요청")
-    void testSuccessfulLogin() throws Exception {
-        Map<String, String> loginRequest = Map.of(
-                "username", "1234@naver.com",
-                "password", "korean12@"
-        );
+    @DisplayName("2. 요청 본문이 잘못된 경우 BadCredentialsException 발생")
+    void testAttemptAuthenticationWithInvalidBody() throws IOException {
+        // JSON 파싱 실패를 유도하는 MockInputStream
+        MockHttpServletRequest badRequest = new MockHttpServletRequest() {
+            @Override
+            public ServletInputStream getInputStream() {
+                return new DelegatingServletInputStream(
+                    new ByteArrayInputStream("}".getBytes(StandardCharsets.UTF_8))
+                );
+            }
+        };
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/basic/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andExpect(cookie().exists(AuthConst.TOKEN_TYPE_ACCESS))
-                .andExpect(cookie().exists(AuthConst.TOKEN_TYPE_REFRESH));
-    }
+        when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
+            .thenThrow(new IOException("잘못된 JSON"));
 
-
-    @Test
-    @DisplayName("잘못된 비밀번호 로그인 요청")
-    void testInvalidPasswordLogin() throws Exception {
-        Map<String, String> loginRequest = Map.of(
-                "username", "1234@naver.com",
-                "password", "wrongPassword"
-        );
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/basic/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(loginRequest)))
-                .andExpect(status().isUnauthorized());
+        assertThrows(BadCredentialsException.class, () -> loginFilter.attemptAuthentication(badRequest, response));
+        assertEquals(BaseResponseStatus.AUTH_REQUEST_BODY_INVALID.getCode(),
+            ((InvalidAuthenticationException) badRequest.getAttribute("exception")).getStatus().getCode());
     }
 
     @Test
-    @DisplayName("존재하지 않는 이메일 로그인 요청")
-    void testNonExistentUserLogin() throws Exception {
-        Map<String, String> loginRequest = Map.of(
-                "username", "nonexistent@example.com",
-                "password", "korean12@"
-        );
+    @DisplayName("3. 논리 삭제된 계정 로그인 시 BadCredentialsException 발생")
+    void testAttemptAuthenticationWithDeletedUser() throws Exception {
+        String email = "deleted@example.com";
+        String password = "pass";
+        Map<String, String> credentials = Map.of("username", email, "password", password);
+        when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
+            .thenReturn(credentials);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/basic/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(loginRequest)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("논리 삭제된 계정으로 로그인 요청")
-    void testDeletedUserLogin() throws Exception {
         User deletedUser = User.builder()
-                .userEmail("deleted@example.com")
-                .nickName("deletedNick")
-                .password("korean12@")
-                .deletedAt(LocalDateTime.now())
-                .profileImageUrlSmall("https://example.com/default-small.png")
-                .profileImageUrlLarge("https://example.com/default-large.png")
-                .build();
+            .userEmail(email)
+            .nickName("deleted")
+            .password("encoded")
+            .profileImageUrlSmall("x")
+            .profileImageUrlLarge("x")
+            .deletedAt(LocalDateTime.now())
+            .build();
 
-        userRepository.save(deletedUser);
+        when(userRepository.findByUserEmailAll(email)).thenReturn(Optional.of(deletedUser));
 
-        Map<String, String> loginRequest = Map.of(
-                "username", "deleted@example.com",
-                "password", "korean12@"
-        );
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/basic/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(loginRequest)))
-                .andExpect(status().isForbidden())
-                .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-        System.out.println("🔍 응답 본문: " + responseBody);
+        assertThrows(BadCredentialsException.class, () -> loginFilter.attemptAuthentication(request, response));
+        assertInstanceOf(InvalidAuthenticationException.class, request.getAttribute("exception"));
+        assertEquals(BaseResponseStatus.USER_LOGIN_RECOVERY_REQUIRED.getCode(),
+            ((InvalidAuthenticationException)Objects.requireNonNull(request.getAttribute("exception"))).getStatus().getCode());
     }
 
     @Test
-    @DisplayName("요청 본문이 비어있을 경우")
-    void testEmptyRequestBody() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/basic/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(BaseResponseStatus.UNAUTHORIZED.getMessage()));
+    @DisplayName("4. 로그인 성공 시 토큰 발급 및 SecurityContext 설정")
+    void testSuccessfulAuthentication() {
+        UserPrincipal principal = new UserPrincipal(1L, Role.ROLE_USER);
+        Authentication auth = new UsernamePasswordAuthenticationToken(principal, null);
+
+        loginFilter.successfulAuthentication(request, response, filterChain, auth);
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(auth, SecurityContextHolder.getContext().getAuthentication());
+        verify(tokenService).generateTokensAndSetCookies(eq(response), eq(1L), eq(Role.ROLE_USER));
     }
 }

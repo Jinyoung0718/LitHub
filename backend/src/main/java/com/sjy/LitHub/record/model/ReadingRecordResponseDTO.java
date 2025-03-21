@@ -1,24 +1,35 @@
 package com.sjy.LitHub.record.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import java.time.LocalDate;
+
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDate;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @EqualsAndHashCode
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 public class ReadingRecordResponseDTO {
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-        @NonNull
-        private final LocalDate date;
+	@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+	@NonNull
+	private final LocalDate date;
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-        private final int colorLevel;
+	@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+	private final int colorLevel;
+
+	public static ReadingRecordResponseDTO from(ReadingStatsQueryResult result) {
+
+		return ReadingRecordResponseDTO.builder()
+			.date(result.getDate())
+			.colorLevel(result.getColorLevel())
+			.build();
+	}
 }

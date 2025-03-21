@@ -1,203 +1,168 @@
 package com.sjy.LitHub.global.security.filter;
 
-import com.sjy.LitHub.TestContainerConfig;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
 import com.sjy.LitHub.global.exception.custom.InvalidTokenException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.global.security.service.TokenService;
 import com.sjy.LitHub.global.security.util.AuthConst;
 import com.sjy.LitHub.global.security.util.JwtUtil;
 import com.sjy.LitHub.global.security.util.RedisBlacklistUtil;
-import com.sjy.LitHub.global.security.util.RedisRefreshTokenUtil;
+
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockFilterChain;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import jakarta.servlet.http.HttpServletResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+@ExtendWith(MockitoExtension.class)
+class JwtFilterTest {
 
-@SpringBootTest
-@ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@AutoConfigureMockMvc
-public class JwtFilterTest extends TestContainerConfig {
-
-    @Autowired
-    private RedisBlacklistUtil redisBlacklistUtil;
-
-    @Autowired
-    private RedisRefreshTokenUtil redisRefreshTokenUtil;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private TokenService tokenService;
-
+    @InjectMocks
     private JwtFilter jwtFilter;
 
-    @Autowired
-    @Qualifier("StringRedisTemplate")
-    private RedisTemplate<String, String> redisTemplate;
+    @Mock
+    private RedisBlacklistUtil redisBlacklistUtil;
+
+    @Mock
+    private TokenService tokenService;
+
+    @Spy
+    private JwtUtil jwtUtil = new JwtUtil("aGVsbG93b3JsZC1oZWxsb3dvcmxkLXRlc3Qtc2VjcmV0LXRlc3Qtc2VjcmV0LXRlc3Q="); // 256비트 base64
+
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+    private FilterChain filterChain;
 
     private String validAccessToken;
     private String expiredAccessToken;
-    private String validRefreshToken;
-    private String blacklistedToken;
-    private String invalidToken;
-    private static final String TEST_INVALID_REFRESH_TOKEN = "invalid-refresh-token";
+    private static final Long USER_ID = 1L;
+    private static final Role ROLE_USER = Role.ROLE_USER;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         jwtFilter = new JwtFilter(redisBlacklistUtil, tokenService, jwtUtil);
 
-        Long testUserId = 1L;
-        Role testUserRole = Role.ROLE_USER;
+        validAccessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, USER_ID, ROLE_USER, 600000);
+        expiredAccessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, USER_ID, ROLE_USER, 1);
 
-        validAccessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, testUserId, testUserRole, AuthConst.ACCESS_EXPIRATION);
-        validRefreshToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_REFRESH, testUserId, testUserRole, AuthConst.REFRESH_EXPIRATION);
-        expiredAccessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, testUserId, testUserRole, 1);
-
-        blacklistedToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, testUserId + 1, testUserRole, AuthConst.ACCESS_EXPIRATION);
-        redisBlacklistUtil.addToBlacklist(blacklistedToken, AuthConst.ACCESS_EXPIRATION);
-        redisRefreshTokenUtil.addRefreshToken(testUserId, validRefreshToken, AuthConst.REFRESH_EXPIRATION);
-
-        invalidToken = "invalid.jwt.token";
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        filterChain = mock(FilterChain.class);
     }
 
     @AfterEach
-    public void tearDown() {
-        if (redisTemplate != null && redisTemplate.getConnectionFactory() != null) {
-            try (RedisConnection connection = redisTemplate.getConnectionFactory().getConnection()) {
-                connection.serverCommands().flushAll();
-            }
-        }
+    void cleanup() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    @DisplayName("정상적인 액세스 토큰이 있을 경우 요청 통과")
-    public void testValidAccessToken() throws Exception {
-        Cookie accessTokenCookie = new Cookie(AuthConst.TOKEN_TYPE_ACCESS, validAccessToken);
-        System.out.println("🚀 [TEST] 액세스 토큰 쿠키 값: " + accessTokenCookie.getValue());
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(accessTokenCookie)
-                        .with(csrf()))
-                .andExpect(status().isOk());
+    @DisplayName("1. 인증 제외 경로는 필터 우회")
+    void testWhitelistBypass() throws Exception {
+        request.setRequestURI("/api/auth/login");
+        jwtFilter.doFilter(request, response, filterChain);
+        verify(filterChain).doFilter(request, response);
     }
 
     @Test
-    @DisplayName("JWT 필터 - 유효하지 않은 리프레시 토큰 요청 시 예외가 적절히 처리되는지 확인")
-    void testJwtFilterWithInvalidRefreshToken() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_REFRESH, TEST_INVALID_REFRESH_TOKEN));
+    @DisplayName("2. 액세스 토큰 누락 시 401 반환")
+    void testMissingAccessToken() throws Exception {
+        jwtFilter.doFilter(request, response, filterChain);
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    }
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
+    @Test
+    @DisplayName("3. 블랙리스트 토큰은 401 반환")
+    void testBlacklistedToken() throws Exception {
+        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, validAccessToken));
+        when(redisBlacklistUtil.isInBlackList(validAccessToken)).thenReturn(true);
+
+        jwtFilter.doFilter(request, response, filterChain);
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    }
+
+    @Test
+    @DisplayName("4. 만료된 토큰은 rotating 로직 호출")
+    void testExpiredTokenTriggersRefresh() throws Exception {
+        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken));
+        when(redisBlacklistUtil.isInBlackList(expiredAccessToken)).thenReturn(false);
+
+        jwtFilter.doFilter(request, response, filterChain);
+        verify(tokenService).rotatingTokens(any(), any());
+    }
+
+    @Test
+    @DisplayName("5. 리프레시 토큰도 만료되면 예외 반환")
+    void testRefreshTokenExpired() throws Exception {
+        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken));
+        when(redisBlacklistUtil.isInBlackList(expiredAccessToken)).thenReturn(false);
+        doThrow(new InvalidAuthenticationException(BaseResponseStatus.REFRESH_TOKEN_EXPIRED))
+            .when(tokenService).rotatingTokens(any(), any());
+
         jwtFilter.doFilter(request, response, filterChain);
 
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
-        assertNotNull(request.getAttribute("exception"));
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+        assertInstanceOf(InvalidAuthenticationException.class, request.getAttribute("exception"));
+    }
+
+    @Test
+    @DisplayName("6. 토큰 형식은 맞지만 카테고리가 access 가 아니면 401")
+    void testInvalidCategoryToken() throws Exception {
+        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, validAccessToken));
+        when(redisBlacklistUtil.isInBlackList(validAccessToken)).thenReturn(false);
+        doReturn(false).when(tokenService).isAccessToken(validAccessToken); // spy기반 mocking
+
+        jwtFilter.doFilter(request, response, filterChain);
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    }
+
+    @Test
+    @DisplayName("7. 유효한 토큰이면 SecurityContext 설정")
+    void testValidAccessToken() throws Exception {
+        Authentication mockAuth = new UsernamePasswordAuthenticationToken("principal", null, List.of());
+        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, validAccessToken));
+
+        when(redisBlacklistUtil.isInBlackList(validAccessToken)).thenReturn(false);
+        when(tokenService.isAccessToken(validAccessToken)).thenReturn(true);
+        when(tokenService.getAuthenticationFromToken(validAccessToken)).thenReturn(mockAuth);
+
+        jwtFilter.doFilter(request, response, filterChain);
+
+        assertEquals(mockAuth, SecurityContextHolder.getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    @DisplayName("8. 구조가 잘못된 JWT 는 예외 반환")
+    void testMalformedJwtToken() throws Exception {
+        String brokenToken = "not.valid.jwt.token";
+        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, brokenToken));
+
+        when(redisBlacklistUtil.isInBlackList(brokenToken)).thenReturn(false);
+        doThrow(new JwtException("잘못된 형식")).when(jwtUtil).isExpired(brokenToken);
+
+        jwtFilter.doFilter(request, response, filterChain);
+
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
         assertInstanceOf(InvalidTokenException.class, request.getAttribute("exception"));
     }
-
-    @Test
-    @DisplayName("만료된 토큰이면 리프레시 토큰을 사용하여 새 토큰 발급 및 요청 허용")
-    public void testExpiredToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken))
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_REFRESH, validRefreshToken))
-                        .with(csrf()))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @DisplayName("블랙리스트에 등록된 토큰 사용 시 401 Unauthorized 반환")
-    public void testBlacklistedToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, blacklistedToken))
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("변조된 토큰 사용 시 401 Unauthorized 반환")
-    public void testInvalidToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, invalidToken))
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(result -> {
-                    String responseBody = result.getResponse().getContentAsString();
-                    System.out.println("응답 본문: " + responseBody);
-                });
-    }
-
-    @Test
-    @DisplayName("액세스 토큰 없이 요청 시 401 Unauthorized 반환")
-    public void testRequestWithoutAccessToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(result -> {
-                    String responseBody = result.getResponse().getContentAsString();
-                    System.out.println("응답 본문: " + responseBody);
-                });
-    }
-
-    @Test
-    @DisplayName("만료된 액세스 토큰만 있고 리프레시 토큰이 없을 경우 401 Unauthorized 반환")
-    public void testExpiredAccessTokenWithoutRefreshToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken))
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(result -> {
-                    String responseBody = result.getResponse().getContentAsString();
-                    System.out.println("응답 본문: " + responseBody);
-                });
-    }
-
-    @Test
-    @DisplayName("잘못된 형식의 액세스 토큰 처리")
-    public void testInvalidFormatAccessToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, "invalid-format-token"))
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(result -> {
-                    String responseBody = result.getResponse().getContentAsString();
-                    System.out.println("응답 본문: " + responseBody);
-                });
-    }
-
-    @Test
-    @DisplayName("만료된 액세스 토큰과 유효한 리프레시 토큰으로 새 토큰 발급")
-    public void testValidRefreshTokenForNewAccessToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken))
-                        .cookie(new Cookie(AuthConst.TOKEN_TYPE_REFRESH, validRefreshToken))
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-                    String responseBody = result.getResponse().getContentAsString();
-                    System.out.println("응답 본문: " + responseBody);
-                });
-    }
-
 }

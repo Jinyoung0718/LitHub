@@ -1,11 +1,12 @@
 package com.sjy.LitHub.account.repository.point;
 
+import org.springframework.stereotype.Repository;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.account.entity.QUser;
 import com.sjy.LitHub.account.entity.authenum.Tier;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -15,23 +16,19 @@ public class PointRepositoryImpl implements PointRepositoryCustom {
     private final QUser user = QUser.user;
 
     @Override
-    @Transactional
     public void updateUserPointsAndTier(Long userId, int minutes) {
-        Integer updatedPoints = queryFactory
-                .select(user.point.add(minutes))
-                .from(user)
-                .where(user.id.eq(userId))
-                .fetchOne();
+        Integer result = queryFactory
+            .select(user.point.add(minutes))
+            .from(user)
+            .where(user.id.eq(userId))
+            .fetchOne();
 
-        if (updatedPoints != null) {
-            Tier newTier = Tier.getTierByPoints(updatedPoints);
+        int newPoints = result != null ? result : 0;
 
-            queryFactory
-                    .update(user)
-                    .set(user.point, updatedPoints)
-                    .set(user.tier, newTier)
-                    .where(user.id.eq(userId))
-                    .execute();
-        }
+        queryFactory.update(user)
+            .set(user.point, newPoints)
+            .set(user.tier, Tier.getTierByPoints(newPoints))
+            .where(user.id.eq(userId))
+            .execute();
     }
 }

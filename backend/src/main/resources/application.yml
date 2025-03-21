@@ -40,7 +40,6 @@ springdoc:
 logging:
   level:
     org.hibernate.SQL: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.hibernate.orm.jdbc.extract: TRACE
-    org.springframework.transaction.interceptor: TRACE
+    org.hibernate.orm.jdbc.bind: OFF
+    org.hibernate.orm.jdbc.extract: OFF
+    org.springframework.transaction.interceptor: OFF

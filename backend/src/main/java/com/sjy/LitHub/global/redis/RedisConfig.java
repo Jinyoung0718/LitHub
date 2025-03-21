@@ -1,7 +1,6 @@
 package com.sjy.LitHub.global.redis;
 
 import java.time.Duration;
-import java.util.Map;
 
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.annotation.EnableCaching;
@@ -62,22 +61,16 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory, ObjectMapper redisObjectMapper) {
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
-        RedisSerializationContext.SerializationPair<Object> serializationPair =
-            RedisSerializationContext.SerializationPair.fromSerializer(serializer);
+    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisSerializationContext.SerializationPair<String> serializationPair =
+            RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer());
 
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1))
             .serializeValuesWith(serializationPair);
 
-        Map<String, RedisCacheConfiguration> cacheConfigurations = Map.of(
-            "myPageCache", defaultCacheConfig
-        );
-
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(defaultCacheConfig)
-            .withInitialCacheConfigurations(cacheConfigurations)
             .build();
     }
 }

@@ -1,118 +1,115 @@
 package com.sjy.LitHub.global.security.service;
 
-import com.sjy.LitHub.TestContainerConfig;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
 import com.sjy.LitHub.global.security.model.UserPrincipal;
 import com.sjy.LitHub.global.security.util.AuthConst;
 import com.sjy.LitHub.global.security.util.JwtUtil;
 import com.sjy.LitHub.global.security.util.RedisRefreshTokenUtil;
+
 import jakarta.servlet.http.Cookie;
-import lombok.extern.slf4j.Slf4j;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.core.Authentication;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+@ExtendWith(MockitoExtension.class)
+class TokenServiceTest {
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@Slf4j
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class TokenServiceTest extends TestContainerConfig {
-
-    @Autowired
+    @InjectMocks
     private TokenService tokenService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
+    @Mock
     private RedisRefreshTokenUtil redisRefreshTokenUtil;
 
-    private static final Long TEST_USER_ID = 1L;
-    private static final Role TEST_ROLE = Role.ROLE_USER;
-    private static final String TEST_ACCESS_TOKEN = "test-access-token";
-    private static final String TEST_REFRESH_TOKEN = "test-refresh-token";
+    @Mock
+    private JwtUtil jwtUtil;
+
+    private final Long userId = 1L;
+    private final Role role = Role.ROLE_USER;
+
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+
+    @BeforeEach
+    void setup() {
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+    }
+
+    @AfterEach
+    void cleanup() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
-    @DisplayName("rotatingTokens() - 리프레시 토큰을 사용한 토큰 갱신")
-    void testRotatingTokens() {
-        String refreshToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_REFRESH, TEST_USER_ID, TEST_ROLE, AuthConst.REFRESH_EXPIRATION);
-        redisRefreshTokenUtil.addRefreshToken(TEST_USER_ID, refreshToken, AuthConst.REFRESH_EXPIRATION);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
+    @DisplayName("1. rotatingTokens - 만료된 리프레시 토큰 → 예외 발생")
+    void testRotatingTokens_expired() {
+        String refreshToken = "expired-refresh-token";
         request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_REFRESH, refreshToken));
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+        when(jwtUtil.isExpired(refreshToken)).thenReturn(true);
 
-        tokenService.rotatingTokens(request, response);
-
-        Cookie newAccessCookie = response.getCookie(AuthConst.TOKEN_TYPE_ACCESS);
-        Cookie newRefreshCookie = response.getCookie(AuthConst.TOKEN_TYPE_REFRESH);
-
-        assertNotNull(newAccessCookie);
-        assertNotNull(newRefreshCookie);
-
-        String newRefreshToken = newRefreshCookie.getValue();
-        assertNotEquals(refreshToken, newRefreshToken);
-        assertTrue(redisRefreshTokenUtil.validateRefreshToken(TEST_USER_ID, newRefreshToken));
+        assertThrows(InvalidAuthenticationException.class, () ->
+            tokenService.rotatingTokens(request, response));
     }
 
     @Test
-    @DisplayName("generateTokensAndSetCookies() - 토큰 생성 및 쿠키 설정")
+    @DisplayName("2. generateTokensAndSetCookies - 토큰 생성 및 쿠키 세팅")
     void testGenerateTokensAndSetCookies() {
-        MockHttpServletResponse response = new MockHttpServletResponse();
+        when(jwtUtil.createJwt(eq("access"), eq(userId), eq(role), anyLong()))
+            .thenReturn("access-token");
+        when(jwtUtil.createJwt(eq("refresh"), eq(userId), eq(role), anyLong()))
+            .thenReturn("refresh-token");
+        when(jwtUtil.getUserId(any())).thenReturn(userId);
+        when(jwtUtil.getRole(any())).thenReturn(role);
 
-        tokenService.generateTokensAndSetCookies(response, TEST_USER_ID, TEST_ROLE);
+        tokenService.generateTokensAndSetCookies(response, userId, role);
 
-        Cookie accessCookie = response.getCookie(AuthConst.TOKEN_TYPE_ACCESS);
-        Cookie refreshCookie = response.getCookie(AuthConst.TOKEN_TYPE_REFRESH);
+        Cookie access = response.getCookie(AuthConst.TOKEN_TYPE_ACCESS);
+        Cookie refresh = response.getCookie(AuthConst.TOKEN_TYPE_REFRESH);
 
-        assertNotNull(accessCookie);
-        assertNotNull(refreshCookie);
-
-        String accessToken = accessCookie.getValue();
-        String refreshToken = refreshCookie.getValue();
-
-        assertNotEquals(TEST_ACCESS_TOKEN, accessToken);
-        assertNotEquals(TEST_REFRESH_TOKEN, refreshToken);
-
-        assertTrue(redisRefreshTokenUtil.validateRefreshToken(TEST_USER_ID, refreshToken));
+        assertNotNull(access);
+        assertNotNull(refresh);
+        assertEquals("access-token", access.getValue());
+        assertEquals("refresh-token", refresh.getValue());
     }
 
     @Test
-    @DisplayName("getAuthenticationFromToken() - 토큰에서 인증 정보 추출")
+    @DisplayName("3. getAuthenticationFromToken - 인증 객체 추출")
     void testGetAuthenticationFromToken() {
-        String accessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, TEST_USER_ID, TEST_ROLE, AuthConst.ACCESS_EXPIRATION);
+        String token = "some-token";
 
-        Authentication authentication = tokenService.getAuthenticationFromToken(accessToken);
+        when(jwtUtil.getUserId(token)).thenReturn(userId);
+        when(jwtUtil.getRole(token)).thenReturn(role);
 
-        assertNotNull(authentication);
-        assertEquals(TEST_USER_ID, ((UserPrincipal) authentication.getPrincipal()).getUserId());
-        assertEquals(TEST_ROLE, ((UserPrincipal) authentication.getPrincipal()).getRole());
+        Authentication auth = tokenService.getAuthenticationFromToken(token);
+        assertNotNull(auth);
+
+        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
+        assertEquals(userId, principal.getUserId());
+        assertEquals(role, principal.getRole());
     }
 
     @Test
-    @DisplayName("isAccessToken() - 액세스 토큰 여부 확인")
+    @DisplayName("4. isAccessToken - 액세스 토큰 여부 판단")
     void testIsAccessToken() {
-        String accessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, TEST_USER_ID, TEST_ROLE, AuthConst.ACCESS_EXPIRATION);
+        when(jwtUtil.getCategory("access-token")).thenReturn("access");
+        when(jwtUtil.getCategory("refresh-token")).thenReturn("refresh");
 
-        assertTrue(tokenService.isAccessToken(accessToken));
-
-        String refreshToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_REFRESH, TEST_USER_ID, TEST_ROLE, AuthConst.REFRESH_EXPIRATION);
-
-        assertFalse(tokenService.isAccessToken(refreshToken));
+        assertTrue(tokenService.isAccessToken("access-token"));
+        assertFalse(tokenService.isAccessToken("refresh-token"));
     }
 }

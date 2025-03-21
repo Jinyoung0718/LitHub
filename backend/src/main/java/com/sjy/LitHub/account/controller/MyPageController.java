@@ -45,10 +45,10 @@ public class MyPageController {
         return BaseResponse.success(myPageResponseDto);
     }
 
-    @Operation(summary = "다른 사용자 정보 조회", description = "특정 사용자의 프로필을 조회합니다.")
+    @Operation(summary = "사용자 정보 조회", description = "특정 사용자의 프로필을 조회합니다.")
     @GetMapping("/{userId}")
     public BaseResponse<MyPageResponseDTO> getUserProfile(@PathVariable Long userId) {
-        MyPageResponseDTO userPageResponseDto = myPageService.getMyPageData(userId);
+        MyPageResponseDTO userPageResponseDto = myPageService.getCachedMyPageData(userId);
         return BaseResponse.success(userPageResponseDto);
     }
 

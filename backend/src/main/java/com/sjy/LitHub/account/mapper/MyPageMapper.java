@@ -8,10 +8,8 @@ public class MyPageMapper {
 
     public static MyPageResponseDTO toMyPageResponse(UserProfileResponseDTO userProfile, ReadingStatsResponseDTO readingStats) {
         return MyPageResponseDTO.builder()
-                .userProfile(userProfile)
-                .readingStreak(readingStats.getReadingStreak())
-                .monthlyStats(readingStats.getMonthlyStats())
-                .readingRecords(readingStats.getReadingRecords())
-                .build();
+            .userProfile(userProfile)
+            .readingStats(readingStats)
+            .build();
     }
 }

@@ -1,45 +1,31 @@
 package com.sjy.LitHub.record.service;
 
-import com.sjy.LitHub.account.service.UserInfo.PointService;
-import com.sjy.LitHub.record.model.MonthlyReadingStatsResponseDTO;
-import com.sjy.LitHub.record.model.ReadingRecordResponseDTO;
-import com.sjy.LitHub.record.repository.ReadLogRepository;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import com.sjy.LitHub.account.service.UserInfo.PointService;
+import com.sjy.LitHub.record.repository.ReadLog.ReadLogRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ReadLogService {
 
     private final ReadLogRepository readLogRepository;
+    private final ReadLogStatusService readLogStatusService;
     private final PointService pointService;
 
     @Transactional
     public void saveReadingRecord(Long userId, int minutes) {
-        readLogRepository.upsertReadingLog(userId, LocalDate.now(), minutes);
+        LocalDate today = LocalDate.now();
+        readLogRepository.saveOrUpdateReadLog(userId, today, minutes);
+        readLogStatusService.updateReadingStats(userId, today, minutes);
         pointService.updateUserPointsAndTier(userId, minutes);
-    }
-
-    @Transactional(readOnly = true)
-    public Integer getReadingStreak(Long userId) {
-        return readLogRepository.getReadingStreak(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public Map<Integer, MonthlyReadingStatsResponseDTO> getMonthlyStatsBatch(Long userId, int year) {
-        return readLogRepository.getMonthlyStatsBatch(userId, year);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ReadingRecordResponseDTO> getReadingRecords(Long userId, int year) {
-        return readLogRepository.getReadingRecords(userId, year);
-    }
+    } // 사용자가 읽은 시간을 기록
 
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
@@ -47,5 +33,5 @@ public class ReadLogService {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate today = LocalDate.now();
         readLogRepository.resetStreakForInactiveUsers(yesterday, today);
-    }
+    } // 사용자의 읽기 통계 업데이트
 }

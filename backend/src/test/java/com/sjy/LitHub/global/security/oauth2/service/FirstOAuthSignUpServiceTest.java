@@ -1,186 +1,127 @@
 package com.sjy.LitHub.global.security.oauth2.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.sjy.LitHub.TestContainerConfig;
 import com.sjy.LitHub.account.entity.User;
+import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.account.model.req.signup.SocialSignupDTO;
-import com.sjy.LitHub.account.repository.OAuthUserRepository;
-import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.security.model.UserPrincipal;
 import com.sjy.LitHub.global.security.util.AuthConst;
 
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@AutoConfigureMockMvc
-public class FirstOAuthSignUpServiceTest extends TestContainerConfig {
+@ExtendWith(MockitoExtension.class)
+class FirstOAuthSignUpServiceTest {
 
-    @Autowired
-    private TempTokenService tempTokenService;
+    @InjectMocks
+    private FirstOAuthSignUpService firstOAuthSignUpService;
 
-    @Autowired
-    private OAuthTempTokenService oAuthTempTokenService;
-
-    @Autowired
+    @Mock
     private OAuthSignupService oAuthSignupService;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Mock
+    private OAuthTempTokenService oAuthTempTokenService;
 
-    @Autowired
-    private OAuthUserRepository oAuthUserRepository;
+    @Mock
+    private OAuthUserTempService oAuthUserTempService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    private HttpServletRequest request;
 
-    @Autowired
-    @Qualifier("StringRedisTemplate")
-    private RedisTemplate<String, String> redisTemplate;
+    @Mock
+    private HttpServletResponse response;
 
-    private String validTempToken;
-    private String expiredTempToken;
-    private final String invalidTempToken = "invalid.token.format";
+    private final SocialSignupDTO signupDTO = new SocialSignupDTO("nickname", "password123!");
+    private final Map<String, String> tokenData = Map.of(
+        AuthConst.TEMP_USER_EMAIL, "test@example.com",
+        AuthConst.TEMP_PROVIDER, "GOOGLE",
+        AuthConst.TEMP_PROVIDER_ID, "provider123"
+    );
+
+    private final User dummyUser = User.builder()
+        .id(1L)
+        .userEmail("test@example.com")
+        .nickName("nickname")
+        .role(Role.ROLE_USER)
+        .build();
 
     @BeforeEach
-    public void setUp() {
-
-        if (redisTemplate != null && redisTemplate.getConnectionFactory() != null) {
-            try (RedisConnection connection = redisTemplate.getConnectionFactory().getConnection()) {
-                connection.serverCommands().flushAll();
-            }
-        }
-        oAuthUserRepository.deleteAll();
-        userRepository.deleteAll();
-
-        validTempToken = tempTokenService.createTempSignupToken(
-            "test@example.com",
-            "GOOGLE",
-            "provider123",
-            60000 // 1분 유효
-        );
-
-        expiredTempToken = tempTokenService.createTempSignupToken(
-            "expired@example.com",
-            "GOOGLE",
-            "providerExpired",
-            1 // 즉시 만료
-        );
+    void setup() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    @DisplayName("정상적인 임시 토큰으로 회원가입 요청")
-    public void testValidSocialSignup() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/social-signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .cookie(new Cookie(AuthConst.TOKEN_TYPE_TEMP, validTempToken))
-                .content(new ObjectMapper().writeValueAsString(
-                    new SocialSignupDTO("닉네임3", "password123!")
-                )))
-            .andExpect(status().isOk());
+    @DisplayName("1. 정상적인 소셜 회원가입 요청 처리")
+    void testFinalizeSocialSignup_success() {
+        when(oAuthTempTokenService.extractTokenData(request)).thenReturn(tokenData);
+        when(oAuthSignupService.processSignup(signupDTO, tokenData)).thenReturn(dummyUser);
+        doNothing().when(oAuthTempTokenService).generateAndSetTokens(response, dummyUser);
+        doNothing().when(oAuthUserTempService).deleteTempOAuthUser("test@example.com");
+
+        firstOAuthSignUpService.finalizeSocialSignup(request, response, signupDTO);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assertNotNull(auth);
+        assertEquals(1L, ((UserPrincipal) auth.getPrincipal()).getUserId());
+        assertEquals(Role.ROLE_USER, ((UserPrincipal) auth.getPrincipal()).getRole());
+        verify(oAuthTempTokenService).generateAndSetTokens(response, dummyUser);
+        verify(oAuthUserTempService).deleteTempOAuthUser("test@example.com");
     }
 
     @Test
-    @DisplayName("OAuthSignupService - 중복 닉네임으로 가입 시 예외 발생")
-    public void testDuplicateNickname() {
-        Map<String, String> tokenData = tempTokenService.validateTempSignupToken(validTempToken);
-        SocialSignupDTO signupDto = new SocialSignupDTO("닉네임2", "password123!");
-        oAuthSignupService.processSignup(signupDto, tokenData);
-        assertThrows(InvalidUserException.class, () -> oAuthSignupService.processSignup(signupDto, tokenData));
+    @DisplayName("2. OAuthTempTokenService 에서 예외 발생 시 회원가입 실패")
+    void testFinalizeSocialSignup_tempTokenException() {
+        when(oAuthTempTokenService.extractTokenData(request)).thenThrow(new InvalidUserException(BaseResponseStatus.USER_TEMP_SESSION_EXPIRED));
+
+        assertThrows(InvalidUserException.class, () -> firstOAuthSignUpService.finalizeSocialSignup(request, response, signupDTO));
+        verify(oAuthSignupService, never()).processSignup(any(), any());
+        verify(oAuthTempTokenService, never()).generateAndSetTokens(any(), any());
     }
 
     @Test
-    @DisplayName("임시 토큰이 정상적으로 생성 및 검증되는지 테스트")
-    public void testValidTempToken() {
-        Map<String, String> tokenData = tempTokenService.validateTempSignupToken(validTempToken);
-        assertEquals("test@example.com", tokenData.get(AuthConst.TEMP_USER_EMAIL));
-        assertEquals("GOOGLE", tokenData.get(AuthConst.TEMP_PROVIDER));
-        assertEquals("provider123", tokenData.get(AuthConst.TEMP_PROVIDER_ID));
+    @DisplayName("3. OAuthSignupService 에서 예외 발생 시 회원가입 실패")
+    void testFinalizeSocialSignup_signupFail() {
+        when(oAuthTempTokenService.extractTokenData(request)).thenReturn(tokenData);
+        when(oAuthSignupService.processSignup(signupDTO, tokenData)).thenThrow(new InvalidUserException(BaseResponseStatus.USER_PASSWORD_NOT_VALID));
+
+        assertThrows(InvalidUserException.class, () -> firstOAuthSignUpService.finalizeSocialSignup(request, response, signupDTO));
+        verify(oAuthTempTokenService, never()).generateAndSetTokens(any(), any());
     }
 
     @Test
-    @DisplayName("만료된 임시 토큰 검증 시 예외 발생")
-    public void testExpiredTempToken() {
-        assertThrows(InvalidUserException.class, () ->
-                tempTokenService.validateTempSignupToken(expiredTempToken),
-            "만료된 토큰 사용 시 예외가 발생해야 함"
-        );
+    @DisplayName("4. 인증 객체가 SecurityContext 에 설정되는지 확인")
+    void testSecurityContextIsSetCorrectly() {
+        when(oAuthTempTokenService.extractTokenData(request)).thenReturn(tokenData);
+        when(oAuthSignupService.processSignup(signupDTO, tokenData)).thenReturn(dummyUser);
+        doNothing().when(oAuthTempTokenService).generateAndSetTokens(response, dummyUser);
+        doNothing().when(oAuthUserTempService).deleteTempOAuthUser("test@example.com");
+
+        firstOAuthSignUpService.finalizeSocialSignup(request, response, signupDTO);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assertNotNull(auth);
+		assertInstanceOf(UserPrincipal.class, auth.getPrincipal());
     }
 
-    @Test
-    @DisplayName("변조된 임시 토큰 검증 시 예외 발생")
-    public void testInvalidTempToken() {
-        assertThrows(InvalidUserException.class, () ->
-                tempTokenService.validateTempSignupToken(invalidTempToken),
-            "잘못된 토큰 사용 시 예외가 발생해야 함"
-        );
-    }
-
-    @Test
-    @DisplayName("임시 토큰 없이 회원가입 요청 시 예외 발생")
-    public void testSignupWithoutTempToken() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/social-signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(new SocialSignupDTO("nickname", "password"))))
-            .andExpect(status().isBadRequest())
-            .andExpect(result -> {
-                String responseBody = result.getResponse().getContentAsString();
-                System.out.println("응답 본문: " + responseBody);
-            });
-    }
-
-    @Test
-    @DisplayName("OAuthTempTokenService - 유효한 임시 토큰에서 데이터 추출 테스트")
-    public void testExtractTokenData() {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_TEMP, validTempToken));
-
-        Map<String, String> tokenData = oAuthTempTokenService.extractTokenData(request);
-        assertEquals("test@example.com", tokenData.get(AuthConst.TEMP_USER_EMAIL));
-        assertEquals("GOOGLE", tokenData.get(AuthConst.TEMP_PROVIDER));
-        assertEquals("provider123", tokenData.get(AuthConst.TEMP_PROVIDER_ID));
-    }
-
-    @Test
-    @DisplayName("OAuthTempTokenService - 임시 토큰 없이 요청 시 예외 발생")
-    public void testExtractTokenDataWithoutToken() {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        assertThrows(InvalidUserException.class, () -> oAuthTempTokenService.extractTokenData(request));
-    }
-
-    @Test
-    @DisplayName("OAuthSignupService - 회원가입 시 정상적으로 저장되는지 테스트")
-    public void testProcessSignup() {
-        Map<String, String> tokenData = tempTokenService.validateTempSignupToken(validTempToken);
-        SocialSignupDTO signupDto = new SocialSignupDTO("닉네임1", "password123!");
-
-        User newUser = oAuthSignupService.processSignup(signupDto, tokenData);
-
-        assertNotNull(newUser);
-        assertEquals("test@example.com", newUser.getUserEmail());
-        assertEquals("닉네임1", newUser.getNickName());
-        assertTrue(userRepository.existsById(newUser.getId()));
+    @AfterEach
+    void clear() {
+        SecurityContextHolder.clearContext();
     }
 }

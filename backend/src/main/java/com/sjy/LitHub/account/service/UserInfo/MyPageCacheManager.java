@@ -1,13 +1,12 @@
 package com.sjy.LitHub.account.service.UserInfo;
 
-import com.sjy.LitHub.account.model.res.MyPageResponseDTO;
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
+
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.function.Supplier;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -15,30 +14,23 @@ public class MyPageCacheManager {
 
     private final CacheManager cacheManager;
 
-    public MyPageResponseDTO getCachedMyPageData(Long userId, Supplier<MyPageResponseDTO> fetchDataFunction) {
-        return getCache(userId)
-                .orElseGet(() -> fetchAndCache(userId, fetchDataFunction));
-    }
-
-    public void evictCache(Long userId) {
-        Cache cache = cacheManager.getCache("myPageCache");
-        if (cache != null) {
-            cache.evict(userId);
-        }
-    }
-
-    private Optional<MyPageResponseDTO> getCache(Long userId) {
+    public <T> Optional<T> getCache(String key, Class<T> type) {
         Cache cache = cacheManager.getCache("myPageCache");
         if (cache == null) return Optional.empty();
-        return Optional.ofNullable(cache.get(userId, MyPageResponseDTO.class));
+        return Optional.ofNullable(cache.get(key, type));
     }
 
-    private MyPageResponseDTO fetchAndCache(Long userId, Supplier<MyPageResponseDTO> fetchDataFunction) {
-        MyPageResponseDTO response = fetchDataFunction.get();
+    public <T> void putCache(String key, T data) {
         Cache cache = cacheManager.getCache("myPageCache");
         if (cache != null) {
-            cache.put(userId, response);
+            cache.put(key, data);
         }
-        return response;
+    }
+
+    public void evictCache(String key) {
+        Cache cache = cacheManager.getCache("myPageCache");
+        if (cache != null) {
+            cache.evict(key);
+        }
     }
 }

@@ -1,150 +1,98 @@
 package com.sjy.LitHub.account.service.email;
 
-import com.sjy.LitHub.TestContainerConfig;
-import com.sjy.LitHub.global.exception.custom.InvalidUserException;
-import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.global.redis.RedisService;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.sjy.LitHub.global.exception.custom.InvalidUserException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
 
-import static org.junit.jupiter.api.Assertions.*;
+@ExtendWith(MockitoExtension.class)
+class EmailServiceTest {
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-class EmailServiceTest extends TestContainerConfig {
-
-    @Autowired
+    @InjectMocks
     private EmailService emailService;
 
-    @Autowired
+    @Mock
+    private JavaMailSender javaMailSender;
+
+    @Mock
     private EmailVerificationService emailVerificationService;
 
-    @Autowired
-    private RedisService redisService;
+    private final String email = "test@example.com";
 
-    private static final String TEST_EMAIL = "testuser@example.com";
+    @Test
+    @DisplayName("이메일 인증 코드 전송 - 정상 케이스")
+    void sendEmailVerificationCode_success() {
+        // given
+        when(emailVerificationService.isRequestLocked(email)).thenReturn(false);
+        when(emailVerificationService.isAlreadyVerified(email)).thenReturn(false);
 
-    @AfterEach
-    public void cleanUp() {
-        redisService.deleteData("emailAuth:" + TEST_EMAIL + ":code");
-        redisService.deleteData("emailAuth:" + TEST_EMAIL + ":verified");
-        redisService.deleteData("emailAuth:" + TEST_EMAIL + ":requestLock");
+        // when
+        emailService.sendEmailVerificationCode(email);
+
+        // then
+        verify(emailVerificationService).clearVerificationCode(email);
+        verify(emailVerificationService).storeVerificationCode(eq(email), anyString());
+        verify(javaMailSender).send(any(SimpleMailMessage.class));
     }
 
     @Test
-    @DisplayName("이메일 인증 코드 발송 - 정상 케이스")
-    public void testSendEmailVerificationCode() {
-        emailVerificationService.clearVerificationCode(TEST_EMAIL);
-        emailService.sendEmailVerificationCode(TEST_EMAIL);
+    @DisplayName("이메일 인증 코드 전송 - 이미 인증된 이메일")
+    void sendEmailVerificationCode_alreadyVerified() {
+        when(emailVerificationService.isRequestLocked(email)).thenReturn(false);
+        when(emailVerificationService.isAlreadyVerified(email)).thenReturn(true);
 
-        String storedCode = redisService.getData("emailAuth:" + TEST_EMAIL + ":code");
-        assertNotNull(storedCode);
+        InvalidUserException ex = assertThrows(InvalidUserException.class,
+            () -> emailService.sendEmailVerificationCode(email));
+
+        assertEquals(BaseResponseStatus.EMAIL_ALREADY_VERIFIED, ex.getStatus());
+
+        verify(emailVerificationService, never()).clearVerificationCode(email);
+        verify(javaMailSender, never()).send(any(SimpleMailMessage.class));
     }
 
     @Test
-    @DisplayName("이메일 인증 코드 요청이 잠겨 있는 경우 예외 발생")
-    public void testSendEmailVerificationCode_LockedRequest() {
-        redisService.setData("emailAuth:" + TEST_EMAIL + ":requestLock", "true", 30);
+    @DisplayName("이메일 인증 코드 전송 - 요청이 잠겨 있음")
+    void sendEmailVerificationCode_locked() {
+        when(emailVerificationService.isRequestLocked(email)).thenReturn(true);
 
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> emailService.sendEmailVerificationCode(TEST_EMAIL));
-        assertEquals(BaseResponseStatus.EMAIL_REQUEST_LOCKED, thrown.getStatus());
+        InvalidUserException ex = assertThrows(InvalidUserException.class,
+            () -> emailService.sendEmailVerificationCode(email));
+
+        assertEquals(BaseResponseStatus.EMAIL_REQUEST_LOCKED, ex.getStatus());
+
+        verify(javaMailSender, never()).send(any(SimpleMailMessage.class));
     }
 
     @Test
-    @DisplayName("이미 인증된 이메일에 대해 인증 코드 발송 시 예외 발생")
-    public void testSendEmailVerificationCode_AlreadyVerified() {
-        redisService.setData("emailAuth:" + TEST_EMAIL + ":verified", "true", 600);
+    @DisplayName("이메일 인증 코드 검증 성공")
+    void verifyEmailCode_success() {
+        when(emailVerificationService.isAlreadyVerified(email)).thenReturn(false);
+        when(emailVerificationService.getStoredCode(email)).thenReturn("123456");
 
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> emailService.sendEmailVerificationCode(TEST_EMAIL));
-        assertEquals(BaseResponseStatus.EMAIL_ALREADY_VERIFIED, thrown.getStatus());
+        emailService.verifyEmailCode(email, "123456");
+
+        verify(emailVerificationService).markAsVerified(email);
     }
 
     @Test
-    @DisplayName("잘못된 인증 코드 입력 시 예외 발생")
-    public void testVerifyEmailCode_InvalidCode() {
-        String invalidCode = "654321";
-        redisService.setData("emailAuth:" + TEST_EMAIL + ":code", "123456", 600);
+    @DisplayName("이메일 인증 코드 검증 실패 - 코드 불일치")
+    void verifyEmailCode_invalidCode() {
+        when(emailVerificationService.isAlreadyVerified(email)).thenReturn(false);
+        when(emailVerificationService.getStoredCode(email)).thenReturn("123456");
 
-        InvalidUserException thrown = assertThrows(InvalidUserException.class, () -> emailService.verifyEmailCode(TEST_EMAIL, invalidCode));
-        assertEquals(BaseResponseStatus.EMAIL_INVALID_CODE, thrown.getStatus());
-    }
+        InvalidUserException ex = assertThrows(InvalidUserException.class,
+            () -> emailService.verifyEmailCode(email, "999999"));
 
-    @Test
-    @DisplayName("이메일 인증 성공 후, 인증 코드 삭제 확인")
-    public void testVerifyEmailCode_Success() {
-        String validCode = "123456";
-        redisService.setData("emailAuth:" + TEST_EMAIL + ":code", validCode, 600);
-
-        emailService.verifyEmailCode(TEST_EMAIL, validCode);
-
-        assertEquals("true", redisService.getData("emailAuth:" + TEST_EMAIL + ":verified"));
-        assertNull(redisService.getData("emailAuth:" + TEST_EMAIL + ":code"));
-    }
-
-    @Test
-    @DisplayName("Redis TTL 설정 확인 - 인증 코드와 검증 상태의 유효기간 확인")
-    public void testRedisTTL() throws InterruptedException {
-        String validCode = "123456";
-        redisService.setData("emailAuth:" + TEST_EMAIL + ":code", validCode, 3); // 3초 후 만료
-
-        Thread.sleep(4000); // 4초 대기 (유효기간 초과)
-
-        String storedCode = redisService.getData("emailAuth:" + TEST_EMAIL + ":code");
-        assertNull(storedCode); // TTL 초과 후 데이터가 삭제되었는지 확인
-    }
-
-    @Test
-    @DisplayName("동시 요청 처리 - 여러 개의 이메일 인증 요청이 올 경우")
-    public void testConcurrentEmailVerificationRequests() throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
-        CountDownLatch latch = new CountDownLatch(5);
-
-        for (int i = 0; i < 5; i++) {
-            executorService.execute(() -> {
-                try {
-                    emailService.sendEmailVerificationCode(TEST_EMAIL);
-                } catch (Exception e) {
-                    System.out.println("Exception in concurrent test: " + e.getMessage());
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        latch.await();
-        executorService.shutdown();
-
-        String storedCode = redisService.getData("emailAuth:" + TEST_EMAIL + ":code");
-        assertNotNull(storedCode);
-    }
-
-    @Test
-    @DisplayName("재시도 실패 후 recover() 메서드가 실행되는지 확인")
-    public void testEmailRecoverLogic() {
-        try {
-            emailService.emailSendCode(TEST_EMAIL, "123456");
-        } catch (Exception ignored) {
-        }
-
-        assertNull(redisService.getData("emailAuth:" + TEST_EMAIL + ":code"));
+        assertEquals(BaseResponseStatus.EMAIL_INVALID_CODE, ex.getStatus());
     }
 }

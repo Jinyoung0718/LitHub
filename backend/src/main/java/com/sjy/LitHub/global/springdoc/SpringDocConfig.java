@@ -36,11 +36,19 @@ public class SpringDocConfig {
     }
 
     @Bean
-    public GroupedOpenApi groupApiUserInfo() {
+    public GroupedOpenApi groupApiMyPage() {
         return GroupedOpenApi.builder()
-                .group("UserInfo")
+                .group("MyPage")
                 .pathsToMatch("/api/user/**")
                 .build();
+    }
+
+    @Bean
+    public GroupedOpenApi groupApiUserInfo() {
+        return GroupedOpenApi.builder()
+            .group("Token Info")
+            .pathsToMatch("/api/info/**")
+            .build();
     }
 
     @Bean

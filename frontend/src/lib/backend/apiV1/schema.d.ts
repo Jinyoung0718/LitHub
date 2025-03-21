@@ -266,7 +266,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 다른 사용자 정보 조회
+         * 사용자 정보 조회
          * @description 특정 사용자의 프로필을 조회합니다.
          */
         get: operations["getUserProfile"];
@@ -305,6 +305,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 로그인 상태 확인
+         * @description 임시 회원가입 절차 시, 임시 토큰의 만료여부 확인합니다
+         */
         get: operations["checkTempToken"];
         put?: never;
         post?: never;
@@ -454,27 +458,31 @@ export interface components {
             month: number;
             /** Format: int32 */
             totalReadingTime: number;
+            /** Format: int32 */
+            readingCount: number;
             /** Format: double */
             averageReadingTime: number;
             mostFrequent?: boolean;
-            "@class": string;
         };
         MyPageResponseDTO: {
             userProfile: components["schemas"]["UserProfileResponseDTO"];
-            /** Format: int32 */
-            readingStreak: number;
-            readingRecords: components["schemas"]["ReadingRecordResponseDTO"][];
-            monthlyStats: components["schemas"]["MonthlyReadingStatsResponseDTO"][];
-            "@class": string;
+            readingStats: components["schemas"]["ReadingStatsResponseDTO"];
         };
         ReadingRecordResponseDTO: {
             /** Format: date */
             date: string;
             /** Format: int32 */
             colorLevel: number;
-            "@class": string;
+        };
+        ReadingStatsResponseDTO: {
+            /** Format: int32 */
+            readingStreak: number;
+            readingRecords: components["schemas"]["ReadingRecordResponseDTO"][];
+            monthlyStats: components["schemas"]["MonthlyReadingStatsResponseDTO"][];
         };
         UserProfileResponseDTO: {
+            /** Format: int64 */
+            userId: number;
             email: string;
             nickname: string;
             profileImageUrlLarge: string;
@@ -482,7 +490,6 @@ export interface components {
             tier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
             /** Format: int32 */
             point: number;
-            "@class": string;
         };
         BaseResponseMapStringString: {
             success: boolean;
@@ -539,13 +546,13 @@ export interface components {
         };
         FriendListResponseDTO: {
             /** Format: int64 */
-            userId?: number;
-            nickName?: string;
-            profileImageUrlSmall?: string;
+            userId: number;
+            nickName: string;
+            profileImageUrlSmall: string;
             /** @enum {string} */
-            tier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
+            tier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
             /** Format: int32 */
-            point?: number;
+            point: number;
         };
         BaseResponseListFriendRequestResponseDTO: {
             success: boolean;
@@ -558,11 +565,11 @@ export interface components {
         };
         FriendRequestResponseDTO: {
             /** Format: int64 */
-            requestId?: number;
-            requesterNickName?: string;
-            requesterProfileImageUrl?: string;
+            requestId: number;
+            requesterNickName: string;
+            requesterProfileImageUrl: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
     };
     responses: never;
