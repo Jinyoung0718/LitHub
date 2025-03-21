@@ -55,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private OAuth2User handleExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo, ProviderInfo provider) {
         if (existingUser.getDeletedAt() != null) {
-            throw new InvalidAuthenticationException(BaseResponseStatus.USER_LOGIN_RECOVERY_REQUIRED);
+            userRepository.restoreUserByEmail(existingUser.getUserEmail());
         }
 
         if (!oAuthUserRepository.existsByUserAndProvider(existingUser, provider)) {

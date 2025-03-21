@@ -58,7 +58,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 throw new BadCredentialsException(BaseResponseStatus.USER_LOGIN_RECOVERY_REQUIRED.getMessage()); // Security 흐름 타도록 변경
             }
 
-
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, password);
             return getAuthenticationManager().authenticate(authToken);
         } catch (IOException e) {
@@ -68,11 +67,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
-    // 논리 삭제 값 여부
+    // 논리 삭제 유저 확인
     private boolean isAccountDeleted(String userEmail) {
-        return userRepository.findByUserEmailAll(userEmail)
-                .map(user -> user.getDeletedAt() != null)
-                .orElse(false);
+        return userRepository.findByUserEmailDeleted(userEmail).isEmpty();
     }
 
     @Override

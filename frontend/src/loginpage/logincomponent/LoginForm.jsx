@@ -1,5 +1,4 @@
-import { useContext, useState } from "react";
-import { AuthContext } from "../../common/AuthContext";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { InputBlock, Button } from "./LoginStyles";
@@ -28,7 +27,20 @@ const LoginForm = () => {
       alert("로그인 성공!");
       navigate("/");
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || "로그인 실패");
+      const message = error.response?.data?.message || "로그인 실패";
+
+      if (message === "이 계정은 삭제되었습니다. 복구하시겠습니까?") {
+        if (window.confirm("이 계정은 삭제되었습니다. 복구하시겠습니까?")) {
+          await axios.post("/api/auth/restore-user", {
+            email: formData.email,
+          });
+
+          alert("계정 복구가 완료되었습니다. 다시 로그인해주세요.");
+          await handleSignin();
+        }
+      } else {
+        setErrorMessage(message);
+      }
     }
   };
 
