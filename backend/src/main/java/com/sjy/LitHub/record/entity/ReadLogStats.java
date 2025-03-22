@@ -22,8 +22,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "read_log_stats", indexes = {
-	@Index(name = "idx_readlogstats_user_year_month", columnList = "user_id, year, month")
+	@Index(name = "idx_readlogstats_user_year_month", columnList = "user_id, year, month"),
+	@Index(name = "idx_readlogstats_user_year_total", columnList = "user_id, year, total_reading_time")
 })
+
 public class ReadLogStats extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)

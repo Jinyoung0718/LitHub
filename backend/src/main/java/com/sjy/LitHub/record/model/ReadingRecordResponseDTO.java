@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 import org.springframework.lang.NonNull;
 
+import com.sjy.LitHub.record.model.queryresult.DailyReadingRecordResult;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +27,7 @@ public class ReadingRecordResponseDTO {
 	@Schema(requiredMode = Schema.RequiredMode.REQUIRED)
 	private final int colorLevel;
 
-	public static ReadingRecordResponseDTO from(ReadingStatsQueryResult result) {
-
+	public static ReadingRecordResponseDTO from(DailyReadingRecordResult result) {
 		return ReadingRecordResponseDTO.builder()
 			.date(result.getDate())
 			.colorLevel(result.getColorLevel())

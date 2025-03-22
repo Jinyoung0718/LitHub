@@ -32,13 +32,19 @@ public class MyPageService {
     private final ReadLogStatusService readLogStatusService;
     private final ReadLogService readLogService;
 
+    private static final String PROFILE_KEY_PREFIX = "userProfile:";
+    private static final String STATS_KEY_PREFIX = "readingStats:";
+
     @Transactional(readOnly = true)
-    public MyPageResponseDTO getCachedMyPageData(Long userId) {
-        UserProfileResponseDTO userProfile = getCachedOrFetch("userProfile:" + userId,
+    public MyPageResponseDTO getCachedMyPageData(Long userId, int year) {
+        String profileKey = PROFILE_KEY_PREFIX + userId;
+        String statsKey = STATS_KEY_PREFIX + userId + ":" + year;
+
+        UserProfileResponseDTO userProfile = getCachedOrFetch(profileKey,
             () -> userRepository.getUserProfile(userId), UserProfileResponseDTO.class);
 
-        ReadingStatsResponseDTO readingStats = getCachedOrFetch("readingStats:" + userId,
-            () -> readLogStatusService.getReadingStats(userId, LocalDate.now().getYear()), ReadingStatsResponseDTO.class);
+        ReadingStatsResponseDTO readingStats = getCachedOrFetch(statsKey,
+            () -> readLogStatusService.getReadingStats(userId, year), ReadingStatsResponseDTO.class);
 
         return MyPageMapper.toMyPageResponse(userProfile, readingStats);
     }
@@ -58,21 +64,21 @@ public class MyPageService {
             throw new InvalidUserException(BaseResponseStatus.USER_NICKNAME_DUPLICATE);
         }
         UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
-        myPageCacheManager.putCache("userProfile:" + userId, updatedProfile);
+        myPageCacheManager.putCache(PROFILE_KEY_PREFIX + userId, updatedProfile);
     } // 닉네임을 변경하면 응답 데이터 없이 성공만 반환하고, 프론트에서 다시 전체 데이터를 요청하도록 설계
 
     @Transactional
     public void updatePassword(Long userId, PasswordUpdateRequestDTO requestDto) {
         passwordManager.validatePassword(userId, requestDto.getCurrentPassword(), requestDto.getNewPassword());
         passwordManager.updatePassword(userId, requestDto.getNewPassword());
-        myPageCacheManager.evictCache("userProfile:" + userId);
+        myPageCacheManager.evictCache(PROFILE_KEY_PREFIX + userId);
     } // 프론트에서 로그아웃 처리 후 재로그인 유도
 
     @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteUserById(userId, LocalDateTime.now());
-        myPageCacheManager.evictCache("userProfile:" + userId);
-        myPageCacheManager.evictCache("readingStats:" + userId);
+        myPageCacheManager.evictCache(PROFILE_KEY_PREFIX + userId);
+        myPageCacheManager.evictCache(STATS_KEY_PREFIX + userId + ":" + LocalDate.now().getYear());
     } // 로그인 화면으로 리다이렉트
 
     @Transactional
@@ -81,10 +87,10 @@ public class MyPageService {
         readLogService.saveReadingRecord(userId, minutes);
 
         ReadingStatsResponseDTO updatedStats = readLogStatusService.getReadingStats(userId, currentYear);
-        myPageCacheManager.putCache("readingStats:" + userId, updatedStats);
+        myPageCacheManager.putCache(STATS_KEY_PREFIX + userId + ":" + currentYear, updatedStats);
 
         UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
-        myPageCacheManager.putCache("userProfile:" + userId, updatedProfile);
+        myPageCacheManager.putCache(PROFILE_KEY_PREFIX + userId, updatedProfile);
         return MyPageMapper.toMyPageResponse(updatedProfile, updatedStats);
     } // ReadLogService 에서 저장 처리
 }

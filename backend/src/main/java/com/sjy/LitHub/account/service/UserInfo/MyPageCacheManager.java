@@ -1,36 +1,53 @@
 package com.sjy.LitHub.account.service.UserInfo;
 
+import java.time.Duration;
 import java.util.Optional;
 
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class MyPageCacheManager {
 
-    private final CacheManager cacheManager;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper;
+
+    public MyPageCacheManager(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+    }
 
     public <T> Optional<T> getCache(String key, Class<T> type) {
-        Cache cache = cacheManager.getCache("myPageCache");
-        if (cache == null) return Optional.empty();
-        return Optional.ofNullable(cache.get(key, type));
+        try {
+            String cachedValue = redisTemplate.opsForValue().get(key);
+            if (cachedValue == null) return Optional.empty();
+            return Optional.of(objectMapper.readValue(cachedValue, type));
+        } catch (Exception e) {
+            log.warn("Redis 캐시 조회 실패 - key: {}, type: {}, error: {}", key, type.getSimpleName(), e.getMessage());
+            return Optional.empty();
+        }
     }
 
     public <T> void putCache(String key, T data) {
-        Cache cache = cacheManager.getCache("myPageCache");
-        if (cache != null) {
-            cache.put(key, data);
+        try {
+            String jsonValue = objectMapper.writeValueAsString(data);
+            redisTemplate.opsForValue().set(key, jsonValue, Duration.ofHours(1));
+        } catch (Exception e) {
+            log.warn("Redis 캐시 저장 실패 - key: {}, error: {}", key, e.getMessage());
         }
     }
 
     public void evictCache(String key) {
-        Cache cache = cacheManager.getCache("myPageCache");
-        if (cache != null) {
-            cache.evict(key);
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.warn("Redis 캐시 삭제 실패 - key: {}, error: {}", key, e.getMessage());
         }
     }
 }

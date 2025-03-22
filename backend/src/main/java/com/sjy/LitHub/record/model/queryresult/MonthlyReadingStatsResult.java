@@ -1,22 +1,13 @@
-package com.sjy.LitHub.record.model;
-
-import java.time.LocalDate;
+package com.sjy.LitHub.record.model.queryresult;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class ReadingStatsQueryResult {
-
-	// 최고 연속 기록
-	private int readingStreak;
-
-	private LocalDate date;
-
-	private Integer colorLevel;
+@AllArgsConstructor
+public class MonthlyReadingStatsResult {
 
 	private int month;
 
@@ -25,4 +16,5 @@ public class ReadingStatsQueryResult {
 	private int readingCount;
 
 	private double averageReadingTime;
+
 }

@@ -45,11 +45,9 @@ const AuthProvider = ({ children }) => {
     try {
       await axios.post("/api/auth/logout", null, { withCredentials: true });
       setAccessToken(null);
-      console.log("로그아웃 완료");
 
       if (navigateCallback) navigateCallback("/login");
     } catch (error) {
-      console.error("로그아웃 실패:", error);
       setAccessToken(null);
     }
   };

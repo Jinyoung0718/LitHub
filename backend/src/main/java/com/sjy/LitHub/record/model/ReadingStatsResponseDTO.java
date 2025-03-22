@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class ReadingStatsResponseDTO {
 
 	@NonNull
-	private final int readingStreak; // 최고 연속 기록
+	private final int readingStreak;
 
 	@NonNull
 	@Builder.Default
@@ -29,11 +29,7 @@ public class ReadingStatsResponseDTO {
 	@Builder.Default
 	private final List<MonthlyReadingStatsResponseDTO> monthlyStats = Collections.emptyList();
 
-	public static ReadingStatsResponseDTO of(
-        int readingStreak,
-        List<MonthlyReadingStatsResponseDTO> monthlyStats,
-		List<ReadingRecordResponseDTO> readingRecords) {
-
+	public static ReadingStatsResponseDTO of(int readingStreak, List<MonthlyReadingStatsResponseDTO> monthlyStats, List<ReadingRecordResponseDTO> readingRecords) {
 		return ReadingStatsResponseDTO.builder()
 			.readingStreak(readingStreak)
 			.monthlyStats(monthlyStats != null ? monthlyStats : Collections.emptyList())

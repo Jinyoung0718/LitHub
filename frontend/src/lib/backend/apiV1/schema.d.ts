@@ -894,7 +894,9 @@ export interface operations {
     };
     getUserProfile: {
         parameters: {
-            query?: never;
+            query?: {
+                year?: number;
+            };
             header?: never;
             path: {
                 userId: number;
@@ -916,7 +918,9 @@ export interface operations {
     };
     getMyProfile: {
         parameters: {
-            query?: never;
+            query?: {
+                year?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;

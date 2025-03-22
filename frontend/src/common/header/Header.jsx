@@ -44,6 +44,7 @@ function Header() {
         <Nav>
           <NavLink to="#hero">STUDY</NavLink>
           <NavLink to="#features">FORUM</NavLink>
+
           {!isLoading && accessToken && <NavLink to="/mypage">MYPAGE</NavLink>}
           {!isLoading &&
             (accessToken ? (
