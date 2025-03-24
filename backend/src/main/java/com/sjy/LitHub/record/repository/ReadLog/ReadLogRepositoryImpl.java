@@ -38,7 +38,7 @@ public class ReadLogRepositoryImpl implements ReadLogRepositoryCustom {
 					.execute();
 			}
 		} else {
-			ReadLog newReadLog = readLogMapper.toEntity(userId, date, minutes, getLatestStreak(userId, date) + 1);
+			ReadLog newReadLog = readLogMapper.toEntity(userId, date, minutes, getLatestStreak(userId, date));
 			entityManager.persist(newReadLog);
 		}
 	} // 사용자의 읽기 기록을 저장하거나 업데이트

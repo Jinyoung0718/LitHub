@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * 독서 기록 저장
-         * @description 독서 시간을 추가하고 독서 연속 기록(streak)과 색상 레벨(colorLevel)을 갱신합니다.
+         * @description 독서 시간을 추가하고 독서 연속 기록과 색상 레벨을 갱신합니다.
          */
         post: operations["saveReadingRecord"];
         delete?: never;

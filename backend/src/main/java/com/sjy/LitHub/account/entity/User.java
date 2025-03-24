@@ -17,7 +17,9 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user")
+@Table(name = "user", indexes = {
+	@Index(name = "idx_user_email_deleted", columnList = "user_email, deleted_at")
+})
 public class User extends BaseTime {
 
 	@Column(name = "user_email", nullable = false, unique = true, length = 100)

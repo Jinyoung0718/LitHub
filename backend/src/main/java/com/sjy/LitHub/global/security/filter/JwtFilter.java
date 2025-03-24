@@ -59,7 +59,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		try {
 			if (jwtUtil.isExpired(accessToken)) {
-				handleExpiredToken(request, response);
+				String newAccessToken = handleExpiredToken(request, response);
+				SecurityContextHolder.getContext().setAuthentication(tokenService.getAuthenticationFromToken(newAccessToken));
+				filterChain.doFilter(request, response);
 				return;
 			}
 
@@ -77,11 +79,12 @@ public class JwtFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response) {
+	private String handleExpiredToken(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			tokenService.rotatingTokens(request, response);
+			return tokenService.rotatingTokens(request, response);
 		} catch (InvalidAuthenticationException e) {
 			setException(request, response, e);
+			return null;
 		}
 	}
 

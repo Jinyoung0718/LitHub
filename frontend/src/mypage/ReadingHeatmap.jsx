@@ -1,13 +1,12 @@
 import React from "react";
-import ReactTooltip from "react-tooltip";
 import CalendarHeatmap from "react-calendar-heatmap";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import "react-calendar-heatmap/dist/styles.css";
 import "react-tooltip/dist/react-tooltip.css";
 
-const ReadingHeatmap = ({ readingRecords = [] }) => {
-  const year = new Date().getFullYear();
-  const startDate = new Date(`${year}-01-01`);
-  const endDate = new Date(`${year}-12-31`);
+const ReadingHeatmap = ({ readingRecords = [], selectedYear }) => {
+  const startDate = new Date(`${selectedYear}-01-01`);
+  const endDate = new Date(`${selectedYear}-12-31`);
 
   const values = readingRecords.map((record) => ({
     date: record.date,
@@ -16,7 +15,7 @@ const ReadingHeatmap = ({ readingRecords = [] }) => {
 
   return (
     <div style={{ marginTop: "40px" }}>
-      <h3>연간 독서 히트맵</h3>
+      <h3>{selectedYear}년 독서 히트맵</h3>
       <CalendarHeatmap
         startDate={startDate}
         endDate={endDate}
@@ -29,11 +28,12 @@ const ReadingHeatmap = ({ readingRecords = [] }) => {
         tooltipDataAttrs={(value) => {
           if (!value || !value.date) return null;
           return {
-            "data-tip": `${value.date} - 레벨 ${value.count}`,
+            "data-tooltip-id": "reading-tooltip",
+            "data-tooltip-content": `${value.date} - 레벨 ${value.count}`,
           };
         }}
       />
-      <ReactTooltip />
+      <ReactTooltip id="reading-tooltip" />
     </div>
   );
 };

@@ -128,7 +128,7 @@ public class ReadLogStatsRepositoryImpl implements ReadLogStatsRepositoryCustom 
 				.and(readLogStats.year.eq(year))
 				.and(readLogStats.totalReadingTime.eq(maxReadingTime)))
 			.fetch());
-	}  // 사용자가 가장 자주 읽은 월을 찾는 메소드
+	} // 사용자가 가장 자주 읽은 월을 찾는 메소드
 
 	private List<MonthlyReadingStatsResponseDTO> extractMonthlyStats(List<MonthlyReadingStatsResult> monthlyResults, int year, Set<Integer> mostFrequentMonths) {
 		Map<Integer, MonthlyReadingStatsResult> resultMap = monthlyResults.stream()

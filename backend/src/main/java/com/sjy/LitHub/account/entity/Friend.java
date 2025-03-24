@@ -8,15 +8,15 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "friend", indexes = {
-	@Index(name = "idx_requester", columnList = "requester_id"), // 친구 목록 조회
-	@Index(name = "idx_requester_receiver", columnList = "requester_id, receiver_id"),
-	@Index(name = "idx_receiver_status", columnList = "receiver_id, status") // 친구 요청 목록
-})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(name = "friend", indexes = {
+	@Index(name = "idx_requester", columnList = "requester_id"),
+	@Index(name = "idx_requester_receiver", columnList = "requester_id, receiver_id"),
+	@Index(name = "idx_receiver_status", columnList = "receiver_id, status")
+})
 public class Friend {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class Friend {
 	private User receiver; // 친구 요청을 받은 사람
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false)
+	@Column(name = "status", nullable = false, length = 10)
 	private FriendStatus status;
 
 	@Column(name = "created_at", nullable = false)

@@ -1,7 +1,10 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-export const HeaderContainer = styled.header`
+// isScrolled prop 전달 방지
+export const HeaderContainer = styled.header.withConfig({
+  shouldForwardProp: (prop) => prop !== "isScrolled",
+})`
   position: fixed;
   top: 0;
   left: 0;
@@ -96,7 +99,6 @@ export const NavLink = styled(Link)`
   }
 `;
 
-// 로그아웃 버튼도 NavLink 스타일과 동일하게 적용
 export const LogoutButton = styled(NavLink).attrs({ as: "button" })`
   all: unset;
   font-size: 0.93rem;
@@ -125,7 +127,10 @@ export const LogoutButton = styled(NavLink).attrs({ as: "button" })`
   }
 `;
 
-export const SlideMenu = styled.div`
+// isOpen prop 전달 방지
+export const SlideMenu = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "isOpen",
+})`
   position: fixed;
   top: 0;
   right: 0;
@@ -157,7 +162,10 @@ export const SlideMenu = styled.div`
   }
 `;
 
-export const HamburgerButton = styled.div`
+// isOpen prop 전달 방지
+export const HamburgerButton = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "isOpen",
+})`
   display: none;
 
   @media (max-width: 1024px) {

@@ -24,6 +24,7 @@ const MyPage = () => {
       try {
         const response = await axios.get(`/api/user/me?year=${selectedYear}`);
         setMyPageData(response.data.result);
+        console.log(response);
       } catch (error) {
         console.error("마이페이지 데이터 가져오기 실패:", error);
       }
@@ -42,6 +43,8 @@ const MyPage = () => {
 
   return (
     <Container>
+      <ProfileCard userProfile={userProfile} />
+      <StreakSummary streak={readingStats.readingStreak} />
       <div style={{ marginBottom: "20px" }}>
         <label htmlFor="year-select">연도 선택: </label>
         <select
@@ -56,9 +59,6 @@ const MyPage = () => {
           ))}
         </select>
       </div>
-
-      <ProfileCard userProfile={userProfile} />
-      <StreakSummary streak={readingStats.readingStreak} />
       <ReadingHeatmap
         readingRecords={readingStats.readingRecords}
         selectedYear={selectedYear}

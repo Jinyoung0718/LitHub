@@ -34,7 +34,7 @@ public class TokenService {
         return new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
     }
 
-    public void generateTokensAndSetCookies(HttpServletResponse response, Long userId, Role role) {
+    public String generateTokensAndSetCookies(HttpServletResponse response, Long userId, Role role) {
         String newAccessToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, userId, role, AuthConst.ACCESS_EXPIRATION);
         String newRefreshToken = jwtUtil.createJwt(AuthConst.TOKEN_TYPE_REFRESH, userId, role, AuthConst.REFRESH_EXPIRATION);
 
@@ -43,10 +43,12 @@ public class TokenService {
 
         response.addCookie(CookieUtil.createCookie(AuthConst.TOKEN_TYPE_ACCESS, newAccessToken, AuthConst.COOKIE_ACCESS_EXPIRATION));
         response.addCookie(CookieUtil.createCookie(AuthConst.TOKEN_TYPE_REFRESH, newRefreshToken, AuthConst.COOKIE_REFRESH_EXPIRATION));
+
         SecurityContextHolder.getContext().setAuthentication(getAuthenticationFromToken(newAccessToken));
+        return newAccessToken;
     }
 
-    public void rotatingTokens(HttpServletRequest request, HttpServletResponse response) {
+    public String rotatingTokens(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_REFRESH);
 
         if (refreshToken == null || refreshToken.isEmpty() || jwtUtil.isExpired(refreshToken)) {
@@ -56,6 +58,6 @@ public class TokenService {
         RefreshTokenValidationStatus.validateToken(refreshToken, jwtUtil, redisRefreshTokenUtil);
         Long userId = jwtUtil.getUserId(refreshToken);
         Role role = jwtUtil.getRole(refreshToken);
-        generateTokensAndSetCookies(response, userId, role);
+        return generateTokensAndSetCookies(response, userId, role);
     }
 }
