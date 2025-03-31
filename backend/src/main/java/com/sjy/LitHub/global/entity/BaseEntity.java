@@ -10,6 +10,8 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
+import com.sjy.LitHub.file.util.FileUtil;
+
 @Getter
 @MappedSuperclass
 @SuperBuilder
@@ -24,7 +26,7 @@ public abstract class BaseEntity {
     private Long id;
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
@@ -35,7 +37,12 @@ public abstract class BaseEntity {
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public String getModelName() {
+        String simpleName = this.getClass().getSimpleName();
+        return FileUtil.firstLowerCase(simpleName);
     }
 }

@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sjy.LitHub.account.mapper.MyPageMapper;
 import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
 import com.sjy.LitHub.account.model.req.PasswordUpdateRequestDTO;
 import com.sjy.LitHub.account.model.res.MyPageResponseDTO;
@@ -46,7 +45,7 @@ public class MyPageService {
         ReadingStatsResponseDTO readingStats = getCachedOrFetch(statsKey,
             () -> readLogStatusService.getReadingStats(userId, year), ReadingStatsResponseDTO.class);
 
-        return MyPageMapper.toMyPageResponse(userProfile, readingStats);
+        return MyPageResponseDTO.of(userProfile, readingStats);
     }
 
     private <T> T getCachedOrFetch(String key, Supplier<T> fetchData, Class<T> type) {
@@ -65,7 +64,7 @@ public class MyPageService {
         }
         UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
         myPageCacheManager.putCache(PROFILE_KEY_PREFIX + userId, updatedProfile);
-    } // 닉네임을 변경하면 응답 데이터 없이 성공만 반환하고, 프론트에서 다시 전체 데이터를 요청하도록 설계
+    }
 
     @Transactional
     public void updatePassword(Long userId, PasswordUpdateRequestDTO requestDto) {
@@ -91,6 +90,6 @@ public class MyPageService {
 
         UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
         myPageCacheManager.putCache(PROFILE_KEY_PREFIX + userId, updatedProfile);
-        return MyPageMapper.toMyPageResponse(updatedProfile, updatedStats);
+        return MyPageResponseDTO.of(updatedProfile, updatedStats);
     } // ReadLogService 에서 저장 처리
 }

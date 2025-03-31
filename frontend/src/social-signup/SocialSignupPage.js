@@ -33,7 +33,7 @@ export const InputGroup = styled.div`
 
   input {
     flex: 3;
-    width: 24.6rem;
+    width: 21rem;
     padding: 1rem;
     border: 1px solid #ffcc80;
     border-radius: 5px;
@@ -52,17 +52,13 @@ export const InputGroup = styled.div`
   button {
     flex: 0.7;
     padding: 0.5rem;
-    background: #ff7043;
+    background: #ff5722;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.85rem;
     transition: background 0.3s;
-
-    &:hover {
-      background: #ff5722;
-    }
 
     &:disabled {
       background: #ccc;
@@ -101,7 +97,7 @@ export const PasswordValidation = styled.div`
 `;
 
 export const SignupButton = styled.button`
-  width: 100%;
+  width: 95%;
   padding: 0.85rem;
   background: #ffcc80;
   color: white;

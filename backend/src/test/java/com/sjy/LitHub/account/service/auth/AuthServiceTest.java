@@ -20,6 +20,7 @@ import com.sjy.LitHub.account.mapper.UserMapper;
 import com.sjy.LitHub.account.model.req.signup.SignupDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.account.util.PasswordManager;
+import com.sjy.LitHub.file.mapper.UserGenFileMapper;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.global.redis.RedisService;
@@ -34,6 +35,7 @@ class AuthServiceTest {
     @Mock private RedisService redisService;
     @Mock private PasswordManager passwordManager;
     @Mock private UserMapper userMapper;
+    @Mock private UserGenFileMapper userGenFileMapper;
     @Mock private BCryptPasswordEncoder passwordEncoder;
 
     @Test
@@ -49,8 +51,6 @@ class AuthServiceTest {
             .userEmail("test@example.com")
             .nickName("testNick")
             .password("validPass1")
-            .profileImageUrlSmall("small.png")
-            .profileImageUrlLarge("large.png")
             .role(Role.ROLE_USER)
             .build();
         when(userMapper.ofSignupDTO(dto)).thenReturn(mockUser);
@@ -112,8 +112,6 @@ class AuthServiceTest {
             .userEmail("exists@example.com")
             .nickName("existingNick")
             .password("hashed-password")
-            .profileImageUrlSmall("default-small.png")
-            .profileImageUrlLarge("default-large.png")
             .build();
 
         when(userRepository.findByUserEmailAll("exists@example.com")).thenReturn(Optional.of(existingUser));
@@ -133,8 +131,6 @@ class AuthServiceTest {
             .nickName("nick")
             .password("xxx")
             .deletedAt(LocalDateTime.now())
-            .profileImageUrlLarge("x")
-            .profileImageUrlSmall("x")
             .build();
 
         when(redisService.getData("emailAuth:deleted@example.com:verified")).thenReturn("true");
@@ -160,8 +156,6 @@ class AuthServiceTest {
             .userEmail("test@example.com")
             .nickName("testNick")
             .password("validPass1")
-            .profileImageUrlSmall("small.png")
-            .profileImageUrlLarge("large.png")
             .role(Role.ROLE_USER)
             .build();
 

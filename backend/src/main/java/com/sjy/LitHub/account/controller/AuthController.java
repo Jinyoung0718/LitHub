@@ -1,9 +1,10 @@
 package com.sjy.LitHub.account.controller;
 
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
@@ -15,7 +16,7 @@ import com.sjy.LitHub.account.service.auth.AuthService;
 import com.sjy.LitHub.account.service.email.EmailService;
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
-import com.sjy.LitHub.global.security.oauth2.service.FirstOAuthSignUpService;
+import com.sjy.LitHub.global.security.oauth2.service.signup.FirstOAuthSignUpService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -61,7 +62,8 @@ public class AuthController {
 
     @Operation(summary = "계정 복구", description = "deleteAt에 값이 있었던 회원을 다시 null 값으로 되돌립니다.")
     @PostMapping("/restore-user")
-    public BaseResponse<Empty> restoreUser(@RequestParam String email) {
+    public BaseResponse<Empty> restoreUser(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
         authService.restoreUser(email);
         return BaseResponse.success();
     }

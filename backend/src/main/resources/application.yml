@@ -4,6 +4,11 @@ spring:
   profiles:
     active: dev
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
+
   jwt:
     secret: ${JWT_SECRET}
 
@@ -31,11 +36,27 @@ spring:
 
 server:
   port: 8080
+  tomcat:
+    max-swallow-size: 1GB
+    max-http-form-post-size: 1GB
 
 springdoc:
   api-docs:
     enabled: true
   default-produces-media-type: application/json;charset=UTF-8
+
+custom:
+  upload:
+    max-image-size: 5MB
+    max-file-size: 20MB
+  dev:
+    domain: localhost
+    backUrl: "http://${custom.dev.domain}:${server.port}"
+  site:
+    backUrl: "${custom.dev.backUrl}"
+
+file:
+  upload-dir: C:/Users/Sojinyoung/Desktop/LitHubStorage
 
 logging:
   level:

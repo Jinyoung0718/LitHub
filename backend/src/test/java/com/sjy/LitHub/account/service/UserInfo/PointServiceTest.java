@@ -41,8 +41,6 @@ class PointServiceTest {
                 .userEmail("test@example.com")
                 .nickName("testUser")
                 .password("password123")
-                .profileImageUrlSmall("example.com/small.jpg")
-                .profileImageUrlLarge("example.com/large.jpg")
                 .tier(Tier.BRONZE)
                 .point(1000)
                 .role(Role.ROLE_USER)

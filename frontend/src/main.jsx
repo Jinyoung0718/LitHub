@@ -7,11 +7,12 @@ import SocialSignupPage from "./social-signup/SocialSignupPage.jsx";
 import MyPage from "./mypage/MyPage.jsx";
 import Header from "./common/header/Header";
 import Footer from "./common/Footer";
-import "./index.css";
+import GlobalStyle from "./styles/GlobalStyle.js";
 
 createRoot(document.getElementById("root")).render(
   <Router>
     <AuthProvider>
+      <GlobalStyle />
       <Header />
       <Routes>
         <Route index element={<MainPage />} />

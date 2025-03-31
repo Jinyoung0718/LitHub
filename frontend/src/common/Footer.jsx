@@ -58,9 +58,7 @@ function Footer() {
           <FaEnvelope />
         </a>
       </IconSection>
-      <BottomSection>
-        © 2024 MileStone Music. All rights reserved.
-      </BottomSection>
+      <BottomSection>© 2024 LitHub. All rights reserved.</BottomSection>
     </FooterContainer>
   );
 }

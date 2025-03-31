@@ -2,13 +2,22 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../common/AuthContext";
 import { Container } from "./MyPageStyles";
-import ProfileCard from "./ProfileCard";
-import StreakSummary from "./StreakSummary";
-import ReadingHeatmap from "./ReadingHeatmap";
+import ProfileCard from "./profile/ProfileCard";
+import ReadingHeatmap from "./heatmap/ReadingHeatmap";
 import MonthlyStatsChart from "./MonthlyStatsChart";
+import SettingDropdown from "./setting/SettingDropdown";
+import ReadingTimerModal from "./timer/ReadingTimerModal";
+import {
+  StartReadingWrapper,
+  StartReadingButton,
+  DropdownWrapper,
+  DropdownLabel,
+  DropdownSelect,
+} from "./MyPageStyles";
 
 const MyPage = () => {
   const { accessToken, isLoading } = useContext(AuthContext);
+  const [showTimerModal, setShowTimerModal] = useState(false);
   const [myPageData, setMyPageData] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [availableYears, setAvailableYears] = useState([]);
@@ -19,19 +28,33 @@ const MyPage = () => {
     setAvailableYears(years);
   }, []);
 
-  useEffect(() => {
-    const fetchMyPageData = async () => {
-      try {
-        const response = await axios.get(`/api/user/me?year=${selectedYear}`);
-        setMyPageData(response.data.result);
-        console.log(response);
-      } catch (error) {
-        console.error("마이페이지 데이터 가져오기 실패:", error);
-      }
-    };
+  const fetchMyPageData = async (year) => {
+    try {
+      const response = await axios.get(`/api/user/me?year=${year}`, {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      });
+      setMyPageData(response.data.result);
+    } catch (error) {
+      console.error("마이페이지 데이터 가져오기 실패:", error);
+    }
+  };
 
+  const handleAddReadingTime = async (minutes) => {
+    try {
+      await axios.post(`/api/user/reading-log?minutes=${minutes}`);
+      await fetchMyPageData(selectedYear);
+    } catch (error) {
+      console.error("읽기 기록 추가 실패:", error);
+    }
+  };
+
+  useEffect(() => {
     if (!isLoading && accessToken) {
-      fetchMyPageData();
+      fetchMyPageData(selectedYear);
     }
   }, [accessToken, isLoading, selectedYear]);
 
@@ -43,11 +66,28 @@ const MyPage = () => {
 
   return (
     <Container>
-      <ProfileCard userProfile={userProfile} />
-      <StreakSummary streak={readingStats.readingStreak} />
-      <div style={{ marginBottom: "20px" }}>
-        <label htmlFor="year-select">연도 선택: </label>
-        <select
+      <SettingDropdown onUpdate={fetchMyPageData} />
+      <ProfileCard
+        userProfile={userProfile}
+        readingStreak={readingStats.readingStreak}
+      />
+
+      <StartReadingWrapper>
+        <StartReadingButton onClick={() => setShowTimerModal(true)}>
+          읽기 시작
+        </StartReadingButton>
+      </StartReadingWrapper>
+
+      {showTimerModal && (
+        <ReadingTimerModal
+          onClose={() => setShowTimerModal(false)}
+          onSave={handleAddReadingTime}
+        />
+      )}
+
+      <DropdownWrapper>
+        <DropdownLabel htmlFor="year-select">연도 선택</DropdownLabel>
+        <DropdownSelect
           id="year-select"
           value={selectedYear}
           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
@@ -57,12 +97,14 @@ const MyPage = () => {
               {year}
             </option>
           ))}
-        </select>
-      </div>
+        </DropdownSelect>
+      </DropdownWrapper>
+
       <ReadingHeatmap
         readingRecords={readingStats.readingRecords}
         selectedYear={selectedYear}
       />
+
       <MonthlyStatsChart monthlyStats={readingStats.monthlyStats} />
     </Container>
   );

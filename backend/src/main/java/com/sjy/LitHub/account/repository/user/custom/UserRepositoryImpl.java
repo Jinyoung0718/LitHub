@@ -1,9 +1,11 @@
 package com.sjy.LitHub.account.repository.user.custom;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.account.entity.QUser;
+import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.model.res.UserProfileResponseDTO;
+import com.sjy.LitHub.global.exception.custom.InvalidUserException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,18 +17,22 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
 	@Override
 	public UserProfileResponseDTO getUserProfile(Long userId) {
-		return queryFactory
-			.select(Projections.constructor(UserProfileResponseDTO.class,
-				user.id,
-				user.userEmail,
-				user.nickName,
-				user.profileImageUrlLarge,
-				user.tier,
-				user.point
-			))
-			.from(user)
-			.where(user.id.eq(userId))
+		User user = queryFactory.selectFrom(QUser.user)
+			.leftJoin(QUser.user.userGenFiles).fetchJoin()
+			.where(QUser.user.id.eq(userId))
 			.fetchOne();
+
+		if (user == null) {
+			throw new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND);
+		}
+
+		return UserProfileResponseDTO.builder()
+			.userId(user.getId())
+			.nickname(user.getNickName())
+			.profileImageUrlLarge(user.getProfileImageUrl512())
+			.tier(user.getTier())
+			.point(user.getPoint())
+			.build();
 	}
 
 	@Override

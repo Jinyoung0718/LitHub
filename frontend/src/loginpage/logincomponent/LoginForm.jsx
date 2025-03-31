@@ -34,8 +34,6 @@ const LoginForm = () => {
           await axios.post("/api/auth/restore-user", {
             email: formData.email,
           });
-
-          alert("계정 복구가 완료되었습니다. 다시 로그인해주세요.");
           await handleSignin();
         }
       } else {

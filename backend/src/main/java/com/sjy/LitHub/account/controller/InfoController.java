@@ -8,7 +8,7 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.global.AuthUser;
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
-import com.sjy.LitHub.global.security.oauth2.service.OAuthTempTokenService;
+import com.sjy.LitHub.global.security.oauth2.service.token.OAuthTempTokenService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

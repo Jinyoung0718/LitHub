@@ -18,6 +18,8 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.security.oauth2.service.token.OAuthTempTokenService;
+import com.sjy.LitHub.global.security.oauth2.service.token.TempTokenService;
 import com.sjy.LitHub.global.security.util.AuthConst;
 import com.sjy.LitHub.global.security.util.JwtUtil;
 

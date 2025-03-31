@@ -46,7 +46,7 @@ const AuthProvider = ({ children }) => {
       await axios.post("/api/auth/logout", null, { withCredentials: true });
       setAccessToken(null);
 
-      if (navigateCallback) navigateCallback("/login");
+      if (navigateCallback) navigateCallback("/login-register");
     } catch (error) {
       setAccessToken(null);
     }

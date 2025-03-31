@@ -9,12 +9,6 @@ public interface FriendRepositoryCustom {
 
     long insertIfNotExists(Long requesterId, Long receiverId);
 
-    long updateFriendStatusToAccepted(Long requestId);
-
-    long deleteFriendRequest(Long requestId);
-
-    long deleteFriend(Long friendId);
-
     List<FriendListResponseDTO> findAcceptedFriendsByUserId(Long userId);
 
     List<FriendRequestResponseDTO> findPendingFriendRequests(Long userId);

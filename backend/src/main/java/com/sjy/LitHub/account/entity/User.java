@@ -1,16 +1,32 @@
 package com.sjy.LitHub.account.entity;
 
-import com.sjy.LitHub.account.entity.authenum.Role;
-import com.sjy.LitHub.account.entity.authenum.Tier;
-import com.sjy.LitHub.global.entity.BaseTime;
-
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
+import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.account.entity.authenum.Tier;
+import com.sjy.LitHub.file.entity.UserGenFile;
+import com.sjy.LitHub.global.entity.BaseTime;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.MapKey;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
@@ -31,12 +47,6 @@ public class User extends BaseTime {
 	@Column(name = "user_password", nullable = false, length = 60)
 	private String password;
 
-	@Column(name = "profile_image_url_small", nullable = false)
-	private String profileImageUrlSmall;
-
-	@Column(name = "profile_image_url_large", nullable = false)
-	private String profileImageUrlLarge;
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tier", nullable = false, length = 10)
 	@Builder.Default
@@ -53,6 +63,27 @@ public class User extends BaseTime {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@MapKey(name = "typeCode")
+	@Builder.Default
+	@Setter
+	private Map<UserGenFile.TypeCode, UserGenFile> userGenFiles = new HashMap<>();
+
+	public void addUserGenFile(UserGenFile file) {
+		file.setUser(this);
+		userGenFiles.put(file.getTypeCode(), file);
+	}
+
+	public String getProfileImageUrl512() {
+		UserGenFile file = userGenFiles.get(UserGenFile.TypeCode.PROFILE_512);
+		return file.getPublicUrl();
+	}
+
+	public String getProfileImageUrl256() {
+		UserGenFile file = userGenFiles.get(UserGenFile.TypeCode.PROFILE_256);
+		return file.getPublicUrl();
+	}
 
 	public void encodePassword(BCryptPasswordEncoder passwordEncoder) {
 		this.password = passwordEncoder.encode(this.password);

@@ -1,7 +1,6 @@
 package com.sjy.LitHub.account.controller;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,7 @@ import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
 import com.sjy.LitHub.account.model.req.PasswordUpdateRequestDTO;
 import com.sjy.LitHub.account.model.res.MyPageResponseDTO;
 import com.sjy.LitHub.account.service.UserInfo.MyPageService;
-import com.sjy.LitHub.account.service.UserInfo.ProfileImageService;
+import com.sjy.LitHub.file.service.ProfileImageService;
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
 import com.sjy.LitHub.global.security.model.UserPrincipal;
@@ -61,19 +60,16 @@ public class MyPageController {
 
 	@Operation(summary = "프로필 이미지 업로드", description = "사용자가 프로필 이미지를 업로드합니다. 기존 프로필 이미지는 덮어쓰기됩니다.")
 	@PostMapping(value = "/profile/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public BaseResponse<Map<String, String>> uploadProfileImage(
-		@AuthenticationPrincipal UserPrincipal userPrincipal,
-		@RequestParam("file") MultipartFile file) {
-		Map<String, String> imageUrls = profileImageService.saveUserImage(file, userPrincipal.getUsername());
-		return BaseResponse.success(imageUrls);
+	public BaseResponse<String> uploadProfileImage(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+		String imageUrl = profileImageService.saveUserImage(file, userPrincipal.getUserId());
+		return BaseResponse.success(imageUrl);
 	}
 
 	@Operation(summary = "프로필 이미지 삭제", description = "사용자의 프로필 이미지를 기본 이미지로 변경합니다.")
 	@DeleteMapping("/profile/delete")
-	public BaseResponse<Empty> deleteProfileImage(
-		@AuthenticationPrincipal UserPrincipal userPrincipal) {
-		profileImageService.deleteUserImage(userPrincipal.getUsername());
-		return BaseResponse.success();
+	public BaseResponse<String> deleteProfileImage( @AuthenticationPrincipal UserPrincipal userPrincipal) {
+		String defaultImageUrl = profileImageService.deleteUserImage(userPrincipal.getUserId());
+		return BaseResponse.success(defaultImageUrl);
 	}
 
 	@Operation(summary = "독서 기록 저장", description = "독서 시간을 추가하고 독서 연속 기록과 색상 레벨을 갱신합니다.")

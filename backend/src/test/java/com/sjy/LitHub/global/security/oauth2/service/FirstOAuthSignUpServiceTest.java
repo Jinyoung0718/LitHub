@@ -19,9 +19,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.account.model.req.signup.SocialSignupDTO;
+import com.sjy.LitHub.file.mapper.UserGenFileMapper;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.global.security.model.UserPrincipal;
+import com.sjy.LitHub.global.security.oauth2.service.signup.FirstOAuthSignUpService;
+import com.sjy.LitHub.global.security.oauth2.service.signup.OAuthSignupService;
+import com.sjy.LitHub.global.security.oauth2.service.signup.OAuthUserTempService;
+import com.sjy.LitHub.global.security.oauth2.service.token.OAuthTempTokenService;
 import com.sjy.LitHub.global.security.util.AuthConst;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +46,9 @@ class FirstOAuthSignUpServiceTest {
 
     @Mock
     private OAuthUserTempService oAuthUserTempService;
+
+    @Mock
+    private UserGenFileMapper userGenFileMapper;
 
     @Mock
     private HttpServletRequest request;

@@ -19,21 +19,6 @@ public class UserCommandRepositoryImpl implements UserCommandRepository {
 	}
 
 	@Override
-	public void updateUserProfileImage(String userId, String smallImageUrl, String largeImageUrl) {
-		em.createQuery(
-				"UPDATE User u SET u.profileImageUrlSmall = :smallImageUrl, u.profileImageUrlLarge = :largeImageUrl WHERE u.id = :userId")
-			.setParameter("smallImageUrl", smallImageUrl)
-			.setParameter("largeImageUrl", largeImageUrl)
-			.setParameter("userId", userId)
-			.executeUpdate();
-	}
-
-	@Override
-	public void resetUserProfileImage(String userId, String smallImageUrl, String largeImageUrl) {
-		updateUserProfileImage(userId, smallImageUrl, largeImageUrl);
-	}
-
-	@Override
 	public void restoreUserByEmail(String email) {
 		em.createQuery("UPDATE User u SET u.deletedAt = NULL WHERE u.userEmail = :email AND u.deletedAt IS NOT NULL")
 			.setParameter("email", email)

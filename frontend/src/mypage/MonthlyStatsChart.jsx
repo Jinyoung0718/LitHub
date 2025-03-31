@@ -1,7 +1,7 @@
 import React from "react";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -19,20 +19,26 @@ const MonthlyStatsChart = ({ monthlyStats }) => {
 
   return (
     <div style={{ marginTop: "40px" }}>
-      <h3>월별 총 독서 시간</h3>
       {isEmpty ? (
         <p style={{ color: "#777", fontStyle: "italic" }}>
           아직 독서 기록이 없습니다.
         </p>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="time" fill="#ffa726" />
-          </BarChart>
+            <Line
+              type="monotone"
+              dataKey="time"
+              stroke="#ffa000"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
         </ResponsiveContainer>
       )}
     </div>

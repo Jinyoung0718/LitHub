@@ -21,9 +21,6 @@ public class UserProfileResponseDTO {
     private final Long userId;
 
     @NonNull
-    private final String email;
-
-    @NonNull
     private final String nickname;
 
     @NonNull

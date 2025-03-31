@@ -1,20 +1,24 @@
 package com.sjy.LitHub.account.repository.user;
 
-import com.sjy.LitHub.account.entity.User;
-import com.sjy.LitHub.account.repository.user.command.UserCommandRepository;
-import com.sjy.LitHub.account.repository.user.custom.UserRepositoryCustom;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import com.sjy.LitHub.account.entity.User;
+import com.sjy.LitHub.account.repository.user.command.UserCommandRepository;
+import com.sjy.LitHub.account.repository.user.custom.UserRepositoryCustom;
+import com.sjy.LitHub.account.repository.user.porfile.UserProfileRepositoryCustom;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, UserCommandRepository, UserRepositoryCustom {
+public interface UserRepository extends JpaRepository<User, Long>,
+	UserCommandRepository,
+	UserRepositoryCustom,
+	UserProfileRepositoryCustom {
 
 	@Query("SELECT u FROM User u WHERE u.userEmail = :userEmail")
 	Optional<User> findByUserEmailAll(@Param("userEmail") String userEmail);

@@ -70,13 +70,20 @@ public enum BaseResponseStatus {
 
     // 파일 관련 예외
     INVALID_IMAGE_FORMAT(false,40100, "허용되지 않은 이미지 확장자입니다.", 400),
-    EXCEED_MAX_SIZE(false,40101, "파일 크기가 허용된 최대 크기를 초과하였습니다. (최대 10MB)", 400),
+    EXCEED_MAX_SIZE(false,40101, "파일 크기가 허용된 최대 크기를 초과하였습니다.", 400),
     INVALID_FILE_TYPE(false,40102, "유효하지 않은 파일 형식입니다. 이미지 파일만 업로드할 수 있습니다.", 400),
     IMAGE_DOWNLOAD_FAILED(false,40103, "이미지 다운로드 중 오류가 발생하였습니다.", 500),
     IMAGE_DIR_SAVED_FAILED(false,40103, "이미지 경로 생성 중 오류가 발생하였습니다.", 500),
     IMAGE_PROCESSING_FAILED(false,40104, "이미지 처리 중 오류가 발생하였습니다.", 500),
     IMAGE_UPLOAD_FAILED(false,40105, "이미지 업로드 중 오류가 발생하였습니다.", 500),
-    IMAGE_DELETE_FAILED(false,40106, "파일 삭제를 실패했습니다.", 500);
+    IMAGE_DELETE_FAILED(false,40106, "파일 삭제를 실패했습니다.", 500),
+
+    FILE_UPLOAD_FAILED(false, 40200, "파일 업로드 중 오류가 발생하였습니다.", 500),
+    INVALID_FILE_FORMAT(false, 40201, "허용되지 않은 파일 형식입니다.", 400),
+    INVALID_FILE_EXTENSION(false, 40202, "허용되지 않은 파일 확장자입니다.", 400),
+    FILE_DOWNLOAD_FAILED(false, 40203, "파일 다운로드 중 오류가 발생하였습니다.", 500),
+    FILE_DELETE_FAILED(false, 40204, "파일 삭제를 실패했습니다.", 500),
+    FILE_DIR_SAVED_FAILED(false, 40205, "파일 경로 생성 중 오류가 발생하였습니다.", 500);
 
     private final boolean isSuccess;
     private final int code;

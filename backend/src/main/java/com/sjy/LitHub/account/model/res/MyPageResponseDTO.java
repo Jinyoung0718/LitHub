@@ -22,4 +22,11 @@ public class MyPageResponseDTO {
 
     @NonNull
     private final ReadingStatsResponseDTO readingStats;
+
+    public static MyPageResponseDTO of(UserProfileResponseDTO userProfile, ReadingStatsResponseDTO readingStats) {
+        return MyPageResponseDTO.builder()
+            .userProfile(userProfile)
+            .readingStats(readingStats)
+            .build();
+    }
 }

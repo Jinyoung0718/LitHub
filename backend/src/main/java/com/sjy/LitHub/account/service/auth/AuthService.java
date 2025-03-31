@@ -1,9 +1,13 @@
 package com.sjy.LitHub.account.service.auth;
 
+import java.util.Map;
+
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.mapper.UserMapper;
 import com.sjy.LitHub.account.model.req.signup.SignupDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
+import com.sjy.LitHub.file.mapper.UserGenFileMapper;
+import com.sjy.LitHub.file.entity.UserGenFile;
 import com.sjy.LitHub.global.redis.RedisService;
 import com.sjy.LitHub.account.util.PasswordManager;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
@@ -19,6 +23,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserGenFileMapper userGenFileMapper;
     private final PasswordManager passwordManager;
     private final RedisService redisService;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -35,6 +40,10 @@ public class AuthService {
     private void createUser(SignupDTO signupDTO) {
         User user = userMapper.ofSignupDTO(signupDTO);
         user.encodePassword(passwordEncoder);
+
+        Map<UserGenFile.TypeCode, UserGenFile> defaultImages = userGenFileMapper.toDefaultUserGenFiles(user);
+        defaultImages.values().forEach(user::addUserGenFile);
+
         userRepository.save(user);
         redisService.deleteData(REDIS_KEY_PREFIX + signupDTO.getUserEmail() + REDIS_KEY_SUFFIX);
     }

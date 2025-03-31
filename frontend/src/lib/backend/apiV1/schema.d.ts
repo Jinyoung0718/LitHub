@@ -483,7 +483,6 @@ export interface components {
         UserProfileResponseDTO: {
             /** Format: int64 */
             userId: number;
-            email: string;
             nickname: string;
             profileImageUrlLarge: string;
             /** @enum {string} */
@@ -491,16 +490,14 @@ export interface components {
             /** Format: int32 */
             point: number;
         };
-        BaseResponseMapStringString: {
+        BaseResponseString: {
             success: boolean;
             /** Format: int32 */
             code: number;
             /** Format: int32 */
             httpStatus: number;
             message: string;
-            result: {
-                [key: string]: string;
-            };
+            result: string;
         };
         BaseResponseEmpty: {
             success: boolean;
@@ -624,7 +621,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseMapStringString"];
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseString"];
                 };
             };
         };
@@ -778,14 +775,18 @@ export interface operations {
     };
     restoreUser: {
         parameters: {
-            query: {
-                email: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: string;
+                };
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -1033,7 +1034,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseString"];
                 };
             };
         };

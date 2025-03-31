@@ -88,8 +88,6 @@ class LoginFilterTest {
             .userEmail(email)
             .nickName("normal")
             .password("encoded")
-            .profileImageUrlSmall("x")
-            .profileImageUrlLarge("x")
             .deletedAt(null)
             .build();
 
@@ -134,8 +132,6 @@ class LoginFilterTest {
             .userEmail(email)
             .nickName("deleted")
             .password("encoded")
-            .profileImageUrlSmall("x")
-            .profileImageUrlLarge("x")
             .deletedAt(LocalDateTime.now())
             .build();
 
