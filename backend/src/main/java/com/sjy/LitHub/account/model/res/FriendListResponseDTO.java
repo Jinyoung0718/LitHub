@@ -30,7 +30,7 @@ public class FriendListResponseDTO {
     public static FriendListResponseDTO of(User user) {
         return new FriendListResponseDTO(
             user.getId(),
-            user.getNickName(),
+            user.getDisplayNickname(),
             user.getProfileImageUrl256(),
             user.getTier(),
             user.getPoint()

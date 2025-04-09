@@ -12,4 +12,6 @@ public interface FriendRepositoryCustom {
     List<FriendListResponseDTO> findAcceptedFriendsByUserId(Long userId);
 
     List<FriendRequestResponseDTO> findPendingFriendRequests(Long userId);
+
+    List<Long> findFriendIdsByUserId(Long userId);
 }

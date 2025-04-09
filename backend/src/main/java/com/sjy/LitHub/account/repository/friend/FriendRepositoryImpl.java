@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.account.entity.Friend;
 import com.sjy.LitHub.account.entity.QFriend;
@@ -90,5 +91,21 @@ public class FriendRepositoryImpl implements FriendRepositoryCustom {
 		return friends.stream()
 			.map(FriendRequestResponseDTO::of)
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Long> findFriendIdsByUserId(Long userId) {
+		QFriend friend = QFriend.friend;
+
+		return queryFactory
+			.select(
+				new CaseBuilder()
+					.when(friend.requester.id.eq(userId)).then(friend.receiver.id)
+					.otherwise(friend.requester.id)
+			)
+			.from(friend)
+			.where(friend.status.eq(FriendStatus.ACCEPTED)
+				.and(friend.requester.id.eq(userId).or(friend.receiver.id.eq(userId))))
+			.fetch();
 	}
 }

@@ -32,11 +32,4 @@ public class UserCommandRepositoryImpl implements UserCommandRepository {
 			.setParameter("userId", userId)
 			.executeUpdate();
 	}
-
-	@Override
-	public void deletePhysicallyById(Long userId) {
-		em.createQuery("DELETE FROM User u WHERE u.id = :userId")
-			.setParameter("userId", userId)
-			.executeUpdate();
-	}
 }

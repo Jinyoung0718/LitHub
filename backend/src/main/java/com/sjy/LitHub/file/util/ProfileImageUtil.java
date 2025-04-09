@@ -1,6 +1,5 @@
-package com.sjy.LitHub.file.storage.profile;
+package com.sjy.LitHub.file.util;
 
-import com.sjy.LitHub.file.util.FileUtil;
 import com.sjy.LitHub.global.config.AppConfig;
 
 public class ProfileImageUtil {

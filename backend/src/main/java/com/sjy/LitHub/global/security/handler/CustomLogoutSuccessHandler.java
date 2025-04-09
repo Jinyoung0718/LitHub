@@ -2,6 +2,8 @@ package com.sjy.LitHub.global.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sjy.LitHub.global.model.BaseResponse;
+import com.sjy.LitHub.global.model.Empty;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        BaseResponse<String> responseBody = BaseResponse.success("로그아웃 성공");
+        BaseResponse<Empty> responseBody = BaseResponse.success();
         response.getWriter().write(objectMapper.writeValueAsString(responseBody));
         response.getWriter().flush();
     }

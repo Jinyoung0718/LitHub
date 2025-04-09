@@ -1,7 +1,9 @@
 package com.sjy.LitHub.account.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,6 +12,7 @@ import com.sjy.LitHub.account.entity.authenum.Role;
 import com.sjy.LitHub.account.entity.authenum.Tier;
 import com.sjy.LitHub.file.entity.UserGenFile;
 import com.sjy.LitHub.global.entity.BaseTime;
+import com.sjy.LitHub.post.entity.Post;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -70,6 +73,10 @@ public class User extends BaseTime {
 	@Setter
 	private Map<UserGenFile.TypeCode, UserGenFile> userGenFiles = new HashMap<>();
 
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Post> posts = new ArrayList<>();
+
 	public void addUserGenFile(UserGenFile file) {
 		file.setUser(this);
 		userGenFiles.put(file.getTypeCode(), file);
@@ -87,5 +94,9 @@ public class User extends BaseTime {
 
 	public void encodePassword(BCryptPasswordEncoder passwordEncoder) {
 		this.password = passwordEncoder.encode(this.password);
+	}
+
+	public String getDisplayNickname() {
+		return this.deletedAt != null ? "탈퇴한 사용자" : this.nickName;
 	}
 }

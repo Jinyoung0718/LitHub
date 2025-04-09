@@ -48,6 +48,12 @@ public enum BaseResponseStatus {
     FRIEND_ALREADY_ACCEPTED(false,2403, "이미 친구 상태입니다.", 400),
     FRIEND_NOT_FOUND(false,2404, "친구 관계가 존재하지 않습니다.", 404),
 
+    // 게시글 관련 예외 코드
+    POST_NOT_FOUND(false, 3000, "게시글을 찾을 수 없습니다.", 404),
+    COMMENT_NOT_FOUND(false, 3001, "댓글을 찾을 수 없습니다.", 404),
+    TOO_DEEP_COMMENT(false, 3002, "대대댓글은 안 됩니다", 400),
+
+
     // 실패
     VALIDATION_FAILED(false,40000, "입력 값이 유효하지 않습니다", 400),
     AUTH_REQUEST_BODY_INVALID(false,40001, "잘못된 요청 본문입니다.", 400),
@@ -56,6 +62,7 @@ public enum BaseResponseStatus {
     UNAUTHORIZED(false,40002, "인증되지 않은 요청입니다.", 401),
     ACCESS_DENIED(false,40003, "접근 권한이 없습니다.", 403),
     AUTH_CHECK_FAILED(false, 40004, "로그인이 필요합니다.", 401),
+    NO_AUTHORITY(false, 40005, "수행할 권한이 없습니다.", 403),
 
     // JWT 관련 예외
     JWT_BLACKLISTED(false,40010, "블랙리스트에 등록된 토큰입니다.", 401),

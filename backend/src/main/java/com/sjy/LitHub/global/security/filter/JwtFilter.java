@@ -45,7 +45,6 @@ public class JwtFilter extends OncePerRequestFilter {
 		}
 
 		String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
-		log.debug("Access Token: {}", accessToken);
 
 		if (accessToken == null || accessToken.isEmpty()) {
 			setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_MISSING));

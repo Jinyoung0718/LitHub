@@ -9,6 +9,4 @@ public interface UserCommandRepository {
 	void restoreUserByEmail(String email);
 
 	void deleteUserById(Long userId, LocalDateTime deletedAt);
-
-	void deletePhysicallyById(Long userId);
 }

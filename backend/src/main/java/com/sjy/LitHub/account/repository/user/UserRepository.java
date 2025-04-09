@@ -32,8 +32,5 @@ public interface UserRepository extends JpaRepository<User, Long>,
 	@Query("SELECT u.password FROM User u WHERE u.id = :userId")
 	String findPasswordById(@Param("userId") Long userId);
 
-	@Query("SELECT u.id FROM User u WHERE u.deletedAt IS NOT NULL AND u.deletedAt < :threshold")
-	List<Long> findDeletedUserIdsBefore(@Param("threshold") LocalDateTime threshold);
-
 	boolean existsByNickName(@Param("nickName") String nickName);
 }

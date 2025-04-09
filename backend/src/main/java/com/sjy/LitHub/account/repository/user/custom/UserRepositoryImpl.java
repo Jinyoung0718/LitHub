@@ -22,7 +22,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 			.where(QUser.user.id.eq(userId))
 			.fetchOne();
 
-		if (user == null) {
+		if (user == null || user.getDeletedAt() != null) {
 			throw new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND);
 		}
 

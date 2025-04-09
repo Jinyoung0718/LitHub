@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.file.entity.UserGenFile;
 import com.sjy.LitHub.file.util.FileUtil;
+import com.sjy.LitHub.file.util.ProfileImageUtil;
 import com.sjy.LitHub.file.util.StorageImageUtil;
 import com.sjy.LitHub.file.util.exception.ImageExceptionResolver;
 import com.sjy.LitHub.global.exception.custom.InvalidFileException;

@@ -24,8 +24,12 @@ public class AuthUser {
         UserPrincipal user = (UserPrincipal) principal;
 
         return User.builder()
-                .id(Long.parseLong(user.getUsername()))
-                .role(Role.valueOf(user.getRole().name()))
-                .build();
+            .id(Long.parseLong(user.getUsername()))
+            .role(Role.valueOf(user.getRole().name()))
+            .build();
+    }
+
+    public static Long getUserId() {
+        return getAuthUser().getId();
     }
 }

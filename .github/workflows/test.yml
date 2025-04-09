@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: TEST_BUILD
 
 on:
   push:
@@ -9,14 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
-    env:
-      SPRING_PROFILES_ACTIVE: test
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      MAIL_HOST: ${{ secrets.MAIL_HOST }}
-      MAIL_PORT: ${{ secrets.MAIL_PORT }}
-      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
     steps:
       - name: Checkout Repository
@@ -38,6 +30,10 @@ jobs:
 
       - name: Grant execute permission to Gradle Wrapper
         run: chmod +x backend/gradlew
+
+      - name: Write .env file
+        working-directory: ./backend
+        run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Build with Gradle
         working-directory: ./backend
