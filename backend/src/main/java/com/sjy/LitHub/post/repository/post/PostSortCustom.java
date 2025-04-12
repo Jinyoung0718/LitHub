@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import com.sjy.LitHub.post.model.res.PostSummaryResponseDTO;
 
 public interface PostSortCustom {
-	Page<PostSummaryResponseDTO> searchPosts(String keyword, Pageable pageable);
+	Page<PostSummaryResponseDTO> searchByKeyword(String keyword, Pageable pageable);
 
-	Page<PostSummaryResponseDTO> findPostsByTag(String tagName, Pageable pageable);
+	Page<PostSummaryResponseDTO> searchByTag(String tagName, Pageable pageable);
 
 	Page<PostSummaryResponseDTO> findPopularPosts(Pageable pageable);
 

@@ -40,15 +40,14 @@ public class PostSortImpl implements PostSortCustom {
 	private final QComment comment = QComment.comment;
 
 	@Override
-	public Page<PostSummaryResponseDTO> searchPosts(String keyword, Pageable pageable) {
-		BooleanExpression predicate = post.title.containsIgnoreCase(keyword)
-			.or(tag.name.containsIgnoreCase(keyword));
+	public Page<PostSummaryResponseDTO> searchByKeyword(String keyword, Pageable pageable) {
+		BooleanExpression predicate = post.title.containsIgnoreCase(keyword);
 		OrderSpecifier<?> order = post.createdAt.desc();
 		return fetchPostPage(predicate, order, pageable);
 	}
 
 	@Override
-	public Page<PostSummaryResponseDTO> findPostsByTag(String tagName, Pageable pageable) {
+	public Page<PostSummaryResponseDTO> searchByTag(String tagName, Pageable pageable) {
 		BooleanExpression predicate = tag.name.eq(tagName);
 		OrderSpecifier<?> order = post.createdAt.desc();
 		return fetchPostPage(predicate, order, pageable);
@@ -56,8 +55,9 @@ public class PostSortImpl implements PostSortCustom {
 
 	@Override
 	public Page<PostSummaryResponseDTO> findPopularPosts(Pageable pageable) {
+		BooleanExpression predicate = post.createdAt.after(LocalDateTime.now().minusDays(1));
 		OrderSpecifier<?> order = likes.count().add(scrap.count()).desc();
-		return fetchPostPage(null, order, pageable);
+		return fetchPostPage(predicate, order, pageable);
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.global.AuthUser;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.post.cache.util.PostDetailCacheUtils;
+import com.sjy.LitHub.post.cache.util.PostUpdatePart;
 import com.sjy.LitHub.post.entity.Comment;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.mapper.CommentMapper;
@@ -24,9 +26,10 @@ public class CommentService {
 
 	private final CommentRepository commentRepository;
 	private final CommentMapper commentMapper;
+	private final PostDetailCacheUtils postDetailCacheUtils;
 
 	@Transactional
-	public CommentResponseDTO createComment(Long postId, CommentCreateRequestDTO dto) {
+	public CommentResponseDTO createComment(Long postId, CommentCreateRequestDTO dto, boolean isPopular) {
 		User user = AuthUser.getAuthUser();
 		Post post = Post.builder().id(postId).build();
 
@@ -37,25 +40,40 @@ public class CommentService {
 
 		Comment comment = commentMapper.toEntity(user, post, dto, parent);
 		commentRepository.save(comment);
-		return CommentResponseDTO.from(comment);
+
+		CommentResponseDTO response = CommentResponseDTO.from(comment);
+		if (isPopular) {
+			postDetailCacheUtils.updatePostDetailField(postId, user.getId(), PostUpdatePart.ADD_COMMENT, response);
+		}
+
+		return response;
 	}
 
 	@Transactional
-	public CommentResponseDTO updateComment(Long commentId, CommentCreateRequestDTO dto) {
+	public CommentResponseDTO updateComment(Long commentId, CommentCreateRequestDTO dto, boolean isPopular, Long postId) {
 		User user = AuthUser.getAuthUser();
 		Comment comment = commentRepository.findByIdAndUserId(commentId, user.getId())
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
 
 		comment.setContent(dto.getContent());
-		return CommentResponseDTO.from(comment);
+
+		CommentResponseDTO response = CommentResponseDTO.from(comment);
+		if (isPopular) {
+			postDetailCacheUtils.updatePostDetailField(postId, user.getId(), PostUpdatePart.EDIT_COMMENT, response);
+		}
+		return response;
 	}
 
 	@Transactional
-	public void deleteComment(Long commentId) {
+	public void deleteComment(Long commentId, boolean isPopular, Long postId) {
 		User user = AuthUser.getAuthUser();
 		int deleted = commentRepository.deleteByIdAndUserId(commentId, user.getId());
 		if (deleted == 0) {
 			throw new InvalidUserException(BaseResponseStatus.NO_AUTHORITY);
+		}
+
+		if (isPopular) {
+			postDetailCacheUtils.updatePostDetailField(postId, user.getId(), PostUpdatePart.REMOVE_COMMENT, commentId);
 		}
 	}
 }

@@ -11,6 +11,7 @@ import com.sjy.LitHub.global.AuthUser;
 import com.sjy.LitHub.global.exception.custom.InvalidPostException;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.post.cache.util.PostDetailCacheUtils;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.entity.PostTag;
 import com.sjy.LitHub.post.entity.Tag;
@@ -26,13 +27,17 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
 	private final PostRepository postRepository;
+	private final PostDetailCacheUtils postDetailCacheUtils;
 	private final PostImageService postImageService;
 	private final TagService tagService;
 
 	@Transactional(readOnly = true)
-	public PostDetailResponseDTO getPostDetail(Long postId) {
-		return postRepository.findDetailDtoById(postId, AuthUser.getUserId())
-			.orElseThrow(() -> new InvalidPostException(BaseResponseStatus.POST_NOT_FOUND));
+	public PostDetailResponseDTO getPostDetail(Long postId, boolean isPopular) {
+		Long userId = AuthUser.getUserId();
+
+		return isPopular
+			? postDetailCacheUtils.getPostDetailWithPer(postId, userId, () -> fetchPostDetail(postId, userId))
+			: fetchPostDetail(postId, userId);
 	}
 
 	@Transactional
@@ -41,9 +46,7 @@ public class PostService {
 		postImageService.assignImagesToPost(post, thumbnail, AuthUser.getUserId());
 
 		List<Tag> tags = tagService.findOrCreateTags(request.getTags());
-		for (Tag tag : tags) {
-			post.addPostTag(PostTag.of(post, tag));
-		}
+		tags.forEach(tag -> post.addPostTag(PostTag.of(post, tag)));
 
 		postRepository.save(post);
 		return post.getId();
@@ -51,22 +54,42 @@ public class PostService {
 
 	@Transactional
 	public void updatePost(Long postId, PostUpdateRequestDTO request) {
-		Post post = postRepository.findByIdAndUserId(postId, AuthUser.getUserId())
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
+		Long userId = AuthUser.getUserId();
+		Post post = getOwnedPost(postId, userId);
 
 		post.updateContent(request.getTitle(), request.getContentMarkdown());
-		if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
+
+		if (isValidThumbnail(request.getThumbnail())) {
 			postImageService.updateThumbnail(post, request.getThumbnail());
 		}
 
 		postImageService.syncMarkdownImages(post, request.getContentMarkdown());
+		postRepository.flush();
+		postDetailCacheUtils.refreshPostDetail(postId, userId, () -> fetchPostDetail(postId, userId));
 	}
 
 	@Transactional
 	public void deletePost(Long postId) {
-		int deletedCount = postRepository.deletePost(postId, AuthUser.getUserId());
-		if (deletedCount == 0) {
+		Long userId = AuthUser.getUserId();
+
+		int deleted = postRepository.deletePost(postId, userId);
+		if (deleted == 0) {
 			throw new InvalidUserException(BaseResponseStatus.ACCESS_DENIED);
 		}
+		postDetailCacheUtils.deletePostDetail(postId, userId);
+	}
+
+	private Post getOwnedPost(Long postId, Long userId) {
+		return postRepository.findByIdAndUserId(postId, userId)
+			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
+	}
+
+	private boolean isValidThumbnail(MultipartFile thumbnail) {
+		return thumbnail != null && !thumbnail.isEmpty();
+	}
+
+	private PostDetailResponseDTO fetchPostDetail(Long postId, Long userId) {
+		return postRepository.findDetailDtoById(postId, userId)
+			.orElseThrow(() -> new InvalidPostException(BaseResponseStatus.POST_NOT_FOUND));
 	}
 }

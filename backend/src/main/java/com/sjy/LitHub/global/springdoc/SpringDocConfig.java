@@ -58,4 +58,12 @@ public class SpringDocConfig {
                 .pathsToMatch("/api/friends/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi groupApiPost() {
+        return GroupedOpenApi.builder()
+            .group("Post")
+            .pathsToMatch("/api/posts/**")
+            .build();
+    }
 }
