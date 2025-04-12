@@ -27,7 +27,7 @@ import com.sjy.LitHub.post.repository.post.PostSortCustom;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PostSortImpl implements PostSortCustom {
+public class PostSortCustomImpl implements PostSortCustom {
 
 	private final JPAQueryFactory queryFactory;
 
