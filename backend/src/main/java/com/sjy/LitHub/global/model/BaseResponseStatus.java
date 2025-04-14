@@ -53,7 +53,6 @@ public enum BaseResponseStatus {
     COMMENT_NOT_FOUND(false, 3001, "댓글을 찾을 수 없습니다.", 404),
     TOO_DEEP_COMMENT(false, 3002, "대대댓글은 안 됩니다", 400),
 
-
     // 실패
     VALIDATION_FAILED(false,40000, "입력 값이 유효하지 않습니다", 400),
     AUTH_REQUEST_BODY_INVALID(false,40001, "잘못된 요청 본문입니다.", 400),
@@ -90,7 +89,12 @@ public enum BaseResponseStatus {
     INVALID_FILE_EXTENSION(false, 40202, "허용되지 않은 파일 확장자입니다.", 400),
     FILE_DOWNLOAD_FAILED(false, 40203, "파일 다운로드 중 오류가 발생하였습니다.", 500),
     FILE_DELETE_FAILED(false, 40204, "파일 삭제를 실패했습니다.", 500),
-    FILE_DIR_SAVED_FAILED(false, 40205, "파일 경로 생성 중 오류가 발생하였습니다.", 500);
+    FILE_DIR_SAVED_FAILED(false, 40205, "파일 경로 생성 중 오류가 발생하였습니다.", 500),
+
+    // Redis 관련 예외
+    REDIS_UPDATE_TYPE_MISMATCH(false, 40300, "Redis 캐시 업데이트 타입이 일치하지 않습니다.", 500),
+    REDIS_DESERIALIZATION_FAILED(false, 40301, "Redis 캐시 역직렬화에 실패했습니다.", 500),
+    REDIS_CACHE_UPDATE_FAILED(false, 40302, "Redis 캐시 갱신 중 오류가 발생했습니다.", 500);
 
     private final boolean isSuccess;
     private final int code;

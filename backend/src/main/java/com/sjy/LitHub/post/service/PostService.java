@@ -11,7 +11,7 @@ import com.sjy.LitHub.global.AuthUser;
 import com.sjy.LitHub.global.exception.custom.InvalidPostException;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.post.cache.util.PostDetailCacheUtils;
+import com.sjy.LitHub.post.cache.PostDetailCacheUtils;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.entity.PostTag;
 import com.sjy.LitHub.post.entity.Tag;

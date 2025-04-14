@@ -1,6 +1,5 @@
 package com.sjy.LitHub.post.cache;
 
-import java.time.Duration;
 import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,11 +8,14 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sjy.LitHub.post.cache.enums.CachePolicy;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class PerCacheManager {
 
@@ -26,8 +28,6 @@ public class PerCacheManager {
 		this.objectMapper = objectMapper;
 	}
 
-	private static final Duration TTL = Duration.ofMinutes(30);
-
 	public <T> T fetch(String key, Supplier<T> dbFetcher, Class<T> type) {
 		try {
 			String cached = redisTemplate.opsForValue().get(key);
@@ -38,14 +38,14 @@ public class PerCacheManager {
 
 			if (now >= wrapper.expireTime - wrapper.delta * Math.log(Math.random())) {
 				return recalculate(key, dbFetcher);
-			}
+			} // PER 알고리즘 조건 만족 시 DB 재조회
 
-			// 현재 시간과 비교해서 PER 조건(now >= expireTime - delta * log(random()))이 충족되면 DB 다시 조회
 			return objectMapper.convertValue(wrapper.data, type);
 		} catch (Exception e) {
+			log.warn("PER 캐시 fetch 실패 - key: {}, error: {}", key, e.getMessage());
 			return recalculate(key, dbFetcher);
 		}
-	}
+	} // PER 캐싱 로직
 
 	private <T> T recalculate(String key, Supplier<T> fetcher) {
 		long start = System.currentTimeMillis();
@@ -53,12 +53,14 @@ public class PerCacheManager {
 		long delta = System.currentTimeMillis() - start;
 
 		try {
-			PerWrapper wrapper = new PerWrapper(data, delta, System.currentTimeMillis() + TTL.toMillis());
-			redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(wrapper), TTL);
-		} catch (Exception ignored) {}
+			PerWrapper wrapper = new PerWrapper(data, delta, System.currentTimeMillis() + CachePolicy.POST_DETAIL.getTtl().toMillis());
+			redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(wrapper), CachePolicy.POST_DETAIL.getTtl());
+		} catch (Exception e) {
+			log.warn("PER 캐시 저장 실패 - key: {}, error: {}", key, e.getMessage());
+		}
 
 		return data;
-	} // DB 조회한 데이터를 PerWrapper 로 감싸서 Redis 저장
+	} // DB 에서 재조회하고 TTL 과 함께 저장
 
 	@Getter
 	@AllArgsConstructor
@@ -66,7 +68,7 @@ public class PerCacheManager {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class PerWrapper {
 		private Object data;
-		private long delta;
-		private long expireTime;
+		private long delta;       // DB 응답 시간
+		private long expireTime;  // TTL 기준 만료 시간
 	}
 }

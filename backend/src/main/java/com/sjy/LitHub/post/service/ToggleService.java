@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.util.PostDetailCacheUtils;
-import com.sjy.LitHub.post.cache.util.PostUpdatePart;
+import com.sjy.LitHub.post.cache.PostDetailCacheUtils;
+import com.sjy.LitHub.post.cache.enums.PostUpdatePart;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.mapper.ToggleMapper;
 import com.sjy.LitHub.post.model.res.LikeResponseDTO;

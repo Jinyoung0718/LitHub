@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.account.repository.friend.FriendRepository;
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.util.CacheKeyFactory;
 import com.sjy.LitHub.post.cache.PostListCacheManager;
+import com.sjy.LitHub.post.cache.enums.CachePolicy;
 import com.sjy.LitHub.post.model.res.PostSummaryResponseDTO;
 import com.sjy.LitHub.post.repository.post.PostRepository;
-import com.sjy.LitHub.post.service.keyword.PopularKeywordManager;
+import com.sjy.LitHub.post.cache.keyword.PopularKeywordManager;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +24,6 @@ public class SortService {
 
 	private final FriendRepository friendRepository;
 	private final PostRepository postRepository;
-	private final CacheKeyFactory cacheKeyFactory;
 	private final PostListCacheManager postListCacheManager;
 	private final PopularKeywordManager popularKeywordManager;
 
@@ -32,26 +31,27 @@ public class SortService {
 	public Page<PostSummaryResponseDTO> searchByKeyword(String keyword, Pageable pageable) {
 		popularKeywordManager.onSearch(keyword); // 검색어 ZSet 기록
 
-		Pageable limitedPageable = PageRequest.of(pageable.getPageNumber(), 15);
-		String key = cacheKeyFactory.searchPostListKey(keyword, pageable.getPageNumber());
-
-		return postListCacheManager.getOrPut(key, () ->
-			postRepository.searchByKeyword(keyword, limitedPageable)
-		); //  캐시가 있으면 조회, 없으면 조회 후 저장
-	}
-
-	@Transactional(readOnly = true)
-	public Page<PostSummaryResponseDTO> findDailyPopularPosts(Pageable pageable) {
-		String key = cacheKeyFactory.popularPostListKey(pageable.getPageNumber());
-
-		return postListCacheManager.getOrPut(key, () ->
-			postRepository.findPopularPosts(pageable)
-		);
+		Pageable limited = PageRequest.of(pageable.getPageNumber(), 15);
+		return postListCacheManager.getOrPut(CachePolicy.SEARCH_POST,
+			() -> postRepository.searchByKeyword(keyword, limited),
+			keyword, pageable.getPageNumber()); // 캐시가 있으면 조회, 없으면 조회 후 저장
 	}
 
 	@Transactional(readOnly = true)
 	public Page<PostSummaryResponseDTO> searchByTag(String tagName, Pageable pageable) {
-		return postRepository.searchByTag(tagName, pageable);
+		popularKeywordManager.onTagSearch(tagName); // 검색어 ZSet 기록
+
+		Pageable limited = PageRequest.of(pageable.getPageNumber(), 15);
+		return postListCacheManager.getOrPut(CachePolicy.TAG_POST,
+			() -> postRepository.searchByTag(tagName, limited),
+			tagName, pageable.getPageNumber());
+	}
+
+	@Transactional(readOnly = true)
+	public Page<PostSummaryResponseDTO> findDailyPopularPosts(Pageable pageable) {
+		return postListCacheManager.getOrPut(CachePolicy.POPULAR_POST,
+			() -> postRepository.findPopularPosts(pageable),
+			pageable.getPageNumber());
 	}
 
 	@Transactional(readOnly = true)

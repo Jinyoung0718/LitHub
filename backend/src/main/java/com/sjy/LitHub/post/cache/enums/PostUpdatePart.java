@@ -1,5 +1,7 @@
-package com.sjy.LitHub.post.cache.util;
+package com.sjy.LitHub.post.cache.enums;
 
+import com.sjy.LitHub.global.exception.custom.InvalidRedisException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.post.model.res.CommentResponseDTO;
 import com.sjy.LitHub.post.model.res.PostDetailResponseDTO;
 
@@ -8,7 +10,9 @@ public enum PostUpdatePart {
 	ADD_COMMENT {
 		@Override
 		public void apply(PostDetailResponseDTO dto, Object data) {
-			CommentResponseDTO comment = (CommentResponseDTO) data;
+			if (!(data instanceof CommentResponseDTO comment)) {
+				throw new InvalidRedisException(BaseResponseStatus.REDIS_UPDATE_TYPE_MISMATCH);
+			}
 			dto.getComments().add(comment);
 			dto.setCommentCount(dto.getCommentCount() + 1);
 		}
@@ -17,7 +21,9 @@ public enum PostUpdatePart {
 	REMOVE_COMMENT {
 		@Override
 		public void apply(PostDetailResponseDTO dto, Object data) {
-			Long commentId = (Long) data;
+			if (!(data instanceof Long commentId)) {
+				throw new InvalidRedisException(BaseResponseStatus.REDIS_UPDATE_TYPE_MISMATCH);
+			}
 			dto.getComments().removeIf(c -> c.getId().equals(commentId));
 			dto.setCommentCount(dto.getCommentCount() - 1);
 		}
@@ -26,7 +32,9 @@ public enum PostUpdatePart {
 	EDIT_COMMENT {
 		@Override
 		public void apply(PostDetailResponseDTO dto, Object data) {
-			CommentResponseDTO updated = (CommentResponseDTO) data;
+			if (!(data instanceof CommentResponseDTO updated)) {
+				throw new InvalidRedisException(BaseResponseStatus.REDIS_UPDATE_TYPE_MISMATCH);
+			}
 			dto.getComments().stream()
 				.filter(c -> c.getId().equals(updated.getId()))
 				.findFirst()
@@ -37,18 +45,16 @@ public enum PostUpdatePart {
 	TOGGLE_LIKE {
 		@Override
 		public void apply(PostDetailResponseDTO dto, Object data) {
-			boolean liked = !dto.isLiked();
-			dto.setLiked(liked);
-			dto.setLikeCount(dto.getLikeCount() + (liked ? 1 : -1));
+			dto.setLiked(!dto.isLiked());
+			dto.setLikeCount(dto.getLikeCount() + (dto.isLiked() ? 1 : -1));
 		}
 	},
 
 	TOGGLE_SCRAP {
 		@Override
 		public void apply(PostDetailResponseDTO dto, Object data) {
-			boolean scrapped = !dto.isScrapped();
-			dto.setScrapped(scrapped);
-			dto.setScrapCount(dto.getScrapCount() + (scrapped ? 1 : -1));
+			dto.setScrapped(!dto.isScrapped());
+			dto.setScrapCount(dto.getScrapCount() + (dto.isScrapped() ? 1 : -1));
 		}
 	};
 
