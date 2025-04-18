@@ -40,7 +40,6 @@ public class AuthService {
     private void createUser(SignupDTO signupDTO) {
         User user = userMapper.ofSignupDTO(signupDTO);
         user.encodePassword(passwordEncoder);
-
         Map<UserGenFile.TypeCode, UserGenFile> defaultImages = userGenFileMapper.toDefaultUserGenFiles(user);
         defaultImages.values().forEach(user::addUserGenFile);
 

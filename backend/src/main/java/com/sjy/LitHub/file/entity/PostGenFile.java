@@ -28,9 +28,7 @@ import lombok.experimental.SuperBuilder;
 	name = "post_gen_image",
 	indexes = {
 		@Index(name = "idx_post_id", columnList = "post_id"),
-		@Index(name = "idx_user_id", columnList = "user_id"),
-		@Index(name = "idx_file_name_user_id_post", columnList = "fileName, user_id, post_id"),
-		@Index(name = "idx_type_code", columnList = "typeCode")
+		@Index(name = "idx_file_name_user_id_post", columnList = "fileName, user_id, post_id")
 	}
 )
 public class PostGenFile extends GenFile {

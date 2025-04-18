@@ -60,6 +60,8 @@ dependencies {
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'org.apache.commons:commons-compress:1.27.1'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+	implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.12.8'
+
 
 	// 이미지 처리 (WebP)
 	implementation 'com.sksamuel.scrimage:scrimage-core:4.0.40'
@@ -77,6 +79,9 @@ dependencies {
 
 	// Docker Compose (개발 환경용)
 	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+	//모니터링
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// 테스트
 	testImplementation 'org.projectlombok:lombok:1.18.30'

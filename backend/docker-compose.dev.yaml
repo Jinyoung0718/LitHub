@@ -1,0 +1,55 @@
+# docker compose --env-file .env -f docker-compose.dev.yaml up -d
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: ${MYSQL_CONTAINER_NAME_DEV}
+    ports:
+      - "${MYSQL_PORT_DEV}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD_DEV}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_DEV}
+    tmpfs:
+      - /var/lib/mysql
+    networks:
+      - ${NETWORK_NAME_DEV}
+
+  redis:
+    image: redis:latest
+    container_name: ${REDIS_CONTAINER_NAME_DEV}
+    ports:
+      - "${REDIS_PORT_MAPPING_DEV}"
+    tmpfs:
+      - /data
+    command: redis-server --appendonly no
+    networks:
+      - ${NETWORK_NAME_DEV}
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus_dev
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - ${NETWORK_NAME_DEV}
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana_dev
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - ${NETWORK_NAME_DEV}
+
+networks:
+  dev_network:
+    driver: bridge

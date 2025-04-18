@@ -4,15 +4,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.PostDetailCacheUtils;
-import com.sjy.LitHub.post.cache.enums.PostUpdatePart;
-import com.sjy.LitHub.post.entity.Post;
-import com.sjy.LitHub.post.mapper.ToggleMapper;
-import com.sjy.LitHub.post.model.res.LikeResponseDTO;
-import com.sjy.LitHub.post.model.res.ScrapResponseDTO;
+import com.sjy.LitHub.post.cache.PostInteractionRedisManager;
+import com.sjy.LitHub.post.cache.enums.InteractionType;
+import com.sjy.LitHub.post.model.res.toggle.LikeResponseDTO;
+import com.sjy.LitHub.post.model.res.toggle.ScrapResponseDTO;
 import com.sjy.LitHub.post.repository.LikesRepository;
 import com.sjy.LitHub.post.repository.ScrapRepository;
-import com.sjy.LitHub.post.repository.post.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,46 +17,39 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ToggleService {
 
+	private final PostInteractionRedisManager redisManager;
 	private final LikesRepository likesRepository;
-	private final PostRepository postRepository;
 	private final ScrapRepository scrapRepository;
-	private final ToggleMapper toggleMapper;
-	private final PostDetailCacheUtils postDetailCacheUtils;
 
 	@Transactional
-	public LikeResponseDTO toggleLikes(Long postId, boolean isPopular) {
+	public LikeResponseDTO toggleLikes(Long postId) {
 		Long userId = AuthUser.getUserId();
-		boolean isLiked = likesRepository.existsByPostIdAndUserId(postId, userId);
+		redisManager.toggleInteraction(postId, userId, InteractionType.LIKE);
 
-		if (isLiked) {
-			likesRepository.toggleLikeIfExists(postId, userId);
-		} else {
-			likesRepository.save(toggleMapper.toLikes(userId, postId));
+		boolean nowLiked = redisManager.hasInteraction(postId, userId, InteractionType.LIKE);
+		long likeCount = redisManager.getInteractionCount(postId, InteractionType.LIKE);
+
+		if (likeCount == 0 && !nowLiked) {
+			nowLiked = likesRepository.existsByPostIdAndUserId(postId, userId);
+			likeCount = likesRepository.countByPostId(postId);
 		}
 
-		if (isPopular) {
-			postDetailCacheUtils.updatePostDetailField(postId, userId, PostUpdatePart.TOGGLE_LIKE, null);
-		}
-
-		return new LikeResponseDTO(!isLiked, likesRepository.countByPostId(postId));
+		return new LikeResponseDTO(nowLiked, likeCount);
 	}
 
 	@Transactional
-	public ScrapResponseDTO toggleScrap(Long postId, boolean isPopular) {
+	public ScrapResponseDTO toggleScrap(Long postId) {
 		Long userId = AuthUser.getUserId();
-		boolean isScrapped = scrapRepository.existsByPostIdAndUserId(postId, userId);
+		redisManager.toggleInteraction(postId, userId, InteractionType.SCRAP);
 
-		if (isScrapped) {
-			scrapRepository.toggleScrapIfExists(postId, userId);
-		} else {
-			Post post = postRepository.getReferenceById(postId);
-			scrapRepository.save(toggleMapper.toScrap(userId, post));
+		boolean nowScrapped = redisManager.hasInteraction(postId, userId, InteractionType.SCRAP);
+		long scrapCount = redisManager.getInteractionCount(postId, InteractionType.SCRAP);
+
+		if (scrapCount == 0 && !nowScrapped) {
+			nowScrapped = scrapRepository.existsByPostIdAndUserId(postId, userId);
+			scrapCount = scrapRepository.countByPostId(postId);
 		}
 
-		if (isPopular) {
-			postDetailCacheUtils.updatePostDetailField(postId, userId, PostUpdatePart.TOGGLE_SCRAP, null);
-		}
-
-		return new ScrapResponseDTO(!isScrapped, scrapRepository.countByPostId(postId));
+		return new ScrapResponseDTO(nowScrapped, scrapCount);
 	}
 }

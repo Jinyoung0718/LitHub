@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.sjy.LitHub.post.model.res.PostSummaryResponseDTO;
+import com.sjy.LitHub.post.model.res.post.PostSummaryResponseDTO;
 
 public interface PostSortCustom {
 	Page<PostSummaryResponseDTO> searchByKeyword(String keyword, Pageable pageable);
@@ -14,7 +14,7 @@ public interface PostSortCustom {
 
 	Page<PostSummaryResponseDTO> findPopularPosts(Pageable pageable);
 
-	Page<PostSummaryResponseDTO> findPostsLikedByUser(Long userId, Pageable pageable);
+	Page<PostSummaryResponseDTO> findMyPosts(Long userId, Pageable pageable);
 
 	Page<PostSummaryResponseDTO> findPostsScrappedByUser(Long userId, Pageable pageable);
 

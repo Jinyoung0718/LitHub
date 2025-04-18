@@ -5,8 +5,7 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 
 import com.sjy.LitHub.post.cache.enums.CachePolicy;
-import com.sjy.LitHub.post.cache.enums.PostUpdatePart;
-import com.sjy.LitHub.post.model.res.PostDetailResponseDTO;
+import com.sjy.LitHub.post.model.res.post.PostDetailResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostDetailCacheUtils {
 
-	private final PostCacheManager postCacheManager;
+	private final PostDetailCacheManager postDetailCacheManager;
 	private final PerCacheManager perCacheManager;
 
 	public PostDetailResponseDTO getPostDetailWithPer(Long postId, Long userId, Supplier<PostDetailResponseDTO> dbFetcher) {
@@ -22,20 +21,20 @@ public class PostDetailCacheUtils {
 		return perCacheManager.fetch(key, dbFetcher, PostDetailResponseDTO.class);
 	} // PER 알고리즘 기반 게시글 상세 조회 캐싱
 
-	public void updatePostDetailField(Long postId, Long userId, PostUpdatePart part, Object data) {
-		String key = CachePolicy.POST_DETAIL.createKey(postId, userId);
-		postCacheManager.updatePostDetailField(key, part, data);
-	} // 게시글 상세 캐시 데이터 중 일부 필드만 수정 (예: 댓글 추가, 좋아요 토글 등)
+	public PostDetailResponseDTO getNonPopularPostDetail(Long postId, Long userId, Supplier<PostDetailResponseDTO> dbFetcher) {
+		String key = CachePolicy.POST_DETAIL_NON_POPULAR.createKey(postId, userId);
+		return postDetailCacheManager.getOrPut(key, dbFetcher);
+	}
 
-	public void deletePostDetail(Long postId, Long userId) {
-		String key = CachePolicy.POST_DETAIL.createKey(postId, userId);
-		postCacheManager.deletePostDetail(key);
+	public void deletePostDetail(Long postId, Long userId, boolean isPopular) {
+		String key = (isPopular ? CachePolicy.POST_DETAIL : CachePolicy.POST_DETAIL_NON_POPULAR).createKey(postId, userId);
+		postDetailCacheManager.deletePostDetail(key);
 	} // 게시글 상세 캐시 무효화 (삭제)
 
-	public void refreshPostDetail(Long postId, Long userId, Supplier<PostDetailResponseDTO> dbFetcher) {
-		String key = CachePolicy.POST_DETAIL.createKey(postId, userId);
-		postCacheManager.deletePostDetail(key);
+	public void refreshPostDetail(Long postId, Long userId, boolean isPopular, Supplier<PostDetailResponseDTO> dbFetcher) {
+		String key = (isPopular ? CachePolicy.POST_DETAIL : CachePolicy.POST_DETAIL_NON_POPULAR).createKey(postId, userId);
+		postDetailCacheManager.deletePostDetail(key);
 		PostDetailResponseDTO updated = dbFetcher.get();
-		postCacheManager.savePostDetail(key, updated);
+		postDetailCacheManager.savePostDetail(key, updated);
 	} // 게시글 상세 캐시 갱신
 }

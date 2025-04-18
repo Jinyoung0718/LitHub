@@ -22,18 +22,6 @@ spring:
       mail.smtp.ssl.enable: true
       mail.smtp.ssl.trust: ${MAIL_HOST}
 
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
-        default_batch_fetch_size: 100
-    open-in-view: false
-
 server:
   port: 8080
   tomcat:
@@ -45,18 +33,30 @@ springdoc:
     enabled: true
   default-produces-media-type: application/json;charset=UTF-8
 
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: buckets
+      url: /api/posts/likes
+      rate-limits:
+        - bandwidths:
+            - capacity: 10
+              time: 1
+              unit: seconds
+              refill-speed: interval
+    - cache-name: buckets
+      url: /api/posts/scraps
+      rate-limits:
+        - bandwidths:
+            - capacity: 10
+              time: 1
+              unit: seconds
+              refill-speed: interval
+
 custom:
   upload:
     max-image-size: 5MB
     max-file-size: 20MB
-  dev:
-    domain: localhost
-    backUrl: "http://${custom.dev.domain}:${server.port}"
-  site:
-    backUrl: "${custom.dev.backUrl}"
-
-file:
-  upload-dir: C:/Users/Sojinyoung/Desktop/LitHubStorage
 
 logging:
   level:

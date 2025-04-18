@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sjy.LitHub.global.model.BaseResponse;
-import com.sjy.LitHub.post.model.res.PostSummaryResponseDTO;
+import com.sjy.LitHub.post.model.res.post.PostSummaryResponseDTO;
 import com.sjy.LitHub.post.service.SortService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,17 +47,17 @@ public class PostSortController {
 	@Operation(summary = "일간 인기 게시글 조회", description = "좋아요 + 스크랩 기준으로 인기 게시글을 정렬합니다.")
 	@GetMapping("/popular")
 	public BaseResponse<Page<PostSummaryResponseDTO>> getPopularPosts(
-		@PageableDefault(size = 25) Pageable pageable) {
+		@PageableDefault(size = 15) Pageable pageable) {
 
 		return BaseResponse.success(sortService.findDailyPopularPosts(pageable));
 	}
 
-	@Operation(summary = "좋아요한 게시글 조회", description = "내가 좋아요한 게시글 목록을 조회합니다.")
-	@GetMapping("/likes")
-	public BaseResponse<Page<PostSummaryResponseDTO>> getLikedPosts(
+	@Operation(summary = "내가 작성한 게시글 조회", description = "내가 작성한 게시글 목록을 조회합니다.")
+	@GetMapping("/mine")
+	public BaseResponse<Page<PostSummaryResponseDTO>> getMyPosts(
 		@PageableDefault(size = 15) Pageable pageable) {
 
-		return BaseResponse.success(sortService.getLikedPosts(pageable));
+		return BaseResponse.success(sortService.getMyPosts(pageable));
 	}
 
 	@Operation(summary = "스크랩한 게시글 조회", description = "내가 스크랩한 게시글 목록을 조회합니다.")

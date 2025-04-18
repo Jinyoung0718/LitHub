@@ -30,7 +30,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Table(name = "comment", indexes = {
 	@Index(name = "idx_comment_user_id", columnList = "user_id"),
-	@Index(name = "idx_comment_post_id", columnList = "post_id"),
+	@Index(name = "idx_comment_post_created", columnList = "post_id, created_at"), // 인덱스 레인지 스캔
 	@Index(name = "idx_comment_parent_id", columnList = "parent_id")
 })
 public class Comment extends BaseTime {

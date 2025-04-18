@@ -9,13 +9,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.post.entity.Tag;
-import com.sjy.LitHub.post.model.res.TagResponseDTO;
+import com.sjy.LitHub.post.repository.tag.PostTagRepository;
 import com.sjy.LitHub.post.repository.tag.TagRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TagService {
 
+	private final PostTagRepository postTagRepository;
 	private final TagRepository tagRepository;
 
 	@Transactional
@@ -63,12 +62,8 @@ public class TagService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<TagResponseDTO> autocomplete(String keyword) {
-		if (keyword == null || keyword.isBlank()) return Collections.emptyList();
-
-		Pageable pageable = PageRequest.of(0, 10);
-		return tagRepository.searchTop10ByKeyword(keyword.trim(), pageable).stream()
-			.map(TagResponseDTO::from)
-			.toList();
+	public Map<Long, List<String>> findTagNamesMap(List<Long> postIds) {
+		if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
+		return postTagRepository.findTagNamesMap(postIds);
 	}
 }

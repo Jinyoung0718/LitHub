@@ -17,7 +17,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
 	@Override
 	public UserProfileResponseDTO getUserProfile(Long userId) {
-		User user = queryFactory.selectFrom(QUser.user)
+		User user = queryFactory.
+			selectFrom(QUser.user)
 			.leftJoin(QUser.user.userGenFiles).fetchJoin()
 			.where(QUser.user.id.eq(userId))
 			.fetchOne();

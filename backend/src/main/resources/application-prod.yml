@@ -1,0 +1,7 @@
+custom:
+  site:
+    back-url: https://api.yourdomain.com
+    front-url: https://yourdomain.com
+
+  file:
+    upload-dir: /var/www/lithub/uploads

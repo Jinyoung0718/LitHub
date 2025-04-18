@@ -1,6 +1,6 @@
 package com.sjy.LitHub.account.service.friend;
 
-import com.sjy.LitHub.account.repository.friend.FriendRepository;
+import com.sjy.LitHub.account.repository.follow.FriendRepository;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

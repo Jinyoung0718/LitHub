@@ -83,6 +83,9 @@ public enum BaseResponseStatus {
     IMAGE_PROCESSING_FAILED(false,40104, "이미지 처리 중 오류가 발생하였습니다.", 500),
     IMAGE_UPLOAD_FAILED(false,40105, "이미지 업로드 중 오류가 발생하였습니다.", 500),
     IMAGE_DELETE_FAILED(false,40106, "파일 삭제를 실패했습니다.", 500),
+    THUMBNAIL_NOT_FOUND(false, 40107, "썸네일 이미지가 존재하지 않습니다.", 404),
+    PROFILE_IMAGE_NOT_FOUND(false, 40108, "프로필 이미지가 존재하지 않습니다.", 404),
+
 
     FILE_UPLOAD_FAILED(false, 40200, "파일 업로드 중 오류가 발생하였습니다.", 500),
     INVALID_FILE_FORMAT(false, 40201, "허용되지 않은 파일 형식입니다.", 400),
@@ -94,7 +97,14 @@ public enum BaseResponseStatus {
     // Redis 관련 예외
     REDIS_UPDATE_TYPE_MISMATCH(false, 40300, "Redis 캐시 업데이트 타입이 일치하지 않습니다.", 500),
     REDIS_DESERIALIZATION_FAILED(false, 40301, "Redis 캐시 역직렬화에 실패했습니다.", 500),
-    REDIS_CACHE_UPDATE_FAILED(false, 40302, "Redis 캐시 갱신 중 오류가 발생했습니다.", 500);
+    REDIS_CACHE_UPDATE_FAILED(false, 40302, "Redis 캐시 갱신 중 오류가 발생했습니다.", 500),
+
+    // Follow 관련 예외
+    FOLLOW_NOT_FOUND(false, 40400, "해당 팔로우 관계를 찾을 수 없습니다.", 400),
+    FOLLOW_SELF_NOT_ALLOWED(false, 40401, "자기 자신을 팔로우할 수 없습니다.", 400),
+    FOLLOW_ALREADY_EXISTS(false, 40402, "이미 팔로우 중입니다.", 400),
+    FOLLOW_DELETE_FAILED(false, 40403, "팔로우 삭제에 실패했습니다.", 500);
+
 
     private final boolean isSuccess;
     private final int code;

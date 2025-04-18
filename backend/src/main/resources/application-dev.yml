@@ -3,8 +3,8 @@
 spring:
   datasource:
     url: ${MYSQL_URL_DEV}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    username: ${MYSQL_USERNAME_DEV}
+    password: ${MYSQL_PASSWORD_DEV}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   docker:
@@ -16,5 +16,29 @@ spring:
       host: ${REDIS_HOST_DEV}
       port: ${REDIS_PORT_DEV}
 
-url:
-  base: http://localhost:5173
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+
+custom:
+  site:
+    back-url: ${CUSTOM_SITE_BACK_URL_DEV}
+    front-url: ${CUSTOM_SITE_FRONT_URL_DEV}
+
+  file:
+    upload-dir: ${CUSTOM_FILE_UPLOAD_DIR_DEV}
+

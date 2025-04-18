@@ -20,8 +20,8 @@ import com.sjy.LitHub.file.mapper.UserGenFileMapper;
 import com.sjy.LitHub.record.entity.ReadLog;
 import com.sjy.LitHub.record.entity.ReadLogStats;
 import com.sjy.LitHub.record.model.ReadingStatsResponseDTO;
-import com.sjy.LitHub.record.repository.ReadLog.ReadLogRepository;
-import com.sjy.LitHub.record.repository.ReadLogStatus.ReadLogStatsRepository;
+import com.sjy.LitHub.record.repository.readLog.ReadLogRepository;
+import com.sjy.LitHub.record.repository.readLogStatus.ReadLogStatsRepository;
 import com.sjy.LitHub.record.service.ReadLogStatusService;
 
 @Configuration
@@ -54,6 +54,7 @@ public class InitialData {
     @Bean
     public ApplicationRunner applicationRunner() {
         return args -> {
+            // 1차 저장 → ID 확보
             User user = User.builder()
                 .nickName("initDataNickName")
                 .userEmail("wo0982@naver.com")
@@ -63,8 +64,10 @@ public class InitialData {
                 .role(Role.ROLE_USER)
                 .build();
 
+            user = userRepository.save(user);
             Map<UserGenFile.TypeCode, UserGenFile> defaultFiles = userGenFileMapper.toDefaultUserGenFiles(user);
             defaultFiles.values().forEach(user::addUserGenFile);
+
             user = userRepository.save(user);
 
             Long userId = user.getId();

@@ -4,9 +4,11 @@ import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.annotation.EnableRetry;
 
 import lombok.Getter;
 
+@EnableRetry
 @Configuration
 public class AppConfig {
 
@@ -17,40 +19,44 @@ public class AppConfig {
 	private static String siteBackUrl;
 
 	@Getter
-	public static String fileUploadDir;
+	private static String siteFrontUrl;
 
-	@Value("${custom.site.backUrl}")
+	@Getter
+	private static String fileUploadDir;
+
+	@Getter
+	private static String customMaxImageSize;
+
+	@Getter
+	private static String customMaxFileSize;
+
+	@Value("${custom.site.back-url}")
 	public void setSiteBackUrl(String siteBackUrl) {
 		AppConfig.siteBackUrl = siteBackUrl;
 	}
 
-	@Value("${file.upload-dir}")
-	public void setFileDirPath(String fileUploadDir) {
+	@Value("${custom.site.front-url}")
+	public void setSiteFrontUrl(String siteFrontUrl) {
+		AppConfig.siteFrontUrl = siteFrontUrl;
+	}
+
+	@Value("${custom.file.upload-dir}")
+	public void setFileUploadDir(String fileUploadDir) {
 		AppConfig.fileUploadDir = fileUploadDir;
 	}
-
-	public static String getSiteFrontUrl() {
-		return "http://localhost:5173";
-	}
-
-	@Autowired
-	public void setTika(Tika tika) {
-		AppConfig.tika = tika;
-	}
-
-	@Getter
-	private static String customMaxImageSize;
 
 	@Value("${custom.upload.max-image-size}")
 	public void setCustomMaxImageSize(String size) {
 		AppConfig.customMaxImageSize = size;
 	}
 
-	@Getter
-	private static String customMaxFileSize;
-
 	@Value("${custom.upload.max-file-size}")
 	public void setCustomMaxFileSize(String size) {
 		AppConfig.customMaxFileSize = size;
+	}
+
+	@Autowired
+	public void setTika(Tika tika) {
+		AppConfig.tika = tika;
 	}
 }

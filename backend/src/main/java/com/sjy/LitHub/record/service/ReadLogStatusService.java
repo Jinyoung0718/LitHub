@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.record.model.ReadingStatsResponseDTO;
-import com.sjy.LitHub.record.repository.ReadLogStatus.ReadLogStatsRepository;
+import com.sjy.LitHub.record.repository.readLogStatus.ReadLogStatsRepository;
 
 import lombok.RequiredArgsConstructor;
 

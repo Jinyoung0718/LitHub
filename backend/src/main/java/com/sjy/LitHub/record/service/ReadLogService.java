@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.account.service.UserInfo.PointService;
-import com.sjy.LitHub.record.repository.ReadLog.ReadLogRepository;
+import com.sjy.LitHub.record.repository.readLog.ReadLogRepository;
 
 import lombok.RequiredArgsConstructor;
 

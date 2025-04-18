@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sjy.LitHub.post.cache.enums.CachePolicy;
-import com.sjy.LitHub.post.model.res.PostSummaryResponseDTO;
+import com.sjy.LitHub.post.model.res.post.PostSummaryResponseDTO;
 
 import lombok.extern.slf4j.Slf4j;
 

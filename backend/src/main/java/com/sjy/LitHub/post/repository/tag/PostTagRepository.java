@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.sjy.LitHub.post.entity.PostTag;
 
-public interface PostTagRepository extends JpaRepository<PostTag, Long> {
+public interface PostTagRepository extends JpaRepository<PostTag, Long>, PostTagRepositoryCustom {
 }
