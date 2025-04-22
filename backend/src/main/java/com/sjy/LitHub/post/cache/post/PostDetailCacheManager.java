@@ -1,4 +1,4 @@
-package com.sjy.LitHub.post.cache;
+package com.sjy.LitHub.post.cache.post;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -20,7 +20,7 @@ public class PostDetailCacheManager {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 
-	public PostDetailCacheManager(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate,
+	public PostDetailCacheManager(@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
 		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.objectMapper = objectMapper;

@@ -26,15 +26,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
+import org.jsoup.Jsoup;
+
 @Entity
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "post", indexes = {
-	@Index(name = "idx_post_title", columnList = "title"),
-	@Index(name = "idx_post_user_id", columnList = "user_id"),
-	@Index(name = "idx_post_user_created", columnList = "user_id, created_at")
+	@Index(name = "idx_post_user_id", columnList = "user_id"), // 작성자 기준 검색용
+	@Index(name = "idx_post_user_created", columnList = "user_id, created_at") // 특정 사용자의 게시글 시간순 정렬
 })
 public class Post extends BaseTime {
 
@@ -44,6 +47,10 @@ public class Post extends BaseTime {
 	@Lob
 	@Column(nullable = false)
 	private String contentMarkdown;
+
+	@Lob
+	@Column(nullable = false)
+	private String searchContent;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
@@ -81,11 +88,22 @@ public class Post extends BaseTime {
 	}
 
 	public static Post from(String title, String contentMarkdown, User user) {
+		String html = markdownToHtml(contentMarkdown);
+		String searchContent = Jsoup.parse(html).text();
+
 		return Post.builder()
 			.title(title)
 			.contentMarkdown(contentMarkdown)
+			.searchContent(searchContent)
 			.user(user)
 			.build();
+	}
+
+	public static String markdownToHtml(String markdown) {
+		Parser parser = Parser.builder().build();
+		org.commonmark.node.Node document = parser.parse(markdown);
+		HtmlRenderer renderer = HtmlRenderer.builder().build();
+		return renderer.render(document);
 	}
 
 	public void updateContent(String newTitle, String newContent) {

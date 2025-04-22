@@ -12,7 +12,9 @@ public class WebSecurityConfig {
         return web -> web.ignoring().requestMatchers(
             "/v3/api-docs",
             "/swagger-ui/**",
-            "/gen/**"
+            "/gen/**",
+            "/actuator/**",
+            "/favicon.ico"
         );
     }
 }

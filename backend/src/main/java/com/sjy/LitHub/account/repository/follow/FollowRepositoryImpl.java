@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.account.entity.QFollow;
 import com.sjy.LitHub.account.entity.QUser;
@@ -74,7 +75,12 @@ public class FollowRepositoryImpl implements FollowRepositoryCustom {
 				FollowListResponseDTO.class,
 				user.id,
 				user.nickName,
-				file.filePath,
+				JPAExpressions
+					.select(file.filePath)
+					.from(file)
+					.where(file.user.id.eq(user.id),
+						file.typeCode.eq(UserGenFile.TypeCode.PROFILE_256))
+					.limit(1),
 				user.tier,
 				user.point
 			))

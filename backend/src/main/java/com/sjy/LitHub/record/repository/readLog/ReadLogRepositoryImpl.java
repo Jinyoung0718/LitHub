@@ -3,8 +3,6 @@ package com.sjy.LitHub.record.repository.readLog;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.record.entity.QReadLog;
 import com.sjy.LitHub.record.entity.ReadLog;
@@ -13,7 +11,6 @@ import com.sjy.LitHub.record.mapper.ReadLogMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
-@Repository
 @RequiredArgsConstructor
 public class ReadLogRepositoryImpl implements ReadLogRepositoryCustom {
 

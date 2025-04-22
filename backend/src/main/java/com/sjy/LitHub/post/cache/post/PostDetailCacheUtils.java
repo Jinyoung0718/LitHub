@@ -1,4 +1,4 @@
-package com.sjy.LitHub.post.cache;
+package com.sjy.LitHub.post.cache.post;
 
 import java.util.function.Supplier;
 

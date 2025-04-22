@@ -2,12 +2,12 @@ package com.sjy.LitHub.global.security.oauth2.handler;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.global.config.AppConfig;
 import com.sjy.LitHub.global.security.model.UserPrincipal;
 import com.sjy.LitHub.global.security.service.TokenService;
 
@@ -19,9 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${url.base}")
-    private String FRONT_URL;
-
     private final TokenService tokenService;
 
     @Override
@@ -32,11 +29,11 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         if (!response.isCommitted()) {
             if (role == Role.ROLE_GUEST) {
-                response.sendRedirect(FRONT_URL + "/social-signup");
+                response.sendRedirect(AppConfig.getSiteFrontUrl() + "/social-signup");
                 return;
             }
             tokenService.generateTokensAndSetCookies(response, userId, role);
-            response.sendRedirect(FRONT_URL + "/");
+            response.sendRedirect(AppConfig.getSiteFrontUrl()  + "/");
         }
     }
 }

@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/info")
 @RequiredArgsConstructor
-@Tag(name = "InfoController", description = "유저 데이터 확인 API")
+@Tag(name = "사용자 정보 확인", description = "유저 데이터 확인 API")
 public class InfoController {
 
 	private final OAuthTempTokenService oAuthTempTokenService;

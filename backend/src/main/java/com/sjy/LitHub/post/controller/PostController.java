@@ -51,6 +51,7 @@ public class PostController {
 		@PathVariable Long postId,
 		@RequestPart MultipartFile thumbnail,
 		@RequestParam(defaultValue = "false") boolean isPopular) {
+
 		postService.updatePostThumbnail(postId, thumbnail, isPopular);
 		return BaseResponse.success();
 	}
@@ -63,10 +64,8 @@ public class PostController {
 
 	@Operation(summary = "게시글 상세 조회", description = "postId를 기반으로 게시글을 상세 조회합니다.")
 	@GetMapping("/{postId}")
-	public BaseResponse<PostDetailResponseDTO> getPostDetail(
-		@PathVariable Long postId,
-		@RequestParam(defaultValue = "false") boolean isPopular
-	) {
+	public BaseResponse<PostDetailResponseDTO> getPostDetail(@PathVariable Long postId,
+		@RequestParam(defaultValue = "false") boolean isPopular) {
 		return BaseResponse.success(postService.getPostDetail(postId, isPopular));
 	}
 
@@ -91,7 +90,7 @@ public class PostController {
 
 	@Operation(summary = "마크다운 이미지 업로드", description = "마크다운 본문에 삽입할 임시 이미지를 업로드합니다.")
 	@PostMapping("/image")
-	public BaseResponse<String> uploadMarkdownImage(@RequestParam("file") MultipartFile file) {
+	public BaseResponse<String> uploadMarkdownImage(@RequestPart("file") MultipartFile file) {
 		return BaseResponse.success(markdownImageService.uploadTempMarkdownImage(file));
 	}
 

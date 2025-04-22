@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "read_log", indexes = {
-	@Index(name = "idx_readlog_user_date", columnList = "user_id, date")
+	@Index(name = "idx_readlog_user_date", columnList = "user_id, date") // 특정 날짜에 읽기 여부 확인 및 streak 계산용
 })
 public class ReadLog extends BaseEntity {
 

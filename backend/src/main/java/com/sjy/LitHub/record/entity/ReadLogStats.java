@@ -22,8 +22,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "read_log_stats", indexes = {
-	@Index(name = "idx_readlogstats_user_year_month", columnList = "user_id, year, month"),
-	@Index(name = "idx_readlogstats_user_year_total", columnList = "user_id, year, total_reading_time")
+	@Index(name = "idx_readlogstats_user_year_month", columnList = "user_id, year, month"), // 사용자 연/월 통계 업데이트 및 조회용
+	@Index(name = "idx_readlogstats_user_year_total", columnList = "user_id, year, total_reading_time") // 특정 연도에서 가장 많이 읽은 월 탐색용
 })
 public class ReadLogStats extends BaseEntity {
 

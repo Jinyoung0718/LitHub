@@ -37,7 +37,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user", indexes = {
-	@Index(name = "idx_user_email_deleted", columnList = "user_email, deleted_at")
+	@Index(name = "idx_user_email_deleted", columnList = "user_email, deleted_at"), // 이메일 기반 계정 상태 조회
+	@Index(name = "idx_user_nickname", columnList = "nick_name") // 닉네임 중복 여부 확인용
 })
 public class User extends BaseTime {
 

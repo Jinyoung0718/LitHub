@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.post.model.res.PopularKeywordResponseDTO;
-import com.sjy.LitHub.post.cache.PopularKeywordManager;
+import com.sjy.LitHub.post.cache.keyword.PopularKeywordManager;
 
 import lombok.RequiredArgsConstructor;
 

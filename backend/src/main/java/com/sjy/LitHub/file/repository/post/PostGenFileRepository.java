@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.sjy.LitHub.file.entity.PostGenFile;
 
+@Repository
 public interface PostGenFileRepository extends JpaRepository<PostGenFile, Long>, PostGenFileRepositoryCustom {
 
 	// 특정 유저의 특정 파일명이면서 아직 게시글에 연결되지 않은 임시 이미지 조회 (주로 마크다운 개별 삭제에 사용)

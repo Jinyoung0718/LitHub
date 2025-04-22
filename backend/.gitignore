@@ -47,4 +47,5 @@ out/
 
 ### custom ###
 .env
+docker-compose.dev.yaml
 apiV1.json

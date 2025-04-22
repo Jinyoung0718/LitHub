@@ -11,8 +11,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.springframework.stereotype.Repository;
-
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.record.entity.QReadLog;
@@ -28,7 +26,6 @@ import com.sjy.LitHub.record.model.queryresult.MonthlyReadingStatsResult;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
-@Repository
 @RequiredArgsConstructor
 public class ReadLogStatsRepositoryImpl implements ReadLogStatsRepositoryCustom {
 

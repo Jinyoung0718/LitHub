@@ -3,10 +3,13 @@ package com.sjy.LitHub.post.mapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.sjy.LitHub.file.entity.PostGenFile;
@@ -14,7 +17,7 @@ import com.sjy.LitHub.file.entity.UserGenFile;
 import com.sjy.LitHub.file.repository.post.PostGenFileRepository;
 import com.sjy.LitHub.file.repository.user.UserGenFileRepository;
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.PostInteractionRedisManager;
+import com.sjy.LitHub.post.cache.post.PostInteractionRedisManager;
 import com.sjy.LitHub.post.cache.enums.CachePolicy;
 import com.sjy.LitHub.post.cache.enums.InteractionType;
 import com.sjy.LitHub.post.model.res.post.PostDetailResponseDTO;
@@ -23,10 +26,10 @@ import com.sjy.LitHub.post.repository.LikesRepository;
 import com.sjy.LitHub.post.repository.ScrapRepository;
 import com.sjy.LitHub.post.service.TagService;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
-@RequiredArgsConstructor
 public class PostMapper {
 
 	private final TagService tagService;
@@ -36,6 +39,24 @@ public class PostMapper {
 	private final PostGenFileRepository postGenFileRepository;
 	private final UserGenFileRepository userGenFileRepository;
 	private final RedisTemplate<String, String> redisTemplate;
+
+	public PostMapper(
+		TagService tagService,
+		PostInteractionRedisManager redisManager,
+		LikesRepository likesRepository,
+		ScrapRepository scrapRepository,
+		PostGenFileRepository postGenFileRepository,
+		UserGenFileRepository userGenFileRepository,
+		@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate
+	) {
+		this.tagService = tagService;
+		this.redisManager = redisManager;
+		this.likesRepository = likesRepository;
+		this.scrapRepository = scrapRepository;
+		this.postGenFileRepository = postGenFileRepository;
+		this.userGenFileRepository = userGenFileRepository;
+		this.redisTemplate = redisTemplate;
+	}
 
 	public void enrichPostDetail(PostDetailResponseDTO dto, Long postId, Long userId) {
 		dto.setTagNames(tagService.findTagNamesMap(List.of(postId)).getOrDefault(postId, List.of()));
@@ -56,11 +77,14 @@ public class PostMapper {
 			PostDetailResponseDTO::setScrapCount
 		);
 
-		dto.setPopular(Boolean.TRUE.equals(redisTemplate.opsForSet()
-			.isMember(CachePolicy.POPULAR_POST_SET_KEY, postId.toString())));
+		dto.setPopular(Boolean.TRUE.equals(
+			redisTemplate.opsForSet().isMember(CachePolicy.POPULAR_POST_SET_KEY, postId.toString())
+		));
 	}
 
 	public void enrichPostSummaries(List<PostSummaryResponseDTO> summaries) {
+		if (summaries.isEmpty()) return;
+
 		List<Long> postIds = summaries.stream().map(PostSummaryResponseDTO::getPostId).toList();
 		Set<Long> userIds = summaries.stream().map(PostSummaryResponseDTO::getUserId).collect(Collectors.toSet());
 		Long currentUserId = AuthUser.getUserId();
@@ -73,19 +97,35 @@ public class PostMapper {
 		Map<Long, String> profileMap = userGenFileRepository.findProfiles256ByUserIds(userIds).stream()
 			.collect(Collectors.toMap(p -> p.getUser().getId(), UserGenFile::getPublicUrl));
 
-		for (PostSummaryResponseDTO dto : summaries) {
-			Long postId = dto.getPostId();
-			dto.setTagNames(tagMap.getOrDefault(postId, List.of()));
-			dto.setThumbnailImageUrl(thumbnailMap.get(postId));
-			dto.setProfileImageUrl(profileMap.get(dto.getUserId()));
-			applyInteractionInfo(
-				dto, postId, currentUserId,
-				PostSummaryResponseDTO::setLiked,
-				PostSummaryResponseDTO::setScrapped,
-				PostSummaryResponseDTO::setLikeCount,
-				PostSummaryResponseDTO::setScrapCount
-			);
-		}
+		List<CompletableFuture<Void>> futures = summaries.stream()
+			.map(dto -> enrichSummaryAsync(dto, currentUserId, tagMap, thumbnailMap, profileMap))
+			.toList();
+
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+	}
+
+	@Async("enrichExecutor")
+	public CompletableFuture<Void> enrichSummaryAsync(
+		PostSummaryResponseDTO dto,
+		Long userId,
+		Map<Long, List<String>> tagMap,
+		Map<Long, String> thumbnailMap,
+		Map<Long, String> profileMap
+	) {
+		Long postId = dto.getPostId();
+		dto.setTagNames(tagMap.getOrDefault(postId, List.of()));
+		dto.setThumbnailImageUrl(thumbnailMap.get(postId));
+		dto.setProfileImageUrl(profileMap.get(dto.getUserId()));
+
+		applyInteractionInfo(
+			dto, postId, userId,
+			PostSummaryResponseDTO::setLiked,
+			PostSummaryResponseDTO::setScrapped,
+			PostSummaryResponseDTO::setLikeCount,
+			PostSummaryResponseDTO::setScrapCount
+		);
+
+		return CompletableFuture.completedFuture(null);
 	}
 
 	private <T> void applyInteractionInfo(

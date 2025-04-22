@@ -47,9 +47,14 @@ dependencies {
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 
-	// Redis & Cache
+	// Redis & Cache & RabbitMq
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	// 마크 다운
+	implementation 'org.jsoup:jsoup:1.17.2'
+	implementation 'org.commonmark:commonmark:0.21.0'
 
 	// OAuth2 + Security
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
@@ -60,7 +65,11 @@ dependencies {
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'org.apache.commons:commons-compress:1.27.1'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
-	implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.12.8'
+
+
+	// bucket4j ddos 제어 의존성
+	implementation 'com.bucket4j:bucket4j-core:8.9.0'
+	implementation 'com.bucket4j:bucket4j-redis:8.9.0'
 
 
 	// 이미지 처리 (WebP)
@@ -82,6 +91,10 @@ dependencies {
 
 	//모니터링
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // aws
+	implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0")
 
 	// 테스트
 	testImplementation 'org.projectlombok:lombok:1.18.30'

@@ -1,4 +1,4 @@
-package com.sjy.LitHub.post.cache;
+package com.sjy.LitHub.post.cache.post;
 
 import java.util.function.Supplier;
 
@@ -22,7 +22,7 @@ public class PerCacheManager {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 
-	public PerCacheManager(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate,
+	public PerCacheManager(@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
 		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.objectMapper = objectMapper;

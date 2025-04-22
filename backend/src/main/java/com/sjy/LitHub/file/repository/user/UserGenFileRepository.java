@@ -3,9 +3,11 @@ package com.sjy.LitHub.file.repository.user;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.sjy.LitHub.file.entity.UserGenFile;
 
+@Repository
 public interface UserGenFileRepository extends JpaRepository<UserGenFile, Long>, UserGenFileRepositoryCustom {
 
 	Optional<UserGenFile> findByUserIdAndTypeCode(Long userId, UserGenFile.TypeCode typeCode);

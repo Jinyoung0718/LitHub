@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.PostInteractionRedisManager;
+import com.sjy.LitHub.post.cache.post.PostInteractionRedisManager;
 import com.sjy.LitHub.post.cache.enums.InteractionType;
 import com.sjy.LitHub.post.model.res.toggle.LikeResponseDTO;
 import com.sjy.LitHub.post.model.res.toggle.ScrapResponseDTO;

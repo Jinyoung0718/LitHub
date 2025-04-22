@@ -31,7 +31,7 @@ const MonthlyStatsChart = ({ monthlyStats }) => {
             <YAxis />
             <Tooltip />
             <Line
-              type="monotone"
+              type="natural"
               dataKey="time"
               stroke="#ffa000"
               strokeWidth={3}

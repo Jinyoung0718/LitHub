@@ -11,7 +11,7 @@ public class RedisRefreshTokenUtil {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public RedisRefreshTokenUtil(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+    public RedisRefreshTokenUtil(@Qualifier("TokenStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -28,11 +28,6 @@ public class RedisRefreshTokenUtil {
     public void deleteRefreshToken(Long userId) {
         String key = generateRefreshKey(userId);
         redisTemplate.delete(key);
-    }
-
-    public boolean validateRefreshToken(Long userId, String refreshToken) {
-        String storedToken = getRefreshToken(userId);
-        return storedToken != null && storedToken.equals(refreshToken);
     }
 
     private String generateRefreshKey(Long userId) {

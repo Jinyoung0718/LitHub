@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sjy.LitHub.post.cache.PostInteractionRedisManager;
+import com.sjy.LitHub.post.cache.post.PostInteractionRedisManager;
 import com.sjy.LitHub.post.cache.enums.InteractionType;
 import com.sjy.LitHub.post.repository.LikesRepository;
 import com.sjy.LitHub.post.repository.ScrapRepository;

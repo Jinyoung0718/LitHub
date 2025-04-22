@@ -15,16 +15,42 @@ import java.util.concurrent.Executor;
 @Slf4j
 public class AsyncConfig implements AsyncConfigurer {
 
-    @Override
     @Bean(name = "mailExecutor")
-    public Executor getAsyncExecutor() {
+    public Executor mailExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5); // 최소 스레드 수
-        executor.setMaxPoolSize(20); // 최대 리 가능한 스레드 수
-        executor.setQueueCapacity(50); // 대기 큐 사이즈
-        executor.setThreadNamePrefix("EmailVerificationExecutor-");
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(20);
+        executor.setThreadNamePrefix("MailExecutor-");
         executor.initialize();
         return executor;
+    }
+
+    @Bean(name = "enrichExecutor")
+    public Executor enrichExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("EnrichExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "searchCacheExecutor")
+    public Executor searchCacheExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("SearchCacheExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Override
+    public Executor getAsyncExecutor() {
+        return enrichExecutor();
     }
 
     @Override

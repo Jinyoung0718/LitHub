@@ -1,8 +1,5 @@
 package com.sjy.LitHub.post.repository.post.impl;
 
-import static com.sjy.LitHub.post.entity.QLikes.*;
-import static com.sjy.LitHub.post.entity.QScrap.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,10 +8,13 @@ import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.account.entity.QUser;
 import com.sjy.LitHub.post.entity.QComment;
+import com.sjy.LitHub.post.entity.QLikes;
 import com.sjy.LitHub.post.entity.QPost;
+import com.sjy.LitHub.post.entity.QScrap;
 import com.sjy.LitHub.post.model.res.post.PostDetailResponseDTO;
 import com.sjy.LitHub.post.repository.post.PostRepositoryCustom;
 
@@ -28,6 +28,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	private final QPost post = QPost.post;
 	private final QUser user = QUser.user;
 	private final QComment comment = QComment.comment;
+	private final QLikes likes = QLikes.likes;
+	private final QScrap scrap = QScrap.scrap;
 
 	@Override
 	public Optional<PostDetailResponseDTO> findDetailDtoById(Long postId, Long currentUserId) {
@@ -41,13 +43,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
 				Expressions.nullExpression(Long.class),
 				Expressions.nullExpression(Long.class),
-				comment.countDistinct(),
+
+				JPAExpressions
+					.select(comment.count())
+					.from(comment)
+					.where(comment.post.id.eq(post.id)),
 
 				Expressions.nullExpression(Boolean.class),
 				Expressions.nullExpression(Boolean.class),
 				Expressions.nullExpression(Boolean.class),
+
 				post.user.id.eq(currentUserId),
-
 				post.createdAt,
 
 				Expressions.nullExpression(String.class),
@@ -55,9 +61,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 			))
 			.from(post)
 			.join(post.user, user)
-			.leftJoin(post.comments, comment)
 			.where(post.id.eq(postId))
-			.groupBy(post.id, user.id)
 			.fetchOne();
 
 		return Optional.ofNullable(result);

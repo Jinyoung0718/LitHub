@@ -7,6 +7,8 @@ import com.sjy.LitHub.account.repository.follow.FollowRepository;
 import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.model.PageResponse;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -43,13 +45,15 @@ public class FollowService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<FollowListResponseDTO> getFollowings(Long userId, Pageable pageable) {
-		return followRepository.findFollowingsByUserId(userId, pageable);
+	public PageResponse<FollowListResponseDTO> getFollowings(Long userId, Pageable pageable) {
+		Page<FollowListResponseDTO> page = followRepository.findFollowingsByUserId(userId, pageable);
+		return PageResponse.from(page);
 	}
 
 	@Transactional(readOnly = true)
-	public Page<FollowListResponseDTO> getFollowers(Long userId, Pageable pageable) {
-		return followRepository.findFollowersByUserId(userId, pageable);
+	public PageResponse<FollowListResponseDTO> getFollowers(Long userId, Pageable pageable) {
+		Page<FollowListResponseDTO> page = followRepository.findFollowersByUserId(userId, pageable);
+		return PageResponse.from(page);
 	}
 
 	@Transactional

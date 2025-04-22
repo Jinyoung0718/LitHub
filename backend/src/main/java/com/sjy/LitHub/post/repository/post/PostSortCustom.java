@@ -18,5 +18,7 @@ public interface PostSortCustom {
 
 	Page<PostSummaryResponseDTO> findPostsScrappedByUser(Long userId, Pageable pageable);
 
-	Page<PostSummaryResponseDTO> findFollowerFeedsByPriority(List<Long> followeeIds, Pageable pageable);
+	List<PostSummaryResponseDTO> findByIds(List<Long> postIds);
+
+	List<PostSummaryResponseDTO> findRecentByUserIds(List<Long> userIds, int limit);
 }

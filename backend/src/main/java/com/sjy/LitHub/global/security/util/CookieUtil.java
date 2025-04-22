@@ -1,5 +1,7 @@
 package com.sjy.LitHub.global.security.util;
 
+import com.sjy.LitHub.global.config.AppConfig;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -7,7 +9,7 @@ public class CookieUtil {
 
     public static Cookie createCookie(String key, String value, int maxAge) {
         Cookie cookie = new Cookie(key, value);
-        cookie.setDomain("localhost");
+        cookie.setDomain(AppConfig.getSiteDomain());
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
         cookie.setHttpOnly(true);

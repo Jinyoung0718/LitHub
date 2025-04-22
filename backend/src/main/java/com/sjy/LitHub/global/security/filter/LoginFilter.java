@@ -76,7 +76,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Long userId = userPrincipal.getUserId();
         Role role = userPrincipal.getRole();
@@ -84,6 +83,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         tokenService.generateTokensAndSetCookies(response, userId, role);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         response.setStatus(HttpStatus.OK.value());
+        log.info("로그인 성공");
     }
 
     @Override

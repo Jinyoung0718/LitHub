@@ -4,6 +4,7 @@ public enum InteractionType {
 	LIKE("likes"), SCRAP("scraps");
 
 	private final String key;
+
 	InteractionType(String key) {
 		this.key = key;
 	}

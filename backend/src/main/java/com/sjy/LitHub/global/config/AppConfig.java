@@ -30,6 +30,9 @@ public class AppConfig {
 	@Getter
 	private static String customMaxFileSize;
 
+	@Getter
+	private static String siteDomain;
+
 	@Value("${custom.site.back-url}")
 	public void setSiteBackUrl(String siteBackUrl) {
 		AppConfig.siteBackUrl = siteBackUrl;
@@ -53,6 +56,11 @@ public class AppConfig {
 	@Value("${custom.upload.max-file-size}")
 	public void setCustomMaxFileSize(String size) {
 		AppConfig.customMaxFileSize = size;
+	}
+
+	@Value("${custom.site.domain}")
+	public void setSiteDomain(String siteDomain) {
+		AppConfig.siteDomain = siteDomain;
 	}
 
 	@Autowired

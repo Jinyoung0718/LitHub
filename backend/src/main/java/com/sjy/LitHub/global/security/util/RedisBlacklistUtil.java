@@ -11,7 +11,7 @@ public class RedisBlacklistUtil {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public RedisBlacklistUtil(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+    public RedisBlacklistUtil(@Qualifier("TokenStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

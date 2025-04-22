@@ -1,7 +1,70 @@
+spring:
+  datasource:
+    url: need-input
+    username: need-input
+    password: need-input
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  docker:
+    compose:
+      enabled: false
+
+  data:
+    redis:
+      cluster:
+        nodes:
+          - need-input
+          - need-input
+          - need-input
+
+  rabbitmq:
+    host: need-input
+    port: 5672
+    username: need-input
+    password: need-input
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 5
+          max-interval: 10000
+          multiplier: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  health:
+    redis:
+      enabled: false
+
 custom:
   site:
-    back-url: https://api.yourdomain.com
-    front-url: https://yourdomain.com
+    domain: need-input
+    back-url: need-input
+    front-url: need-input
 
   file:
-    upload-dir: /var/www/lithub/uploads
+    upload-dir: need-input
+
+  redis:
+    sentinel:
+      master: need-input
+      nodes:
+        - redis-sentinel-1.lithub.internal:need-input
+        - redis-sentinel-2.lithub.internal:need-input
+        - redis-sentinel-3.lithub.internal:need-input

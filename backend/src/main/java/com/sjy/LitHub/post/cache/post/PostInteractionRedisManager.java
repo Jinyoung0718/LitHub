@@ -1,4 +1,4 @@
-package com.sjy.LitHub.post.cache;
+package com.sjy.LitHub.post.cache.post;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ public class PostInteractionRedisManager {
 
 	private static final String ALL_POST_IDS_KEY = "post:interactions:ids";
 
-	public PostInteractionRedisManager(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+	public PostInteractionRedisManager(@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
 

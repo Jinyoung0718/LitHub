@@ -20,8 +20,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "post_tag", indexes = {
-	@Index(name = "idx_post_tag_post_id", columnList = "post_id"),
-	@Index(name = "idx_post_tag_tag_id", columnList = "tag_id")
+	@Index(name = "idx_post_tag_post_id", columnList = "post_id"), // 게시글로부터 태그 조회
+	@Index(name = "idx_post_tag_tag_id", columnList = "tag_id") // 태그로부터 게시글 조회
 })
 public class PostTag extends BaseTime {
 

@@ -15,7 +15,7 @@ public class OAuthUserTempService {
 
 	private final RedisTemplate<String, Object> jsonRedisTemplate;
 
-	public OAuthUserTempService(@Qualifier("JsonRedisTemplate") RedisTemplate<String, Object> jsonRedisTemplate) {
+	public OAuthUserTempService(@Qualifier("TokenJsonRedisTemplate") RedisTemplate<String, Object> jsonRedisTemplate) {
 		this.jsonRedisTemplate = jsonRedisTemplate;
 	}
 

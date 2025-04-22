@@ -11,7 +11,7 @@ public class RedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public RedisService(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+    public RedisService(@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

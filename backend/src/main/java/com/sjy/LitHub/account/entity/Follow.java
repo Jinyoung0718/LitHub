@@ -11,10 +11,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "follow", uniqueConstraints = {
-	@UniqueConstraint(name = "uk_follower_followee", columnNames = {"follower_id", "followee_id"})
+	@UniqueConstraint(name = "uk_follower_followee", columnNames = {"follower_id", "followee_id"}) // 중복 팔로우 방지
 }, indexes = {
-	@Index(name = "idx_follower", columnList = "follower_id"), // 내가 팔로우한 사람들을 빠르게 조회
-	@Index(name = "idx_followee", columnList = "followee_id")  // 나를 팔로우한 사람들 조회
+	@Index(name = "idx_follower", columnList = "follower_id"), // 내가 팔로우한 사람 조회
+	@Index(name = "idx_followee", columnList = "followee_id")  // 나를 팔로우한 사람 조회
 })
 public class Follow extends BaseTime {
 

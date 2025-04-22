@@ -30,13 +30,8 @@ const MyPage = () => {
 
   const fetchMyPageData = async (year) => {
     try {
-      const response = await axios.get(`/api/user/me?year=${year}`, {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      });
+      const response = await axios.get(`/api/user/me?year=${year}`);
+      console.log(response);
       setMyPageData(response.data.result);
     } catch (error) {
       console.error("마이페이지 데이터 가져오기 실패:", error);

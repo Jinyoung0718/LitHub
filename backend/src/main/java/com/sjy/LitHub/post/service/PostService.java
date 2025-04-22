@@ -13,14 +13,17 @@ import com.sjy.LitHub.global.AuthUser;
 import com.sjy.LitHub.global.exception.custom.InvalidFileException;
 import com.sjy.LitHub.global.exception.custom.InvalidPostException;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
+import com.sjy.LitHub.global.message.FanOutMessage;
+import com.sjy.LitHub.global.message.FanOutProducer;
+import com.sjy.LitHub.global.message.InfluencerPolicy;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.post.cache.PostDetailCacheUtils;
+import com.sjy.LitHub.post.cache.post.PostDetailCacheUtils;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.entity.PostTag;
 import com.sjy.LitHub.post.entity.Tag;
 import com.sjy.LitHub.post.mapper.PostMapper;
-import com.sjy.LitHub.post.model.req.PostCreateRequestDTO;
 import com.sjy.LitHub.post.model.req.PostContentUpdateDTO;
+import com.sjy.LitHub.post.model.req.PostCreateRequestDTO;
 import com.sjy.LitHub.post.model.res.post.PostDetailResponseDTO;
 import com.sjy.LitHub.post.repository.post.PostRepository;
 
@@ -31,9 +34,11 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
 	private final PostRepository postRepository;
+	private final InfluencerPolicy influencerPolicy;
 	private final PostDetailCacheUtils postDetailCacheUtils;
 	private final ThumbnailImageService thumbnailImageService;
 	private final MarkdownImageService markdownImageService;
+	private final FanOutProducer fanOutProducer;
 	private final PostMapper postMapper;
 	private final TagService tagService;
 
@@ -58,13 +63,17 @@ public class PostService {
 		User user = AuthUser.getAuthUser();
 		Post post = Post.from(request.getTitle(), request.getContentMarkdown(), user);
 
-		postRepository.save(post);
 		thumbnailImageService.assignThumbnailToPost(post, request.getThumbnailFileName(), user.getId());
 
 		List<Tag> tags = tagService.findOrCreateTags(request.getTags());
 		tags.forEach(tag -> post.addPostTag(PostTag.of(post, tag)));
 
 		postRepository.save(post);
+
+		if (!influencerPolicy.isInfluencer(user.getId())) {
+			fanOutProducer.sendMessage(new FanOutMessage(user.getId(), post.getId()));
+		}
+
 		return post.getId();
 	}
 
@@ -80,6 +89,15 @@ public class PostService {
 		postDetailCacheUtils.refreshPostDetail(postId, userId, isPopular, () -> fetchPostDetail(postId, userId));
 	}
 
+	private boolean isValidThumbnail(MultipartFile thumbnail) {
+		return thumbnail != null && !thumbnail.isEmpty();
+	}
+
+	private Post getOwnedPost(Long postId, Long userId) {
+		return postRepository.findByIdAndUserId(postId, userId)
+			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
+	}
+
 	@Transactional
 	public void updatePostContent(Long postId, PostContentUpdateDTO request, boolean isPopular) {
 		Long userId = AuthUser.getUserId();
@@ -89,15 +107,6 @@ public class PostService {
 		markdownImageService.syncMarkdownImages(post, request.getContentMarkdown());
 		postRepository.flush();
 		postDetailCacheUtils.refreshPostDetail(postId, userId, isPopular, () -> fetchPostDetail(postId, userId));
-	}
-
-	private Post getOwnedPost(Long postId, Long userId) {
-		return postRepository.findByIdAndUserId(postId, userId)
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
-	}
-
-	private boolean isValidThumbnail(MultipartFile thumbnail) {
-		return thumbnail != null && !thumbnail.isEmpty();
 	}
 
 	@Transactional

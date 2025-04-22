@@ -18,7 +18,7 @@ public class MyPageCacheManager {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public MyPageCacheManager(@Qualifier("StringRedisTemplate") RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+    public MyPageCacheManager(@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }

@@ -5,21 +5,113 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="528b1dc9-022b-4544-8156-fd816a3cfa8c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/next.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/postcss.config.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/file.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/globe.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/next.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/vercel.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/window.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/globals.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/tailwind.config.ts" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/.github/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/SlackNotifier.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/FanOutConsumer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/FanOutDLQListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/FanOutMessage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/FanOutProducer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/FeedRedisUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/InfluencerPolicy.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/RabbitMQConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/RabbitMQConstants.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/message/RabbitMQQueueConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/model/PageResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/RedisSingleNodeConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/cluster/RedisClusterCacheConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/filter/FilterConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/filter/RateLimitFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/sentinel/RedisSentinelProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/sentinel/RedisSentinelTokenConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/keyword/SearchCacheAsyncProcessor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/controller/PostSearchController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/MySQLFunctionContributor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/PostSearchCustom.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/impl/PostSearchCustomImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/FeedService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/SearchService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/META-INF/services/org.hibernate.boot.model.FunctionContributor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/index.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/static/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/test.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/backend/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/docker-compose.dev.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/docker-compose.dev.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/prometheus/prometheus.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/prometheus/prometheus.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/LitHubApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/LitHubApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/controller/FollowController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/controller/FollowController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/controller/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/controller/InfoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/entity/Follow.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/entity/Follow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/entity/OAuthUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/entity/OAuthUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/follow/FollowRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/follow/FollowRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/follow/FollowRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/follow/FollowRepositoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/point/PointRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/point/PointRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/user/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/repository/user/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/service/UserInfo/MyPageCacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/service/UserInfo/MyPageCacheManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/service/follow/FollowService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/account/service/follow/FollowService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/file/entity/PostGenFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/file/entity/PostGenFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/file/repository/post/PostGenFileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/file/repository/post/PostGenFileRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/file/repository/user/UserGenFileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/file/repository/user/UserGenFileRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/AppConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/AppConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/AsyncConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/AsyncConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/securityconfig/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/config/securityconfig/WebSecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/RedisConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/RedisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/redis/RedisService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/filter/JwtFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/filter/JwtFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/filter/LoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/filter/LoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/oauth2/handler/CustomOAuth2SuccessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/oauth2/handler/CustomOAuth2SuccessHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/oauth2/handler/failurehandlers/DefaultOAuthFailureStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/oauth2/handler/failurehandlers/DefaultOAuthFailureStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/oauth2/service/signup/OAuthUserTempService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/oauth2/service/signup/OAuthUserTempService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/service/TokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/service/TokenService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/util/CookieUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/util/CookieUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/util/RedisBlacklistUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/util/RedisBlacklistUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/util/RedisRefreshTokenUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/global/security/util/RedisRefreshTokenUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/PerCacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/post/PerCacheManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/PopularKeywordManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/keyword/PopularKeywordManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/PostDetailCacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/post/PostDetailCacheManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/PostDetailCacheUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/post/PostDetailCacheUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/PostInteractionRedisManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/post/PostInteractionRedisManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/PostListCacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/post/PostListCacheManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/enums/CachePolicy.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/enums/CachePolicy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/enums/InteractionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/enums/InteractionType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/scheduler/PopularKeywordPostPreheatScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/scheduler/PopularKeywordPostPreheatScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/scheduler/PopularPostIdSyncScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/scheduler/PopularPostIdSyncScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/scheduler/PostInteractionSyncScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/cache/scheduler/PostInteractionSyncScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/controller/PostController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/controller/PostController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/controller/PostSortController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/controller/PostSortController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Comment.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Comment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Likes.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Likes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Post.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Post.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/PostTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/PostTag.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Scrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Scrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Tag.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/entity/Tag.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/mapper/PostMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/mapper/PostMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/model/res/post/PostDetailResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/model/res/post/PostDetailResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/CommentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/CommentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/LikesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/LikesRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/ScrapRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/ScrapRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/PostRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/PostRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/PostSortCustom.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/PostSortCustom.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/impl/PostRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/impl/PostRepositoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/impl/PostSortCustomImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/post/impl/PostSortCustomImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/tag/PostTagRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/tag/PostTagRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/tag/TagRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/repository/tag/TagRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/PopularKeywordService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/PopularKeywordService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/PostService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/PostService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/SortService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/SortService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/ToggleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/post/service/ToggleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/entity/ReadLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/entity/ReadLog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/entity/ReadLogStats.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/entity/ReadLogStats.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/repository/readLog/ReadLogRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/repository/readLog/ReadLogRepositoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/repository/readLogStatus/ReadLogStatsRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/sjy/LitHub/record/repository/readLogStatus/ReadLogStatsRepositoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application-prod.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application-test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application-test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +136,7 @@
     </system>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/frontend" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -60,7 +152,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Sojinyoung/Desktop/LitHub/backend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Sojinyoung/Desktop/LitHub&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -69,6 +161,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Sojinyoung\Desktop\LitHub\backend" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="LitHubApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="backend.main" />
@@ -98,6 +195,15 @@
       <workItem from="1741707716625" duration="2639000" />
       <workItem from="1741789456894" duration="114000" />
       <workItem from="1741789842441" duration="176000" />
+      <workItem from="1744598617074" duration="247000" />
+      <workItem from="1744624961949" duration="4746000" />
+      <workItem from="1744630528943" duration="149000" />
+      <workItem from="1744941986760" duration="38000" />
+      <workItem from="1744942776674" duration="468000" />
+      <workItem from="1745079334849" duration="1000" />
+      <workItem from="1745081289117" duration="152000" />
+      <workItem from="1745082604160" duration="22000" />
+      <workItem from="1745334209993" duration="30000" />
     </task>
     <servers />
   </component>

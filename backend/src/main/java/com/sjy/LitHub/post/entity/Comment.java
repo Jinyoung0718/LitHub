@@ -29,9 +29,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "comment", indexes = {
-	@Index(name = "idx_comment_user_id", columnList = "user_id"),
-	@Index(name = "idx_comment_post_created", columnList = "post_id, created_at"), // 인덱스 레인지 스캔
-	@Index(name = "idx_comment_parent_id", columnList = "parent_id")
+	@Index(name = "idx_comment_user_id", columnList = "user_id"), // 특정 사용자의 댓글 조회용
+	@Index(name = "idx_comment_post_created", columnList = "post_id, created_at"), // 특정 게시글의 댓글을 생성일 순으로 정렬 조회
+	@Index(name = "idx_comment_parent_id", columnList = "parent_id") // 대댓글 조회용 (부모 댓글 기반)
 })
 public class Comment extends BaseTime {
 

@@ -1,6 +1,6 @@
 package com.sjy.LitHub.post.model.res.post;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class PostDetailResponseDTO {
 	private boolean scrapped;
 	private boolean editable;
 
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	private String thumbnailImageUrl;
 	private String profileImageUrl;
@@ -51,7 +51,7 @@ public class PostDetailResponseDTO {
 		boolean liked,
 		boolean scrapped,
 		boolean editable,
-		LocalDate createdAt,
+		LocalDateTime createdAt,
 		String thumbnailImageUrl,
 		String profileImageUrl
 	) {

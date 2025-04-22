@@ -33,25 +33,20 @@ springdoc:
     enabled: true
   default-produces-media-type: application/json;charset=UTF-8
 
-bucket4j:
-  enabled: true
-  filters:
-    - cache-name: buckets
-      url: /api/posts/likes
-      rate-limits:
-        - bandwidths:
-            - capacity: 10
-              time: 1
-              unit: seconds
-              refill-speed: interval
-    - cache-name: buckets
-      url: /api/posts/scraps
-      rate-limits:
-        - bandwidths:
-            - capacity: 10
-              time: 1
-              unit: seconds
-              refill-speed: interval
+management:
+  server:
+    port: 8080
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus # env 는 disable
+  health:
+    redis:
+      enabled: false
+
+slack:
+  webhook:
+    url: ${SLACK_WEB_HOOK_URL}
 
 custom:
   upload:

@@ -1,21 +1,25 @@
 package com.sjy.LitHub.global.security.service;
 
-import com.sjy.LitHub.account.entity.authenum.Role;
-import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
-import com.sjy.LitHub.global.security.model.UserPrincipal;
-import com.sjy.LitHub.global.security.util.AuthConst;
-import com.sjy.LitHub.global.security.util.CookieUtil;
-import com.sjy.LitHub.global.security.util.JwtUtil;
-import com.sjy.LitHub.global.security.util.RedisRefreshTokenUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.sjy.LitHub.account.entity.authenum.Role;
+import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.security.model.UserPrincipal;
+import com.sjy.LitHub.global.security.util.AuthConst;
+import com.sjy.LitHub.global.security.util.CookieUtil;
+import com.sjy.LitHub.global.security.util.JwtUtil;
+import com.sjy.LitHub.global.security.util.RedisRefreshTokenUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {

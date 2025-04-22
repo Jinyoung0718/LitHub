@@ -12,35 +12,11 @@ import {
 const ReadingTimerModal = ({ onClose, onSave }) => {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const animationRef = useRef(null);
   const intervalRef = useRef(null);
-  const [progressRatio, setProgressRatio] = useState(0);
 
   const radius = 150;
   const strokeWidth = 15;
   const circumference = 2 * Math.PI * radius;
-
-  const animateProgress = (targetRatio) => {
-    const duration = 500;
-    const start = performance.now();
-    const from = progressRatio;
-
-    const step = (now) => {
-      const elapsed = now - start;
-      const t = Math.min(elapsed / duration, 1);
-      const eased = from + (targetRatio - from) * t;
-      setProgressRatio(eased);
-      if (t < 1) animationRef.current = requestAnimationFrame(step);
-    };
-
-    cancelAnimationFrame(animationRef.current);
-    animationRef.current = requestAnimationFrame(step);
-  };
-
-  useEffect(() => {
-    const ratio = (seconds % 60) / 60;
-    animateProgress(ratio);
-  }, [seconds]);
 
   useEffect(() => {
     if (isRunning) {
@@ -50,10 +26,7 @@ const ReadingTimerModal = ({ onClose, onSave }) => {
     } else {
       clearInterval(intervalRef.current);
     }
-    return () => {
-      clearInterval(intervalRef.current);
-      cancelAnimationFrame(animationRef.current);
-    };
+    return () => clearInterval(intervalRef.current);
   }, [isRunning]);
 
   const handleSave = () => {
@@ -92,6 +65,8 @@ const ReadingTimerModal = ({ onClose, onSave }) => {
     return ticks;
   };
 
+  const progress = (seconds % 60) / 60;
+
   return (
     <ModalOverlay>
       <ModalContent>
@@ -105,7 +80,7 @@ const ReadingTimerModal = ({ onClose, onSave }) => {
               stroke="#ffa000"
               strokeWidth={strokeWidth}
               strokeDasharray={circumference}
-              strokeDashoffset={circumference - progressRatio * circumference}
+              strokeDashoffset={circumference - progress * circumference}
             />
             <TickMarks>{renderTicks()}</TickMarks>
           </ProgressRing>

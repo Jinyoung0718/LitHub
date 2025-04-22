@@ -21,8 +21,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 @Table(name = "scrap", indexes = {
-	@Index(name = "idx_scrap_post_id", columnList = "post_id"),
-	@Index(name = "idx_scrap_user_post", columnList = "user_id, post_id")
+	@Index(name = "idx_scrap_post_id", columnList = "post_id"), // 특정 게시글의 스크랩 수 조회용
+	@Index(name = "idx_scrap_user_post", columnList = "user_id, post_id") // 유저가 해당 게시글을 스크랩했는지 여부 확인용
 })
 public class Scrap extends BaseTime {
 

@@ -16,9 +16,24 @@ spring:
       host: ${REDIS_HOST_DEV}
       port: ${REDIS_PORT_DEV}
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST_DEV}
+    port: ${RABBITMQ_PORT_DEV}
+    username: ${RABBITMQ_USERNAME_DEV}
+    password: ${RABBITMQ_PASSWORD_DEV}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 5
+          max-interval: 10000
+          multiplier: 2
+
   jpa:
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
@@ -27,18 +42,17 @@ spring:
         use_sql_comments: true
         default_batch_fetch_size: 100
     open-in-view: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, metrics, prometheus
+  sql:
+    init:
+      mode: always
+      encoding: utf-8
+      schema-locations: classpath:index.sql
 
 custom:
   site:
+    domain: localhost
     back-url: ${CUSTOM_SITE_BACK_URL_DEV}
     front-url: ${CUSTOM_SITE_FRONT_URL_DEV}
 
   file:
     upload-dir: ${CUSTOM_FILE_UPLOAD_DIR_DEV}
-

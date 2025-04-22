@@ -9,7 +9,9 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "oauth_account")
+@Table(name = "oauth_account", indexes = {
+    @Index(name = "idx_user_provider", columnList = "user_id, provider") // 소셜 연동 여부 확인용
+})
 public class OAuthUser {
 
     @Id

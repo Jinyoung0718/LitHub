@@ -2,6 +2,7 @@ package com.sjy.LitHub.post.cache.scheduler;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,17 +11,23 @@ import org.springframework.stereotype.Component;
 import com.sjy.LitHub.post.cache.enums.CachePolicy;
 import com.sjy.LitHub.post.repository.post.PostRepository;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class PopularPostIdSyncScheduler {
 
 	private final PostRepository postRepository;
 	private final RedisTemplate<String, String> redisTemplate;
 	private static final int TOP_N = 30;
+
+	public PopularPostIdSyncScheduler(
+		PostRepository postRepository,
+		@Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate
+	) {
+		this.postRepository = postRepository;
+		this.redisTemplate = redisTemplate;
+	}
 
 	@Scheduled(cron = "0 0/10 * * * ?")
 	public void syncPopularPostIds() {

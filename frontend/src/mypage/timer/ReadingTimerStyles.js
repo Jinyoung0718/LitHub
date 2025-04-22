@@ -26,15 +26,14 @@ export const ModalContent = styled.div`
 
 export const TimerCircle = styled.div`
   position: relative;
-  width: 320px;
-  height: 320px;
+  width: 20rem;
+  height: 20rem;
   border-radius: 50%;
   background-color: #111;
-  margin: 2rem auto;
+  margin: 5rem auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Courier New", monospace;
   font-size: 3.2rem;
   color: #fff;
 `;
@@ -48,7 +47,7 @@ export const ProgressRing = styled.svg`
   height: 320px;
 
   circle {
-    transition: stroke-dashoffset 0.5s ease-in-out;
+    transition: stroke-dashoffset 1s linear;
     transform-origin: center;
   }
 `;
