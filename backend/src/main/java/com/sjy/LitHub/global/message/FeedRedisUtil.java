@@ -27,10 +27,12 @@ public class FeedRedisUtil {
 		return rawPostIds.stream()
 			.map(Long::valueOf)
 			.toList();
-	}
+	} // 사용자가 피드를 요청했을 때 피드 목록을 Redis 에서 빠르게 불러오는 데 사용
 
 	public void addPostToMultipleFeeds(List<Long> userIds, Long postId, int maxFeedSize) {
 		redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+
+			// 파이프라인을 이용해 명령을 한 번에 전송
 			StringRedisSerializer serializer = new StringRedisSerializer();
 
 			for (Long userId : userIds) {
@@ -47,6 +49,5 @@ public class FeedRedisUtil {
 			}
 			return null;
 		});
-
-	}
+	} // 새로운 게시글을 여러 사용자의 피드에 동시에 삽입
 }

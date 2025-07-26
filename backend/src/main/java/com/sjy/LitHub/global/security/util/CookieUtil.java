@@ -12,9 +12,9 @@ public class CookieUtil {
         cookie.setDomain(AppConfig.getSiteDomain());
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setHttpOnly(AppConfig.isCookieHttpOnly());
+        cookie.setSecure(AppConfig.isCookieSecure());
+        cookie.setAttribute("SameSite", AppConfig.getCookieSameSite());
         return cookie;
     }
 
@@ -22,9 +22,9 @@ public class CookieUtil {
         Cookie cookie = new Cookie(key, "");
         cookie.setMaxAge(0);
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setHttpOnly(AppConfig.isCookieHttpOnly());
+        cookie.setSecure(AppConfig.isCookieSecure());
+        cookie.setAttribute("SameSite", AppConfig.getCookieSameSite());
         return cookie;
     }
 
@@ -32,11 +32,13 @@ public class CookieUtil {
         if (request == null || request.getCookies() == null) {
             return null;
         }
+
         for (Cookie cookie : request.getCookies()) {
             if (cookieName.equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }
+
         return null;
     }
 }

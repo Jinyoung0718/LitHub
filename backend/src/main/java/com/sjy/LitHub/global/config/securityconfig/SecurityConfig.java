@@ -5,6 +5,7 @@ import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.global.config.securityconfig.oauth2config.ClientRegistrationRepository;
 import com.sjy.LitHub.global.exception.CustomAccessDeniedHandler;
 import com.sjy.LitHub.global.exception.CustomAuthenticationEntryPoint;
+import com.sjy.LitHub.global.exception.CustomJwtExceptionFilter;
 import com.sjy.LitHub.global.security.filter.JwtFilter;
 import com.sjy.LitHub.global.security.filter.LoginFilter;
 import com.sjy.LitHub.global.security.handler.CustomLogoutHandler;
@@ -43,6 +44,7 @@ public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+    private final CustomJwtExceptionFilter customJwtExceptionFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final RedisBlacklistUtil redisBlacklistUtil;
@@ -82,17 +84,22 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST,"/api/auth/**").permitAll()
-                        .requestMatchers("/api/info/temp-check").permitAll()
-                        .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
-                        .anyRequest().authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                    .requestMatchers("/api/info/temp-check").permitAll()
+                    .requestMatchers("/v3/api-docs", "/swagger-ui/**").permitAll()
+                    .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
+                    .anyRequest().authenticated()
                 );
 
         http
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         http
+                .addFilterBefore(customJwtExceptionFilter, JwtFilter.class);
+
+        http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         http
                 .exceptionHandling(exception -> exception

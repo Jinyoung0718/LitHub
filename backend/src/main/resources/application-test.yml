@@ -11,5 +11,29 @@ spring:
     hibernate:
       ddl-auto: create
 
+  mail:
+    host: localhost
+    port: 1025
+    username: dummy
+    password: dummy
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+email:
+  fake-sending: true
+
+custom:
+  site:
+    domain: localhost
+    back-url: http://localhost:8080
+    front-url: http://localhost:5173
+
+  file:
+    upload-dir: ./tmp/test-uploads
+
 url:
   base: http://localhost:5173

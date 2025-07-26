@@ -45,14 +45,10 @@ public class PostController {
 		return BaseResponse.success(thumbnailImageService.uploadTempThumbnailImage(file));
 	}
 
-	@Operation(summary = "게시글 썸네일 수정")
+	@Operation(summary = "썸네일 이미지 수정")
 	@PatchMapping("/{postId}/thumbnail")
-	public BaseResponse<Empty> updateThumbnail(
-		@PathVariable Long postId,
-		@RequestPart MultipartFile thumbnail,
-		@RequestParam(defaultValue = "false") boolean isPopular) {
-
-		postService.updatePostThumbnail(postId, thumbnail, isPopular);
+	public BaseResponse<Empty> updateThumbnail(@PathVariable Long postId, @RequestPart MultipartFile thumbnail) {
+		postService.updatePostThumbnail(postId, thumbnail);
 		return BaseResponse.success();
 	}
 
@@ -64,27 +60,24 @@ public class PostController {
 
 	@Operation(summary = "게시글 상세 조회", description = "postId를 기반으로 게시글을 상세 조회합니다.")
 	@GetMapping("/{postId}")
-	public BaseResponse<PostDetailResponseDTO> getPostDetail(@PathVariable Long postId,
-		@RequestParam(defaultValue = "false") boolean isPopular) {
-		return BaseResponse.success(postService.getPostDetail(postId, isPopular));
+	public BaseResponse<PostDetailResponseDTO> getPostDetail(@PathVariable Long postId) {
+		return BaseResponse.success(postService.getPostDetail(postId));
 	}
 
 	@Operation(summary = "게시글 제목/본문 수정")
 	@PatchMapping("/{postId}/content")
 	public BaseResponse<Empty> updatePostContent(
 		@PathVariable Long postId,
-		@RequestBody @Valid PostContentUpdateDTO request,
-		@RequestParam(defaultValue = "false") boolean isPopular) {
-		postService.updatePostContent(postId, request, isPopular);
+		@RequestBody @Valid PostContentUpdateDTO request) {
+		postService.updatePostContent(postId, request);
 		return BaseResponse.success();
 	}
 
 	@Operation(summary = "게시글 삭제", description = "해당 게시글을 삭제합니다.")
 	@DeleteMapping("/{postId}")
 	public BaseResponse<Empty> deletePost(
-		@PathVariable Long postId,
-		@RequestParam(defaultValue = "false") boolean isPopular) {
-		postService.deletePost(postId, isPopular);
+		@PathVariable Long postId) {
+		postService.deletePost(postId);
 		return BaseResponse.success();
 	}
 

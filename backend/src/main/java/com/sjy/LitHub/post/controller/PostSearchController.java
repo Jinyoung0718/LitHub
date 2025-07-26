@@ -37,7 +37,16 @@ public class PostSearchController {
 		return BaseResponse.success(searchService.searchByTitle(keyword, pageable));
 	}
 
-	@Operation(summary = "내용 기반 게시글 검색", description = "게시글의 본문 내용을 기준으로 키워드 검색을 수행합니다.")
+	@Operation(summary = "태그 기반 게시글 검색", description = "지정된 태그를 기준으로 게시글 검색을 수행합니다.")
+	@GetMapping("/search/tag")
+	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByTag(
+		@RequestParam String tag,
+		@PageableDefault(size = 15) Pageable pageable
+	) {
+		return BaseResponse.success(searchService.searchByTag(tag, pageable));
+	}
+
+	@Operation(summary = "내용 기반 게시글 검색", description = "게시글의 본문 내용을 기준으로 키워드 검색을 수행합니다. (캐싱 없음)")
 	@GetMapping("/search/content")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByContent(
 		@RequestParam String keyword,
@@ -46,22 +55,13 @@ public class PostSearchController {
 		return BaseResponse.success(searchService.searchByContent(keyword, pageable));
 	}
 
-	@Operation(summary = "제목+내용 기반 게시글 통합 검색", description = "게시글의 제목 또는 내용을 모두 기준으로 키워드 검색을 수행합니다.")
-	@GetMapping("/search/combined")
+	@Operation(summary = "제목+내용 통합 게시글 검색", description = "제목 또는 내용 중 하나라도 키워드를 포함하는 게시글을 검색합니다. (캐싱 없음)")
+	@GetMapping("/search/all")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByTitleOrContent(
 		@RequestParam String keyword,
 		@PageableDefault(size = 15) Pageable pageable
 	) {
 		return BaseResponse.success(searchService.searchByTitleOrContent(keyword, pageable));
-	}
-
-	@Operation(summary = "태그 기반 게시글 검색", description = "지정된 태그를 기준으로 게시글 검색을 수행합니다.")
-	@GetMapping("/search/tag")
-	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByTag(
-		@RequestParam String tag,
-		@PageableDefault(size = 15) Pageable pageable
-	) {
-		return BaseResponse.success(searchService.searchByTag(tag, pageable));
 	}
 
 	@Operation(summary = "실시간 인기 검색어 조회", description = "검색 시 ZSet 기반으로 수집된 실시간 인기 키워드를 조회합니다.")

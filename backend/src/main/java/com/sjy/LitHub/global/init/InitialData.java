@@ -2,6 +2,7 @@ package com.sjy.LitHub.global.init;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.boot.ApplicationRunner;
@@ -24,6 +25,9 @@ import com.sjy.LitHub.record.repository.readLog.ReadLogRepository;
 import com.sjy.LitHub.record.repository.readLogStatus.ReadLogStatsRepository;
 import com.sjy.LitHub.record.service.ReadLogStatusService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 public class InitialData {
 
@@ -54,10 +58,18 @@ public class InitialData {
     @Bean
     public ApplicationRunner applicationRunner() {
         return args -> {
-            // 1차 저장 → ID 확보
+            String email = "wo0982@naver.com";
+            Optional<User> existing = userRepository.findByUserEmailAll(email);
+
+            if (existing.isPresent()) {
+                log.info("[InitialData] 이미 초기 데이터 유저가 존재합니다. 초기화 스킵.");
+                return;
+            }
+
+            // --- 이하 초기 데이터 삽입 로직 ---
             User user = User.builder()
                 .nickName("initDataNickName")
-                .userEmail("wo0982@naver.com")
+                .userEmail(email)
                 .password(new BCryptPasswordEncoder().encode("korean12@"))
                 .tier(Tier.GOLD)
                 .point(6000)

@@ -14,7 +14,7 @@ import com.sjy.LitHub.file.entity.UserGenFile;
 import com.sjy.LitHub.file.util.FileUtil;
 import com.sjy.LitHub.file.util.ProfileImageUtil;
 import com.sjy.LitHub.file.util.StorageImageUtil;
-import com.sjy.LitHub.file.util.exception.ImageExceptionResolver;
+import com.sjy.LitHub.file.util.ImageExceptionResolver;
 import com.sjy.LitHub.global.exception.custom.InvalidFileException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sksamuel.scrimage.ImmutableImage;

@@ -25,7 +25,7 @@ public class OAuthUserNotFoundStrategy implements OAuthFailureHandlerStrategy {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, BaseResponseStatus status) throws IOException {
-        response.setStatus(status.getHttpStatus());
+        response.setStatus(status.getHttpStatusCode());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         objectMapper.writeValue(response.getWriter(), BaseResponse.error(status));

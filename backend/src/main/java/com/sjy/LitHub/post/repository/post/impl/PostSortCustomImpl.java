@@ -15,7 +15,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sjy.LitHub.account.entity.QUser;
-import com.sjy.LitHub.post.entity.QLikes;
 import com.sjy.LitHub.post.entity.QPost;
 import com.sjy.LitHub.post.entity.QScrap;
 import com.sjy.LitHub.post.entity.QTag;
@@ -32,27 +31,12 @@ public class PostSortCustomImpl implements PostSortCustom {
 	private final QPost post = QPost.post;
 	private final QUser user = QUser.user;
 	private final QTag tag = QTag.tag;
-	private final QLikes likes = QLikes.likes;
 	private final QScrap scrap = QScrap.scrap;
-
-	@Override
-	public Page<PostSummaryResponseDTO> searchByKeyword(String keyword, Pageable pageable) {
-		BooleanExpression predicate = post.title.containsIgnoreCase(keyword);
-		OrderSpecifier<?> order = post.createdAt.desc();
-		return fetchPostPage(predicate, order, pageable);
-	}
 
 	@Override
 	public Page<PostSummaryResponseDTO> searchByTag(String tagName, Pageable pageable) {
 		BooleanExpression predicate = tag.name.eq(tagName);
 		OrderSpecifier<?> order = post.createdAt.desc();
-		return fetchPostPage(predicate, order, pageable);
-	}
-
-	@Override
-	public Page<PostSummaryResponseDTO> findPopularPosts(Pageable pageable) {
-		BooleanExpression predicate = post.createdAt.after(LocalDateTime.now().minusDays(1));
-		OrderSpecifier<?> order = likes.count().add(scrap.count()).desc();
 		return fetchPostPage(predicate, order, pageable);
 	}
 
@@ -105,7 +89,8 @@ public class PostSortCustomImpl implements PostSortCustom {
 		List<PostSummaryResponseDTO> contents = queryFactory
 			.select(summaryProjection())
 			.from(post)
-			.join(post.user, user).fetchJoin()
+			.join(post.user, user)
+			.leftJoin(post.scraps, scrap)
 			.where(whereCondition)
 			.orderBy(orderBy)
 			.offset(pageable.getOffset())
@@ -115,6 +100,7 @@ public class PostSortCustomImpl implements PostSortCustom {
 		Long total = queryFactory
 			.select(post.count())
 			.from(post)
+			.leftJoin(post.scraps, scrap)
 			.where(whereCondition)
 			.fetchOne();
 
@@ -130,7 +116,6 @@ public class PostSortCustomImpl implements PostSortCustom {
 				.when(user.deletedAt.isNotNull()).then("탈퇴한 사용자")
 				.otherwise(user.nickName),
 
-			Expressions.nullExpression(Long.class),
 			Expressions.nullExpression(Long.class),
 			Expressions.nullExpression(Long.class),
 			post.createdAt,

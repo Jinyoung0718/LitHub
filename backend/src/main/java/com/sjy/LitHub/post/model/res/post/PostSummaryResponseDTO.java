@@ -22,14 +22,10 @@ public class PostSummaryResponseDTO {
 
 	private Long likeCount;
 	private Long scrapCount;
-	private Long commentCount;
 	private LocalDateTime createdAt;
 
 	private String thumbnailImageUrl;
 	private String profileImageUrl;
-
-	private boolean liked;
-	private boolean scrapped;
 
 	private List<String> tagNames;
 
@@ -41,7 +37,6 @@ public class PostSummaryResponseDTO {
 		String authorNickname,
 		Long likeCount,
 		Long scrapCount,
-		Long commentCount,
 		LocalDateTime createdAt,
 		String thumbnailImageUrl,
 		String profileImageUrl
@@ -52,7 +47,6 @@ public class PostSummaryResponseDTO {
 		this.authorNickname = authorNickname;
 		this.likeCount = likeCount;
 		this.scrapCount = scrapCount;
-		this.commentCount = commentCount;
 		this.createdAt = createdAt;
 		this.thumbnailImageUrl = thumbnailImageUrl;
 		this.profileImageUrl = profileImageUrl;

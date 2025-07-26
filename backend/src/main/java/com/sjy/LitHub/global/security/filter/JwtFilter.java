@@ -1,6 +1,10 @@
 package com.sjy.LitHub.global.security.filter;
 
-import com.sjy.LitHub.global.exception.custom.InvalidAuthenticationException;
+import java.io.IOException;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import com.sjy.LitHub.global.exception.custom.InvalidTokenException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.global.security.service.TokenService;
@@ -18,11 +22,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -32,8 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	private final JwtUtil jwtUtil;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
-		@NonNull FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
 		String requestURI = request.getRequestURI();
 		if (requestURI.startsWith("/api/auth") ||
@@ -48,13 +46,11 @@ public class JwtFilter extends OncePerRequestFilter {
 		String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
 
 		if (accessToken == null || accessToken.isEmpty()) {
-			setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_MISSING));
-			return;
+			throw new InvalidTokenException(BaseResponseStatus.JWT_MISSING);
 		}
 
 		if (redisBlacklistUtil.isInBlackList(accessToken)) {
-			setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_BLACKLISTED));
-			return;
+			throw new InvalidTokenException(BaseResponseStatus.JWT_BLACKLISTED);
 		}
 
 		try {
@@ -66,31 +62,18 @@ public class JwtFilter extends OncePerRequestFilter {
 			}
 
 			if (!tokenService.isAccessToken(accessToken)) {
-				setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_INVALID));
-				return;
+				throw new InvalidTokenException(BaseResponseStatus.JWT_INVALID);
 			}
 
 			SecurityContextHolder.getContext().setAuthentication(tokenService.getAuthenticationFromToken(accessToken));
 		} catch (JwtException e) {
-			setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_INVALID));
-			return;
+			throw new InvalidTokenException(BaseResponseStatus.JWT_INVALID);
 		}
 
 		filterChain.doFilter(request, response);
 	}
 
 	private String handleExpiredToken(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			return tokenService.rotatingTokens(request, response);
-		} catch (InvalidAuthenticationException e) {
-			setException(request, response, e);
-			return null;
-		}
-	}
-
-	private void setException(HttpServletRequest request, HttpServletResponse response, RuntimeException exception) {
-		SecurityContextHolder.clearContext();
-		request.setAttribute("exception", exception);
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		return tokenService.rotatingTokens(request, response);
 	}
 }

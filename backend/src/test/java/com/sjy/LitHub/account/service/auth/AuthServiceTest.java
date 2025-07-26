@@ -20,7 +20,6 @@ import com.sjy.LitHub.account.mapper.UserMapper;
 import com.sjy.LitHub.account.model.req.signup.SignupDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.account.util.PasswordManager;
-import com.sjy.LitHub.file.mapper.UserGenFileMapper;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.global.redis.RedisService;
@@ -35,7 +34,6 @@ class AuthServiceTest {
     @Mock private RedisService redisService;
     @Mock private PasswordManager passwordManager;
     @Mock private UserMapper userMapper;
-    @Mock private UserGenFileMapper userGenFileMapper;
     @Mock private BCryptPasswordEncoder passwordEncoder;
 
     @Test

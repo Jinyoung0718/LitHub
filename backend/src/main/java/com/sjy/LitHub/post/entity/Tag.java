@@ -25,7 +25,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "tag", indexes = {
 	@Index(name = "idx_tag_name", columnList = "name", unique = true) // 태그 이름 중복 방지 및 탐색
 })
-
 public class Tag extends BaseTime {
 
 	@Column(nullable = false, unique = true, length = 50)
@@ -36,6 +35,8 @@ public class Tag extends BaseTime {
 	private List<PostTag> postTags = new ArrayList<>();
 
 	public static Tag of(String name) {
-		return Tag.builder().name(name).build();
+		return Tag.builder()
+			.name(name)
+			.build();
 	}
 }

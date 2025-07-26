@@ -3,6 +3,7 @@
 spring:
   profiles:
     active: dev
+    include: secret
 
   servlet:
     multipart:
@@ -10,17 +11,17 @@ spring:
       max-request-size: 20MB
 
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${custom.jwt.secret}
 
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    host: ${custom.mail.host}
+    port: ${custom.mail.port}
+    username: ${custom.mail.username}
+    password: ${custom.mail.password}
     properties:
       mail.smtp.auth: true
       mail.smtp.ssl.enable: true
-      mail.smtp.ssl.trust: ${MAIL_HOST}
+      mail.smtp.ssl.trust: ${custom.mail.host}
 
 server:
   port: 8080
@@ -33,20 +34,9 @@ springdoc:
     enabled: true
   default-produces-media-type: application/json;charset=UTF-8
 
-management:
-  server:
-    port: 8080
-  endpoints:
-    web:
-      exposure:
-        include: health, metrics, prometheus # env 는 disable
-  health:
-    redis:
-      enabled: false
-
 slack:
   webhook:
-    url: ${SLACK_WEB_HOOK_URL}
+    url: ${custom.slack.webhook-url}
 
 custom:
   upload:

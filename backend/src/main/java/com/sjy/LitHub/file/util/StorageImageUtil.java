@@ -69,13 +69,17 @@ public class StorageImageUtil {
     } // MultipartFile 을 임시 파일로 저장한다.
 
     public static long parseMaxSize(String sizeStr) {
-        if (sizeStr == null || sizeStr.isBlank()) return DEFAULT_SIZE;
+        if (sizeStr == null || sizeStr.isBlank()) {
+            return DEFAULT_SIZE;
+        }
 
         String trimmed = sizeStr.trim().toUpperCase(Locale.ROOT);
         Pattern pattern = Pattern.compile("(\\d+)([KMG]?B)");
         Matcher matcher = pattern.matcher(trimmed);
 
-        if (!matcher.matches()) return DEFAULT_SIZE;
+        if (!matcher.matches()) {
+            return DEFAULT_SIZE;
+        }
 
         long size = Long.parseLong(matcher.group(1));
         String unit = matcher.group(2);

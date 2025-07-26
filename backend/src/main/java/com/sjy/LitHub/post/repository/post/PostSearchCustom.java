@@ -7,6 +7,8 @@ import com.sjy.LitHub.post.model.res.post.PostSummaryResponseDTO;
 
 public interface PostSearchCustom {
 	Page<PostSummaryResponseDTO> searchByTitle(String keyword, Pageable pageable);
+
 	Page<PostSummaryResponseDTO> searchByContent(String keyword, Pageable pageable);
+
 	Page<PostSummaryResponseDTO> searchByTitleOrContent(String keyword, Pageable pageable);
 }

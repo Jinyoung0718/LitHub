@@ -3,6 +3,7 @@ package com.sjy.LitHub.global.model;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,17 @@ public class PageResponse<T> {
 			page.getTotalElements(),
 			page.getTotalPages(),
 			page.isLast()
+		);
+	}
+
+	public static <T> PageResponse<T> from(List<T> content, Pageable pageable) {
+		return new PageResponse<>(
+			content,
+			pageable.getPageNumber(),
+			pageable.getPageSize(),
+			content.size(),
+			1,
+			true
 		);
 	}
 }

@@ -10,14 +10,13 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.file.service.post.MarkdownImageService;
 import com.sjy.LitHub.file.service.post.ThumbnailImageService;
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.global.exception.custom.InvalidFileException;
 import com.sjy.LitHub.global.exception.custom.InvalidPostException;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.message.FanOutMessage;
 import com.sjy.LitHub.global.message.FanOutProducer;
 import com.sjy.LitHub.global.message.InfluencerPolicy;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
-import com.sjy.LitHub.post.cache.post.PostDetailCacheUtils;
+import com.sjy.LitHub.post.cache.postdetail.PostDetailCacheService;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.entity.PostTag;
 import com.sjy.LitHub.post.entity.Tag;
@@ -35,7 +34,7 @@ public class PostService {
 
 	private final PostRepository postRepository;
 	private final InfluencerPolicy influencerPolicy;
-	private final PostDetailCacheUtils postDetailCacheUtils;
+	private final PostDetailCacheService postDetailCacheService;
 	private final ThumbnailImageService thumbnailImageService;
 	private final MarkdownImageService markdownImageService;
 	private final FanOutProducer fanOutProducer;
@@ -43,14 +42,12 @@ public class PostService {
 	private final TagService tagService;
 
 	@Transactional(readOnly = true)
-	public PostDetailResponseDTO getPostDetail(Long postId, boolean isPopular) {
-		Long userId = AuthUser.getUserId();
-		return isPopular
-			? postDetailCacheUtils.getPostDetailWithPer(postId, userId, () -> fetchPostDetail(postId, userId))
-			: postDetailCacheUtils.getNonPopularPostDetail(postId, userId, () -> fetchPostDetail(postId, userId));
+	public PostDetailResponseDTO getPostDetail(Long postId) {
+		return postDetailCacheService.getPostDetail(postId, () -> fetchPostDetail(postId));
 	}
 
-	private PostDetailResponseDTO fetchPostDetail(Long postId, Long userId) {
+	private PostDetailResponseDTO fetchPostDetail(Long postId) {
+		Long userId = AuthUser.getUserId();
 		PostDetailResponseDTO dto = postRepository.findDetailDtoById(postId, userId)
 			.orElseThrow(() -> new InvalidPostException(BaseResponseStatus.POST_NOT_FOUND));
 
@@ -62,12 +59,10 @@ public class PostService {
 	public Long createPost(PostCreateRequestDTO request) {
 		User user = AuthUser.getAuthUser();
 		Post post = Post.from(request.getTitle(), request.getContentMarkdown(), user);
-
 		thumbnailImageService.assignThumbnailToPost(post, request.getThumbnailFileName(), user.getId());
 
 		List<Tag> tags = tagService.findOrCreateTags(request.getTags());
 		tags.forEach(tag -> post.addPostTag(PostTag.of(post, tag)));
-
 		postRepository.save(post);
 
 		if (!influencerPolicy.isInfluencer(user.getId())) {
@@ -78,45 +73,35 @@ public class PostService {
 	}
 
 	@Transactional
-	public void updatePostThumbnail(Long postId, MultipartFile thumbnail, boolean isPopular) {
-		if (!isValidThumbnail(thumbnail)) {
-			throw new InvalidFileException(BaseResponseStatus.THUMBNAIL_NOT_FOUND);
-		}
-
+	public void updatePostThumbnail(Long postId, MultipartFile thumbnail) {
 		Long userId = AuthUser.getUserId();
 		Post post = getOwnedPost(postId, userId);
 		thumbnailImageService.updateThumbnail(post, thumbnail);
-		postDetailCacheUtils.refreshPostDetail(postId, userId, isPopular, () -> fetchPostDetail(postId, userId));
-	}
-
-	private boolean isValidThumbnail(MultipartFile thumbnail) {
-		return thumbnail != null && !thumbnail.isEmpty();
-	}
-
-	private Post getOwnedPost(Long postId, Long userId) {
-		return postRepository.findByIdAndUserId(postId, userId)
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
+		postDetailCacheService.refreshPostDetail(postId,  () -> fetchPostDetail(postId));
 	}
 
 	@Transactional
-	public void updatePostContent(Long postId, PostContentUpdateDTO request, boolean isPopular) {
+	public void updatePostContent(Long postId, PostContentUpdateDTO request) {
 		Long userId = AuthUser.getUserId();
 		Post post = getOwnedPost(postId, userId);
 		post.updateContent(request.getTitle(), request.getContentMarkdown());
 
 		markdownImageService.syncMarkdownImages(post, request.getContentMarkdown());
 		postRepository.flush();
-		postDetailCacheUtils.refreshPostDetail(postId, userId, isPopular, () -> fetchPostDetail(postId, userId));
+		postDetailCacheService.refreshPostDetail(postId, () -> fetchPostDetail(postId));
 	}
 
 	@Transactional
-	public void deletePost(Long postId, boolean isPopular) {
-		Long userId = AuthUser.getUserId();
-		int deleted = postRepository.deletePost(postId, userId);
+	public void deletePost(Long postId) {
+		int deleted = postRepository.deletePost(postId, AuthUser.getUserId());
 		if (deleted == 0) {
 			throw new InvalidUserException(BaseResponseStatus.ACCESS_DENIED);
 		}
+		postDetailCacheService.deletePostDetail(postId);
+	}
 
-		postDetailCacheUtils.deletePostDetail(postId, userId, isPopular);
+	private Post getOwnedPost(Long postId, Long userId) {
+		return postRepository.findByIdAndUserId(postId, userId)
+			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.NO_AUTHORITY));
 	}
 }

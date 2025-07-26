@@ -1,6 +1,7 @@
 package com.sjy.LitHub.global.model;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,7 +49,7 @@ public class BaseResponse<T> {
     private BaseResponse(BaseResponseStatus status, T result) {
         this.success = status.isSuccess();
         this.code = status.getCode();
-        this.httpStatus = status.getHttpStatus();
+        this.httpStatus = status.getHttpStatusCode();
         this.message = status.getMessage();
         this.result = result;
     }

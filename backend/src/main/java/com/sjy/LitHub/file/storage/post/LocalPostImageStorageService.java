@@ -12,7 +12,7 @@ import com.sjy.LitHub.file.ImageType;
 import com.sjy.LitHub.file.entity.PostGenFile;
 import com.sjy.LitHub.file.util.FileUtil;
 import com.sjy.LitHub.file.util.StorageImageUtil;
-import com.sjy.LitHub.file.util.exception.ImageExceptionResolver;
+import com.sjy.LitHub.file.util.ImageExceptionResolver;
 import com.sjy.LitHub.global.exception.custom.InvalidFileException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 

@@ -27,6 +27,14 @@ public class PostSortController {
 	private final FeedService feedService;
 	private final SortService sortService;
 
+	@Operation(summary = "인기 게시글 조회", description = "ZSet 기반 인기 게시글을 조회합니다.")
+	@GetMapping("/popular")
+	public BaseResponse<PageResponse<PostSummaryResponseDTO>> getPopularPosts(
+		@PageableDefault(size = 15) Pageable pageable) {
+
+		return BaseResponse.success(sortService.findPopularPosts(pageable));
+	}
+
 	@Operation(summary = "내가 작성한 게시글 조회", description = "내가 작성한 게시글 목록을 조회합니다.")
 	@GetMapping("/mine")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> getMyPosts(
@@ -41,14 +49,6 @@ public class PostSortController {
 		@PageableDefault(size = 15) Pageable pageable) {
 
 		return BaseResponse.success(sortService.getScrappedPosts(pageable));
-	}
-
-	@Operation(summary = "일간 인기 게시글 조회", description = "좋아요 + 스크랩 기준으로 인기 게시글을 정렬합니다.")
-	@GetMapping("/popular")
-	public BaseResponse<PageResponse<PostSummaryResponseDTO>> getPopularPosts(
-		@PageableDefault(size = 15) Pageable pageable) {
-
-		return BaseResponse.success(sortService.findDailyPopularPosts(pageable));
 	}
 
 	@Operation(summary = "팔로워 게시글 조회", description = "인플루어서 게시글 + 팔로워 게시글")

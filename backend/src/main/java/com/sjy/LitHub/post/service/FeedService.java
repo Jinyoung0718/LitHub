@@ -57,7 +57,7 @@ public class FeedService {
 	private List<PostSummaryResponseDTO> getFanoutPosts(Long userId) {
 		List<Long> postIds = feedRedisUtil.getFeedPostIds(userId, 100);
 		return postRepository.findByIds(postIds);
-	}
+	} // Redis 에 Fan-out 방식으로 캐싱된 게시글 리스트
 
 	private List<PostSummaryResponseDTO> getInfluencerPosts(List<Long> influencerIds) {
 		if (influencerIds == null || influencerIds.isEmpty()) return List.of();

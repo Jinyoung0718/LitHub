@@ -23,8 +23,8 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-@Component
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class RateLimitFilter implements Filter {
 
@@ -42,6 +42,7 @@ public class RateLimitFilter implements Filter {
 
 		if (probe.isConsumed()) {
 			chain.doFilter(request, response);
+
 		} else {
 			sendRateLimitResponse(response, probe);
 		}

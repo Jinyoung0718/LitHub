@@ -1,8 +1,10 @@
+# application-prod.yml
+
 spring:
   datasource:
-    url: need-input
-    username: need-input
-    password: need-input
+    url: ${custom.prod.db.url}
+    username: ${custom.prod.db.username}
+    password: ${custom.prod.db.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   docker:
@@ -11,17 +13,14 @@ spring:
 
   data:
     redis:
-      cluster:
-        nodes:
-          - need-input
-          - need-input
-          - need-input
+      host: ${custom.prod.redis.token-host}
+      port: ${custom.prod.redis.token-port}
 
   rabbitmq:
-    host: need-input
-    port: 5672
-    username: need-input
-    password: need-input
+    host: ${custom.prod.rabbitmq.host}
+    port: ${custom.prod.rabbitmq.port}
+    username: ${custom.prod.rabbitmq.username}
+    password: ${custom.prod.rabbitmq.password}
     listener:
       simple:
         retry:
@@ -43,28 +42,18 @@ spring:
         default_batch_fetch_size: 100
     open-in-view: false
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, metrics, prometheus
-  health:
-    redis:
-      enabled: false
-
 custom:
-  site:
-    domain: need-input
-    back-url: need-input
-    front-url: need-input
+  cookie:
+    secure: true
+    http-only: true
+    same-site: None
 
-  file:
-    upload-dir: need-input
+  site:
+    domain: lithub.site
+    back-url: ${custom.prod.site.back-url}
+    front-url: ${custom.prod.site.front-url}
 
   redis:
-    sentinel:
-      master: need-input
-      nodes:
-        - redis-sentinel-1.lithub.internal:need-input
-        - redis-sentinel-2.lithub.internal:need-input
-        - redis-sentinel-3.lithub.internal:need-input
+    cache:
+      host: ${custom.prod.redis.cache-host}
+      port: ${custom.prod.redis.cache-port}

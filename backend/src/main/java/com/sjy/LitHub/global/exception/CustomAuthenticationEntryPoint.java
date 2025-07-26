@@ -1,20 +1,20 @@
 package com.sjy.LitHub.global.exception;
 
-import com.sjy.LitHub.global.exception.custom.InvalidCustomException;
-import com.sjy.LitHub.global.exception.custom.InvalidTokenException;
-import com.sjy.LitHub.global.model.BaseResponseStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import com.sjy.LitHub.global.exception.custom.InvalidCustomException;
+import com.sjy.LitHub.global.model.BaseResponseStatus;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @Component
-@Slf4j
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     private final HandlerExceptionResolver resolver;
 
     public CustomAuthenticationEntryPoint(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
@@ -23,12 +23,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        Exception exception = (Exception) request.getAttribute("exception");
-
-        if (exception instanceof InvalidTokenException customEx) {
-            resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
-        } else {
-            resolver.resolveException(request, response, null, new InvalidCustomException(BaseResponseStatus.UNAUTHORIZED));
-        }
+        resolver.resolveException(request, response, null,
+            new InvalidCustomException(BaseResponseStatus.UNAUTHORIZED));
     }
 }

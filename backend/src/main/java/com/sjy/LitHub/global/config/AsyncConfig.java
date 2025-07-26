@@ -26,17 +26,6 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
-    @Bean(name = "enrichExecutor")
-    public Executor enrichExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(50);
-        executor.setThreadNamePrefix("EnrichExecutor-");
-        executor.initialize();
-        return executor;
-    }
-
     @Bean(name = "searchCacheExecutor")
     public Executor searchCacheExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -46,11 +35,6 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setThreadNamePrefix("SearchCacheExecutor-");
         executor.initialize();
         return executor;
-    }
-
-    @Override
-    public Executor getAsyncExecutor() {
-        return enrichExecutor();
     }
 
     @Override

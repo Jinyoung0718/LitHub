@@ -19,14 +19,12 @@ public class PostDetailResponseDTO {
 	private Long postId;
 	private String title;
 	private String contentMarkdown;
-
 	private String authorNickname;
 
 	private Long likeCount;
 	private Long scrapCount;
 	private Long commentCount;
 
-	private boolean isPopular;
 	private boolean liked;
 	private boolean scrapped;
 	private boolean editable;
@@ -47,7 +45,6 @@ public class PostDetailResponseDTO {
 		Long likeCount,
 		Long scrapCount,
 		Long commentCount,
-		boolean isPopular,
 		boolean liked,
 		boolean scrapped,
 		boolean editable,
@@ -62,7 +59,6 @@ public class PostDetailResponseDTO {
 		this.likeCount = likeCount;
 		this.scrapCount = scrapCount;
 		this.commentCount = commentCount;
-		this.isPopular = isPopular;
 		this.liked = liked;
 		this.scrapped = scrapped;
 		this.editable = editable;

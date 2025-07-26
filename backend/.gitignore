@@ -46,6 +46,6 @@ out/
 .vscode/
 
 ### custom ###
-.env
 docker-compose.dev.yaml
 apiV1.json
+src/main/resources/application-secret.yml

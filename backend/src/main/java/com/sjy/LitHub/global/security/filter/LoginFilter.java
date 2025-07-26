@@ -80,6 +80,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Long userId = userPrincipal.getUserId();
         Role role = userPrincipal.getRole();
 
+        // 기존 토큰 무효화 -> 중복 로그인 방지
+        tokenService.invalidatePreviousTokens(request);
+
         tokenService.generateTokensAndSetCookies(response, userId, role);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         response.setStatus(HttpStatus.OK.value());

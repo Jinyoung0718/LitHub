@@ -38,7 +38,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user", indexes = {
 	@Index(name = "idx_user_email_deleted", columnList = "user_email, deleted_at"), // 이메일 기반 계정 상태 조회
-	@Index(name = "idx_user_nickname", columnList = "nick_name") // 닉네임 중복 여부 확인용
+	@Index(name = "idx_user_nickname", columnList = "user_nickname") // 닉네임 중복 여부 확인용
 })
 public class User extends BaseTime {
 
@@ -99,5 +99,9 @@ public class User extends BaseTime {
 
 	public String getDisplayNickname() {
 		return this.deletedAt != null ? "탈퇴한 사용자" : this.nickName;
+	}
+
+	public User(Long id) {
+		this.setId(id);
 	}
 }

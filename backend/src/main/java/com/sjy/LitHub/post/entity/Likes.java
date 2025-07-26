@@ -4,6 +4,7 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.global.entity.BaseTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,12 +27,18 @@ import lombok.experimental.SuperBuilder;
 })
 public class Likes extends BaseTime {
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
 	private Post post;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
 	private User user;
 
+	public static Likes of(Post post, User user) {
+		return Likes.builder()
+			.post(post)
+			.user(user)
+			.build();
+	}
 }

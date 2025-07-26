@@ -4,6 +4,7 @@ import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.global.entity.BaseTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,12 +27,15 @@ import lombok.experimental.SuperBuilder;
 })
 public class Scrap extends BaseTime {
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
 	private Post post;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
 	private User user;
 
+	public static Scrap of(Post post, User user) {
+		return Scrap.builder().post(post).user(user).build();
+	}
 }

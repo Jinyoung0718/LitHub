@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -13,6 +14,7 @@ import java.util.Objects;
 import com.sjy.LitHub.file.util.FileUtil;
 
 @Getter
+@Setter
 @MappedSuperclass
 @SuperBuilder
 @NoArgsConstructor
@@ -25,7 +27,7 @@ public abstract class BaseEntity {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Override
+	@Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;

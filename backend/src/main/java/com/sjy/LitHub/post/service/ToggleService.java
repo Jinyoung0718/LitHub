@@ -3,53 +3,71 @@ package com.sjy.LitHub.post.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sjy.LitHub.account.entity.User;
+import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.post.PostInteractionRedisManager;
-import com.sjy.LitHub.post.cache.enums.InteractionType;
+import com.sjy.LitHub.post.cache.interaction.InteractionStateManager;
+import com.sjy.LitHub.post.cache.interaction.PostInteractionState;
+import com.sjy.LitHub.post.entity.Likes;
+import com.sjy.LitHub.post.entity.Post;
+import com.sjy.LitHub.post.entity.Scrap;
 import com.sjy.LitHub.post.model.res.toggle.LikeResponseDTO;
 import com.sjy.LitHub.post.model.res.toggle.ScrapResponseDTO;
-import com.sjy.LitHub.post.repository.LikesRepository;
-import com.sjy.LitHub.post.repository.ScrapRepository;
+import com.sjy.LitHub.post.repository.like.LikesRepository;
+import com.sjy.LitHub.post.repository.post.PostRepository;
+import com.sjy.LitHub.post.repository.scrap.ScrapRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ToggleService {
 
-	private final PostInteractionRedisManager redisManager;
 	private final LikesRepository likesRepository;
 	private final ScrapRepository scrapRepository;
+	private final PostRepository postRepository;
+	private final UserRepository userRepository;
+	private final InteractionStateManager interactionStateManager;
 
 	@Transactional
 	public LikeResponseDTO toggleLikes(Long postId) {
 		Long userId = AuthUser.getUserId();
-		redisManager.toggleInteraction(postId, userId, InteractionType.LIKE);
+		Post post = postRepository.getReferenceById(postId);
+		User user = userRepository.getReferenceById(userId);
 
-		boolean nowLiked = redisManager.hasInteraction(postId, userId, InteractionType.LIKE);
-		long likeCount = redisManager.getInteractionCount(postId, InteractionType.LIKE);
+		boolean alreadyLiked = likesRepository.existsByPostIdAndUserId(postId, userId);
 
-		if (likeCount == 0 && !nowLiked) {
-			nowLiked = likesRepository.existsByPostIdAndUserId(postId, userId);
-			likeCount = likesRepository.countByPostId(postId);
+		if (alreadyLiked) {
+			likesRepository.deleteByPostIdAndUserId(postId, userId);
+			interactionStateManager.onUnlike(postId, userId);
+		} else {
+			likesRepository.save(Likes.of(post, user));
+			interactionStateManager.onLike(postId, userId);
 		}
 
-		return new LikeResponseDTO(nowLiked, likeCount);
+		PostInteractionState state = interactionStateManager.resolve(postId, userId);
+		return new LikeResponseDTO(state.liked(), state.likeCount());
 	}
 
 	@Transactional
 	public ScrapResponseDTO toggleScrap(Long postId) {
 		Long userId = AuthUser.getUserId();
-		redisManager.toggleInteraction(postId, userId, InteractionType.SCRAP);
+		Post post = postRepository.getReferenceById(postId);
+		User user = userRepository.getReferenceById(userId);
 
-		boolean nowScrapped = redisManager.hasInteraction(postId, userId, InteractionType.SCRAP);
-		long scrapCount = redisManager.getInteractionCount(postId, InteractionType.SCRAP);
+		boolean alreadyScrapped = scrapRepository.existsByPostIdAndUserId(postId, userId);
 
-		if (scrapCount == 0 && !nowScrapped) {
-			nowScrapped = scrapRepository.existsByPostIdAndUserId(postId, userId);
-			scrapCount = scrapRepository.countByPostId(postId);
+		if (alreadyScrapped) {
+			scrapRepository.deleteByPostIdAndUserId(postId, userId);
+			interactionStateManager.onUnscrap(postId, userId);
+		} else {
+			scrapRepository.save(Scrap.of(post, user));
+			interactionStateManager.onScrap(postId, userId);
 		}
 
-		return new ScrapResponseDTO(nowScrapped, scrapCount);
+		PostInteractionState state = interactionStateManager.resolve(postId, userId);
+		return new ScrapResponseDTO(state.scrapped(), state.scrapCount());
 	}
 }

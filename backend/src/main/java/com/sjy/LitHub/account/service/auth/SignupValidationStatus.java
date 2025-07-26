@@ -56,15 +56,6 @@ enum SignupValidationStatus {
                         }
                     });
         }
-    },
-
-    OAUTH_USER_EXISTS {
-        @Override
-        public void validate(SignupDTO signupDto, UserRepository userRepository, RedisService redisService, PasswordManager passwordManager) {
-            if (userRepository.findByUserEmailAll(signupDto.getUserEmail()).isPresent()) {
-                throw new InvalidUserException(BaseResponseStatus.USER_ALREADY_EXISTS);
-            }
-        }
     };
 
     abstract void validate(SignupDTO signupDto, UserRepository userRepository, RedisService redisService, PasswordManager passwordManager);
