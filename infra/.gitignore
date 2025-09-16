@@ -3,3 +3,6 @@
 secrets.tf
 .terraform.lock.hcl
 .terraform.tfstate.lock.info
+terraform.tfstate.backup
+variables.tf
+terraform.tfstate
