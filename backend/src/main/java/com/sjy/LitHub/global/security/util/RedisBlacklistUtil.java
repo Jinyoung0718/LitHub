@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -14,18 +15,21 @@ public class RedisBlacklistUtil {
     public RedisBlacklistUtil(@Qualifier("TokenStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
-
-    public void addToBlacklist(String token, long ttl) {
-        String key = generateBlacklistKey(token);
-        redisTemplate.opsForValue().set(key, "true", ttl, TimeUnit.MILLISECONDS);
+    public void addToBlacklist(String token, long ttlMs) {
+        String todayKey = generateBlacklistKey(LocalDate.now());
+        redisTemplate.opsForSet().add(todayKey, token);
+        redisTemplate.expire(todayKey, ttlMs, TimeUnit.MILLISECONDS);
     }
 
     public boolean isInBlackList(String token) {
-        String key = generateBlacklistKey(token);
-        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        String todayKey = generateBlacklistKey(LocalDate.now());
+        String yesterdayKey = generateBlacklistKey(LocalDate.now().minusDays(1));
+
+        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(todayKey, token)) ||
+            Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(yesterdayKey, token));
     }
 
-    private String generateBlacklistKey(String token) {
-        return AuthConst.TOKEN_BLACKLIST_PREFIX + token;
+    private String generateBlacklistKey(LocalDate date) {
+        return AuthConst.TOKEN_BLACKLIST_PREFIX + date;
     }
 }

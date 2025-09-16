@@ -21,24 +21,24 @@ const IconSection = styled.div`
   margin-bottom: 1rem;
 
   a {
-    color: #555; /* 아이콘 기본 색상 조정 */
+    color: #555;
     font-size: 1.4rem;
     transition: color 0.3s ease, transform 0.2s ease;
 
     &:hover {
-      color: #f39c12; /* 메인 페이지와 조화를 이루는 포인트 색상 */
-      transform: scale(1.1); /* 살짝 확대 */
+      color: #f39c12;
+      transform: scale(1.1);
     }
   }
 `;
 
 const BottomSection = styled.div`
   font-size: 0.8rem;
-  color: #777; /* 더 부드러운 색상 */
+  color: #777;
   margin-top: 1rem;
 
   @media (max-width: 768px) {
-    font-size: 0.75rem; /* 작은 화면에서 글자 크기 조정 */
+    font-size: 0.75rem;
   }
 `;
 
@@ -58,7 +58,7 @@ function Footer() {
           <FaEnvelope />
         </a>
       </IconSection>
-      <BottomSection>© 2024 LitHub. All rights reserved.</BottomSection>
+      <BottomSection>© 2025 LitHub. All rights reserved.</BottomSection>
     </FooterContainer>
   );
 }

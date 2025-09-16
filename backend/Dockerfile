@@ -1,34 +1,36 @@
-# ----------- 1단계: Build Stage -----------
+# 첫 번째 스테이지: 빌드 스테이지
 FROM gradle:8.5-jdk17 AS builder
 
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# gradle 설정만 먼저 복사 (캐시 최적화)
-COPY build.gradle settings.gradle gradle.properties ./
+# 소스 코드와 Gradle 설정 복사
+COPY build.gradle .
+COPY settings.gradle .
 
-# gradle wrapper 추가 및 실행 권한 부여
-COPY gradlew ./
-RUN chmod +x gradlew
+# Gradle 래퍼에 실행 권한 부여
+RUN gradle wrapper
 
-# wrapper 및 기본 의존성 캐시
-COPY gradle ./gradle
-RUN ./gradlew dependencies --no-daemon || true
+# 종속성 설치
+RUN ./gradlew dependencies --no-daemon
 
-# 전체 소스 복사
-COPY . .
+# 소스 코드 복사
+COPY src src
 
-RUN ./gradlew clean build --no-daemon
+# 애플리케이션 빌드
+RUN ./gradlew build --no-daemon
 
-# 불필요한 plain.jar 제거 (실행 jar만 남김)
-RUN rm -f /app/build/libs/*-plain.jar
+# 불필요한 plain.jar 삭제
+RUN rm -rf /app/build/libs/*-plain.jar
 
-# ----------- 2단계: Run Stage -----------
+# 두 번째 스테이지: 실행 스테이지
 FROM eclipse-temurin:17-jdk
 
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# 실행할 JAR 복사
+# 첫 번째 스테이지에서 빌드된 JAR 파일 복사
 COPY --from=builder /app/build/libs/*.jar app.jar
 
-# 실행 명령 (prod 환경 지정)
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+# 실행할 JAR 파일 지정
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]

@@ -6,6 +6,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.sjy.LitHub.global.redis.RedisConstants;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -15,8 +17,8 @@ public class FilterConfig {
 	private final RateLimitFilter rateLimitFilter;
 
 	private static final String[] INCLUDE_PATHS = {
-		"/api/posts/likes",
-		"/api/posts/scraps"
+		RedisConstants.API_POSTS_LIKES,
+		RedisConstants.API_POSTS_SCRAPS
 	};
 
 	@Bean

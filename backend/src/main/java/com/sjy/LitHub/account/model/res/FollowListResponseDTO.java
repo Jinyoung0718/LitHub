@@ -1,31 +1,33 @@
 package com.sjy.LitHub.account.model.res;
 
-import org.springframework.lang.NonNull;
-
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.entity.authenum.Tier;
-import lombok.AllArgsConstructor;
+import com.sjy.LitHub.file.util.FileConstant;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class FollowListResponseDTO {
-    @NonNull
+
     private Long userId;
 
-    @NonNull
     private String nickName;
 
-    @NonNull
     private String profileImageUrlSmall;
 
-    @NonNull
     private Tier tier;
 
-    @NonNull
     private int point;
+
+    public FollowListResponseDTO(Long userId, String nickName, String storageKey, Tier tier, int point) {
+        this.userId = userId;
+        this.nickName = nickName;
+        this.profileImageUrlSmall = storageKey != null ? FileConstant.publicUrl(storageKey) : null;
+        this.tier = tier;
+        this.point = point;
+    }
 
     public static FollowListResponseDTO of(User user) {
         return new FollowListResponseDTO(

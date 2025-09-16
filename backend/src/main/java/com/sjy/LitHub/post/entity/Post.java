@@ -56,6 +56,10 @@ public class Post extends BaseTime {
 	@JoinColumn(nullable = false)
 	private User user;
 
+	@Builder.Default
+	@Column(nullable = false)
+	private boolean deleted = false;
+
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	@MapKey(name = "typeCode")
 	@Builder.Default
@@ -96,6 +100,7 @@ public class Post extends BaseTime {
 			.contentMarkdown(contentMarkdown)
 			.searchContent(searchContent)
 			.user(user)
+			.deleted(false)
 			.build();
 	}
 
@@ -109,5 +114,9 @@ public class Post extends BaseTime {
 	public void updateContent(String newTitle, String newContent) {
 		this.title = newTitle;
 		this.contentMarkdown = newContent;
+	}
+
+	public void updateTitle(String newTitle) {
+		this.title = newTitle;
 	}
 }

@@ -5,7 +5,8 @@ import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.global.config.securityconfig.oauth2config.ClientRegistrationRepository;
 import com.sjy.LitHub.global.exception.CustomAccessDeniedHandler;
 import com.sjy.LitHub.global.exception.CustomAuthenticationEntryPoint;
-import com.sjy.LitHub.global.exception.CustomJwtExceptionFilter;
+import com.sjy.LitHub.global.exception.CustomLoginExceptionFilter;
+import com.sjy.LitHub.global.exception.CustomTokenExceptionFilter;
 import com.sjy.LitHub.global.security.filter.JwtFilter;
 import com.sjy.LitHub.global.security.filter.LoginFilter;
 import com.sjy.LitHub.global.security.handler.CustomLogoutHandler;
@@ -17,9 +18,12 @@ import com.sjy.LitHub.global.security.service.TokenService;
 import com.sjy.LitHub.global.security.util.JwtUtil;
 import com.sjy.LitHub.global.security.util.RedisBlacklistUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -44,7 +48,8 @@ public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
-    private final CustomJwtExceptionFilter customJwtExceptionFilter;
+    private final CustomTokenExceptionFilter customTokenExceptionFilter;
+    private final CustomLoginExceptionFilter customLoginExceptionFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final RedisBlacklistUtil redisBlacklistUtil;
@@ -62,8 +67,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LoginFilter loginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, UserRepository userRepository, TokenService tokenService) {
-        return new LoginFilter(authenticationManager, objectMapper, userRepository, tokenService);
+    public LoginFilter loginFilter(AuthenticationManager authenticationManager,
+        ObjectMapper objectMapper,
+        UserRepository userRepository,
+        TokenService tokenService,
+        @Qualifier("CachingStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+        return new LoginFilter(authenticationManager, objectMapper, userRepository, tokenService, redisTemplate);
     }
 
     @Bean
@@ -95,7 +104,10 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         http
-                .addFilterBefore(customJwtExceptionFilter, JwtFilter.class);
+                .addFilterBefore(customTokenExceptionFilter, JwtFilter.class);
+
+        http
+                .addFilterBefore(customLoginExceptionFilter, LoginFilter.class);
 
         http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
@@ -104,7 +116,7 @@ public class SecurityConfig {
         http
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)  // 인증 실패 시 실행
-                        .accessDeniedHandler(accessDeniedHandler)  // 권한 부족 시 실행
+                        .accessDeniedHandler(accessDeniedHandler)            // 권한 부족 시 실행
                 );
 
         http

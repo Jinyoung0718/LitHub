@@ -30,6 +30,9 @@ public enum BaseResponseStatus {
     USER_SOCIAL_SIGNUP_REQUIRED(false, 2109, "추가 정보 입력이 필요합니다. 닉네임과 비밀번호를 설정해주세요.", HttpStatus.UNAUTHORIZED),
     USER_PASSWORD_NOT_VALID(false, 2110, "비밀번호 형식이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
 
+    // 로그인 시도 제한 (브루트포스 방어)
+    LOGIN_TOO_MANY_ATTEMPTS(false, 2150, "로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요.", HttpStatus.TOO_MANY_REQUESTS),
+
     // TEMP_AUTHORIZATION_HEADER 관련
     TEMP_AUTHORIZATION_HEADER_MISSING(false, 2201, "임시 인증 토큰이 없습니다.", HttpStatus.UNAUTHORIZED),
     TEMP_AUTHORIZATION_HEADER_INVALID(false, 2202, "유효하지 않은 임시 인증 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -86,6 +89,8 @@ public enum BaseResponseStatus {
     IMAGE_DELETE_FAILED(false, 40107, "파일 삭제를 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     THUMBNAIL_NOT_FOUND(false, 40108, "썸네일 이미지가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     PROFILE_IMAGE_NOT_FOUND(false, 40109, "프로필 이미지가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    UNSUPPORTED_VIDEO_UPLOAD(false, 40110, "비디오 파일 업로드는 지원하지 않습니다.", HttpStatus.BAD_REQUEST),
+    UNSUPPORTED_AUDIO_UPLOAD(false, 40111, "오디오 파일 업로드는 지원하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     FILE_UPLOAD_FAILED(false, 40200, "파일 업로드 중 오류가 발생하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_FILE_FORMAT(false, 40201, "허용되지 않은 파일 형식입니다.", HttpStatus.BAD_REQUEST),
@@ -99,11 +104,24 @@ public enum BaseResponseStatus {
     REDIS_DESERIALIZATION_FAILED(false, 40301, "Redis 캐시 역직렬화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     REDIS_CACHE_UPDATE_FAILED(false, 40302, "Redis 캐시 갱신 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // Redis 관련 예외 항목 추가
+    REDIS_TIMER_NOT_FOUND(false, 40310, "타이머 정보가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    REDIS_TIMER_NOT_OWNER(false, 40311, "타이머를 제어할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    REDIS_TIMER_ALREADY_PAUSED(false, 40312, "이미 일시정지된 타이머입니다.", HttpStatus.BAD_REQUEST),
+    REDIS_TIMER_NOT_PAUSED(false, 40313, "타이머가 일시정지 상태가 아닙니다.", HttpStatus.BAD_REQUEST),
+
     // Follow 관련
     FOLLOW_NOT_FOUND(false, 40400, "해당 팔로우 관계를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     FOLLOW_SELF_NOT_ALLOWED(false, 40401, "자기 자신을 팔로우할 수 없습니다.", HttpStatus.BAD_REQUEST),
     FOLLOW_ALREADY_EXISTS(false, 40402, "이미 팔로우 중입니다.", HttpStatus.BAD_REQUEST),
-    FOLLOW_DELETE_FAILED(false, 40403, "팔로우 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    FOLLOW_DELETE_FAILED(false, 40403, "팔로우 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // 그룹 관련
+    GROUP_NOT_FOUND(false, 40500, "그룹을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    GROUP_ALREADY_STARTED(false, 40501, "이미 시작된 스터디입니다.", HttpStatus.BAD_REQUEST),
+    GROUP_ALREADY_JOINED(false, 40502, "이미 가입된 스터디입니다.", HttpStatus.BAD_REQUEST),
+    GROUP_NOT_OWNER(false, 40503, "스터디 그룹의 소유자가 아닙니다.", HttpStatus.FORBIDDEN),
+    GROUP_CANCELED(false, 40504, "스터디 그룹이 취소되었습니다.", HttpStatus.BAD_REQUEST);
 
     private final boolean isSuccess;
     private final int code;

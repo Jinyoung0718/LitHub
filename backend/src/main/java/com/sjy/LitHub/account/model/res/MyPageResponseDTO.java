@@ -1,5 +1,7 @@
 package com.sjy.LitHub.account.model.res;
 
+import java.util.List;
+
 import org.springframework.lang.NonNull;
 
 import com.sjy.LitHub.record.model.ReadingStatsResponseDTO;
@@ -23,10 +25,18 @@ public class MyPageResponseDTO {
     @NonNull
     private final ReadingStatsResponseDTO readingStats;
 
-    public static MyPageResponseDTO of(UserProfileResponseDTO userProfile, ReadingStatsResponseDTO readingStats) {
+    @NonNull
+    private final List<StudyGroupHistoryDTO> recentStudyHistories;
+
+    public static MyPageResponseDTO of(
+        UserProfileResponseDTO userProfile,
+        ReadingStatsResponseDTO readingStats,
+        List<StudyGroupHistoryDTO> recentStudyHistories
+    ) {
         return MyPageResponseDTO.builder()
             .userProfile(userProfile)
             .readingStats(readingStats)
+            .recentStudyHistories(recentStudyHistories)
             .build();
     }
 }

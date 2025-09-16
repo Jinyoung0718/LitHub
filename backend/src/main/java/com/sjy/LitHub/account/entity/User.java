@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -78,19 +79,25 @@ public class User extends BaseTime {
 	@Builder.Default
 	private List<Post> posts = new ArrayList<>();
 
+	@Column(name = "follower_count", nullable = false)
+	@Builder.Default
+	private long followerCount = 0L;
+
 	public void addUserGenFile(UserGenFile file) {
 		file.setUser(this);
 		userGenFiles.put(file.getTypeCode(), file);
 	}
 
 	public String getProfileImageUrl512() {
-		UserGenFile file = userGenFiles.get(UserGenFile.TypeCode.PROFILE_512);
-		return file.getPublicUrl();
+		return Optional.ofNullable(userGenFiles.get(UserGenFile.TypeCode.PROFILE_512))
+			.map(UserGenFile::getPublicUrl)
+			.orElse(null);
 	}
 
 	public String getProfileImageUrl256() {
-		UserGenFile file = userGenFiles.get(UserGenFile.TypeCode.PROFILE_256);
-		return file.getPublicUrl();
+		return Optional.ofNullable(userGenFiles.get(UserGenFile.TypeCode.PROFILE_256))
+			.map(UserGenFile::getPublicUrl)
+			.orElse(null);
 	}
 
 	public void encodePassword(BCryptPasswordEncoder passwordEncoder) {
@@ -99,6 +106,11 @@ public class User extends BaseTime {
 
 	public String getDisplayNickname() {
 		return this.deletedAt != null ? "탈퇴한 사용자" : this.nickName;
+	}
+
+	public void replaceUserGenFiles(Map<UserGenFile.TypeCode, UserGenFile> newFiles) {
+		this.userGenFiles = new HashMap<>(newFiles);
+		this.userGenFiles.values().forEach(file -> file.setUser(this));
 	}
 
 	public User(Long id) {

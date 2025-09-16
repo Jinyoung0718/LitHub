@@ -13,10 +13,10 @@ import com.sjy.LitHub.post.entity.Post;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>, PostSortCustom, PostRepositoryCustom, PostSearchCustom {
 
-	@Query("SELECT p FROM Post p WHERE p.id = :postId AND p.user.id = :userId")
-	Optional<Post> findByIdAndUserId(@Param("postId") Long postId, @Param("userId") Long userId);
+	@Query("SELECT p FROM Post p WHERE p.id = :postId AND p.user.id = :userId AND p.deleted = false")
+	Optional<Post> findByIdAndUserId(Long postId, Long userId);
 
 	@Modifying
-	@Query("DELETE FROM Post p WHERE p.id = :postId AND p.user.id = :userId")
-	int deletePost(@Param("postId") Long postId, @Param("userId") Long userId);
+	@Query("UPDATE Post p SET p.deleted = true WHERE p.id = :postId AND p.user.id = :userId")
+	int deletePost(Long postId, Long userId);
 }

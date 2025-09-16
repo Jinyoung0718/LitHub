@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/search")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "accessToken")
 @Tag(name = "게시글 검색", description = "게시글 키워드/태그 검색 및 인기 키워드 조회 API")
@@ -29,7 +29,7 @@ public class PostSearchController {
 	private final SearchService searchService;
 
 	@Operation(summary = "제목 기반 게시글 검색", description = "게시글의 제목을 기준으로 키워드 검색을 수행합니다.")
-	@GetMapping("/search/title")
+	@GetMapping("/posts/title")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByTitle(
 		@RequestParam String keyword,
 		@PageableDefault(size = 15) Pageable pageable
@@ -38,7 +38,7 @@ public class PostSearchController {
 	}
 
 	@Operation(summary = "태그 기반 게시글 검색", description = "지정된 태그를 기준으로 게시글 검색을 수행합니다.")
-	@GetMapping("/search/tag")
+	@GetMapping("/posts/tag")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByTag(
 		@RequestParam String tag,
 		@PageableDefault(size = 15) Pageable pageable
@@ -47,7 +47,7 @@ public class PostSearchController {
 	}
 
 	@Operation(summary = "내용 기반 게시글 검색", description = "게시글의 본문 내용을 기준으로 키워드 검색을 수행합니다. (캐싱 없음)")
-	@GetMapping("/search/content")
+	@GetMapping("/posts/content")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByContent(
 		@RequestParam String keyword,
 		@PageableDefault(size = 15) Pageable pageable
@@ -56,7 +56,7 @@ public class PostSearchController {
 	}
 
 	@Operation(summary = "제목+내용 통합 게시글 검색", description = "제목 또는 내용 중 하나라도 키워드를 포함하는 게시글을 검색합니다. (캐싱 없음)")
-	@GetMapping("/search/all")
+	@GetMapping("/posts/all")
 	public BaseResponse<PageResponse<PostSummaryResponseDTO>> searchByTitleOrContent(
 		@RequestParam String keyword,
 		@PageableDefault(size = 15) Pageable pageable
@@ -65,13 +65,13 @@ public class PostSearchController {
 	}
 
 	@Operation(summary = "실시간 인기 검색어 조회", description = "검색 시 ZSet 기반으로 수집된 실시간 인기 키워드를 조회합니다.")
-	@GetMapping("/popular/keywords")
+	@GetMapping("/keywords/popular")
 	public BaseResponse<List<String>> getPopularKeywords() {
 		return BaseResponse.success(searchService.getPopularKeywordList());
 	}
 
 	@Operation(summary = "실시간 인기 태그 조회", description = "태그 검색 시 ZSet 기반으로 수집된 실시간 인기 태그를 조회합니다.")
-	@GetMapping("/popular/tags")
+	@GetMapping("/tags/popular")
 	public BaseResponse<List<String>> getPopularTags() {
 		return BaseResponse.success(searchService.getPopularTagList());
 	}

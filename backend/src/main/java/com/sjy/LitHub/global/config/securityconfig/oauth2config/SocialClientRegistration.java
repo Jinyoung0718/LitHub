@@ -5,16 +5,23 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.stereotype.Component;
 
-import com.sjy.LitHub.global.config.AppConfig;
+import com.sjy.LitHub.global.config.securityconfig.oauth2config.util.GoogleOAuthProperties;
+import com.sjy.LitHub.global.config.securityconfig.oauth2config.util.NaverOAuthProperties;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class SocialClientRegistration {
+
+	private final GoogleOAuthProperties google;
+	private final NaverOAuthProperties naver;
 
 	public ClientRegistration naverClientRegistration() {
 		return ClientRegistration.withRegistrationId("naver")
-			.clientId(AppConfig.naverClientId)
-			.clientSecret(AppConfig.naverClientSecret)
-			.redirectUri(AppConfig.naverRedirectUri)
+			.clientId(naver.getClientId())
+			.clientSecret(naver.getClientSecret())
+			.redirectUri(naver.getRedirectUri())
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("email")
 			.authorizationUri("https://nid.naver.com/oauth2.0/authorize")
@@ -26,9 +33,9 @@ public class SocialClientRegistration {
 
 	public ClientRegistration googleClientRegistration() {
 		return ClientRegistration.withRegistrationId("google")
-			.clientId(AppConfig.googleClientId)
-			.clientSecret(AppConfig.googleClientSecret)
-			.redirectUri(AppConfig.googleRedirectUri)
+			.clientId(google.getClientId())
+			.clientSecret(google.getClientSecret())
+			.redirectUri(google.getRedirectUri())
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("email")
 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")

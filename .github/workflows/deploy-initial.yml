@@ -1,0 +1,56 @@
+name: deploy-initial
+
+on:
+  workflow_dispatch:
+
+jobs:
+  initial-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # 블루/그린 인스턴스 ID 가져오기
+      - name: Get Blue/Green Instances
+        id: get_instances
+        run: |
+          BLUE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=dev-app-blue" "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" --output text)
+
+          GREEN_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=dev-app-green" "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" --output text)
+
+          echo "BLUE_ID=$BLUE_ID" >> $GITHUB_ENV
+          echo "GREEN_ID=$GREEN_ID" >> $GITHUB_ENV
+          echo "Blue = $BLUE_ID"
+          echo "Green = $GREEN_ID"
+
+      # 블루에 컨테이너 배포
+      - name: Deploy to Blue
+        uses: peterkimzz/aws-ssm-send-command@master
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          instance-ids: ${{ env.BLUE_ID }}
+          working-directory: /
+          comment: Initial Deploy to Blue
+          command: |
+            docker pull ghcr.io/${{ github.repository_owner }}/app250418:latest && \
+            docker stop app 2>/dev/null || true && \
+            docker rm app 2>/dev/null || true && \
+            docker run -d --name app --network common -p 8080:8080 \
+              ghcr.io/${{ github.repository_owner }}/app250418:latest && \
+            docker rmi $(docker images -f "dangling=true" -q) || true
+
+      # 태그 지정 (Blue = active, Green = standby)
+      - name: Set Initial Tags
+        run: |
+          aws ec2 create-tags --resources ${{ env.BLUE_ID }} --tags Key=Role,Value=active
+          aws ec2 create-tags --resources ${{ env.GREEN_ID }} --tags Key=Role,Value=standby
+          echo "Initial deployment complete. Blue=active, Green=standby"

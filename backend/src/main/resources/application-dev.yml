@@ -2,25 +2,21 @@
 
 spring:
   datasource:
-    url: ${custom.dev.db.url}
-    username: ${custom.dev.db.username}
-    password: ${custom.dev.db.password}
+    url: jdbc:mysql://localhost:3309/LitHub-dev
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-  docker:
-    compose:
-      enabled: false
 
   data:
     redis:
-      host: ${custom.dev.redis.token-host}
-      port: ${custom.dev.redis.token-port}
+      host: localhost
+      port: 6380
 
   rabbitmq:
-    host: ${custom.dev.rabbitmq.host}
-    port: ${custom.dev.rabbitmq.port}
-    username: ${custom.dev.rabbitmq.username}
-    password: ${custom.dev.rabbitmq.password}
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
     listener:
       simple:
         retry:
@@ -33,7 +29,7 @@ spring:
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -50,6 +46,12 @@ spring:
       schema-locations: classpath:index.sql
 
 custom:
+  oauth:
+    google:
+      redirect-uri: http://localhost:8080/login/oauth2/code/google
+    naver:
+      redirect-uri: http://localhost:8080/login/oauth2/code/naver
+
   cookie:
     secure: false
     http-only: false
@@ -57,13 +59,13 @@ custom:
 
   site:
     domain: localhost
-    back-url: ${custom.dev.site.back-url}
-    front-url: ${custom.dev.site.front-url}
+    back-url: http://localhost:8080
+    front-url: http://localhost:5173
 
   file:
-    upload-dir: ${custom.dev.site.file-upload-dir}
+    upload-dir: C:/Users/Sojinyoung/Desktop/LitHubStorage
 
   redis:
     cache:
-      host: ${custom.dev.redis.cache-host}
-      port: ${custom.dev.redis.cache-port}
+      host: localhost
+      port: 6382

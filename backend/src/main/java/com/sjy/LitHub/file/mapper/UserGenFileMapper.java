@@ -6,48 +6,30 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.file.ImageType;
 import com.sjy.LitHub.file.entity.UserGenFile;
-import com.sjy.LitHub.file.util.ProfileImageUtil;
-import com.sjy.LitHub.file.util.FileUtil;
+import com.sjy.LitHub.file.util.local.LocalFileUtil;
+import com.sjy.LitHub.file.util.common.ProfileImageUtil;
+import com.sjy.LitHub.global.config.AppConfig;
 import com.sjy.LitHub.global.exception.custom.InvalidFileException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class UserGenFileMapper {
 
-	public Map<UserGenFile.TypeCode, UserGenFile> toUserGenFiles(User user, MultipartFile originalFile) {
-		return ImageType.PROFILE.getSizes().stream()
-			.map(size -> createUserGenFile(user, size, originalFile))
-			.collect(Collectors.toMap(UserGenFile::getTypeCode, Function.identity()));
-	}
+	private final ProfileImageUtil profileImageUtil;
 
-	private UserGenFile.TypeCode getTypeCodeBySize(int size) {
-		return Arrays.stream(UserGenFile.TypeCode.values())
-			.filter(tc -> tc.name().endsWith(String.valueOf(size)))
-			.findFirst()
-			.orElseThrow(() -> new InvalidFileException(BaseResponseStatus.INVALID_FILE_TYPE));
-	}
-
-	private UserGenFile createUserGenFile(User user, int size, MultipartFile originalFile) {
-		UserGenFile.TypeCode typeCode = getTypeCodeBySize(size);
-		String originalFileName = originalFile.getOriginalFilename();
-		String fileExt = FileUtil.getFileExtension(originalFileName);
-		String fileExtTypeCode = FileUtil.getFileExtTypeCode(fileExt);
-		String fileName = size + ".webp";
-
+	public UserGenFile toEntity(User user, int size, String fileExt) {
 		return UserGenFile.builder()
 			.user(user)
-			.typeCode(typeCode)
+			.typeCode(UserGenFile.TypeCode.fromSize(size))
 			.fileNo(size)
-			.originalFileName(originalFileName)
-			.fileName(fileName)
 			.fileExt(fileExt)
-			.fileExtTypeCode(fileExtTypeCode)
-			.directoryPath(String.valueOf(user.getId()))
 			.build();
 	}
 
@@ -58,19 +40,31 @@ public class UserGenFileMapper {
 	}
 
 	private UserGenFile createDefault(User user, int size) {
-		String filePath = ProfileImageUtil.copyBaseProfileToUserDir(user.getId(), size);
-		long fileSize = FileUtil.getFileSize(filePath);
+		String pathOrKey;
 
-		return UserGenFile.builder()
+		if (AppConfig.isProd()) {
+			pathOrKey = profileImageUtil.copyBaseProfileOnS3(user.getId(), size);
+		} else {
+			pathOrKey = ProfileImageUtil.copyBaseProfileLocal(user.getId(), size);
+		}
+
+		String fileExt = LocalFileUtil.getFileExtension(pathOrKey);
+
+		UserGenFile file = UserGenFile.builder()
 			.user(user)
 			.typeCode(getTypeCodeBySize(size))
 			.fileNo(size)
-			.originalFileName("base-profile_" + size + ".webp")
-			.fileName(size + ".webp")
-			.fileExt("webp")
-			.fileExtTypeCode("img")
-			.directoryPath(String.valueOf(user.getId()))
-			.fileSize(fileSize)
+			.fileExt(fileExt)
 			.build();
+
+		file.initStorageKey(user.getId(), size);
+		return file;
+	}
+
+	private UserGenFile.TypeCode getTypeCodeBySize(int size) {
+		return Arrays.stream(UserGenFile.TypeCode.values())
+			.filter(tc -> tc.name().endsWith(String.valueOf(size)))
+			.findFirst()
+			.orElseThrow(() -> new InvalidFileException(BaseResponseStatus.INVALID_FILE_TYPE));
 	}
 }

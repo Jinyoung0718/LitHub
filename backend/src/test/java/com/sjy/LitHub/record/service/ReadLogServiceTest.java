@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sjy.LitHub.account.service.UserInfo.PointService;
 import com.sjy.LitHub.record.repository.readLog.ReadLogRepository;
+import com.sjy.LitHub.record.service.logs.ReadLogService;
+import com.sjy.LitHub.record.service.logs.ReadLogStatusService;
 
 @ExtendWith(MockitoExtension.class)
 class ReadLogServiceTest {

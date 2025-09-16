@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sjy.LitHub.record.model.ReadingStatsResponseDTO;
 import com.sjy.LitHub.record.repository.readLogStatus.ReadLogStatsRepository;
+import com.sjy.LitHub.record.service.logs.ReadLogStatusService;
 
 @ExtendWith(MockitoExtension.class)
 class ReadLogStatusServiceTest {

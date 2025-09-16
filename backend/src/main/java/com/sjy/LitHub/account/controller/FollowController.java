@@ -4,7 +4,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,13 +55,5 @@ public class FollowController {
 		@PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 		return BaseResponse.success(followService.getFollowers(userPrincipal.getUserId(), pageable));
-	}
-
-	@Operation(summary = "팔로워 삭제", description = "내 팔로워 목록에서 특정 사용자를 제거합니다.")
-	@DeleteMapping("/followers/{followerId}")
-	public BaseResponse<Empty> removeFollower(@AuthenticationPrincipal UserPrincipal userPrincipal,
-		@PathVariable Long followerId) {
-		followService.removeFollower(userPrincipal.getUserId(), followerId);
-		return BaseResponse.success();
 	}
 }

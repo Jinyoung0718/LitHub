@@ -1,20 +1,24 @@
 # application-prod.yml
 
+server:
+  forward-headers-strategy: native
+
 spring:
+  profiles:
+    include: secret
+
   datasource:
     url: ${custom.prod.db.url}
     username: ${custom.prod.db.username}
     password: ${custom.prod.db.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  docker:
-    compose:
-      enabled: false
-
   data:
     redis:
-      host: ${custom.prod.redis.token-host}
-      port: ${custom.prod.redis.token-port}
+      sentinel:
+        master: ${custom.prod.redis.sentinel.master}
+        nodes:  ${custom.prod.redis.sentinel.nodes}
+      password: ${custom.prod.redis.password}
 
   rabbitmq:
     host: ${custom.prod.rabbitmq.host}
@@ -32,7 +36,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -43,6 +47,12 @@ spring:
     open-in-view: false
 
 custom:
+  oauth:
+    google:
+      redirect-uri: ${custom.prod.oauth.google.redirect-uri}
+    naver:
+      redirect-uri: ${custom.prod.oauth.naver.redirect-uri}
+
   cookie:
     secure: true
     http-only: true
@@ -53,7 +63,18 @@ custom:
     back-url: ${custom.prod.site.back-url}
     front-url: ${custom.prod.site.front-url}
 
+  s3:
+    bucket: ${custom.s3.bucket}
+    base-profile-dir: ${custom.s3.base-profile-dir}
+
   redis:
     cache:
       host: ${custom.prod.redis.cache-host}
       port: ${custom.prod.redis.cache-port}
+      password: ${custom.prod.redis.password}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus

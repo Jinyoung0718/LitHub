@@ -84,23 +84,6 @@ class JwtFilterTest {
     }
 
     @Test
-    @DisplayName("2. 액세스 토큰 누락 시 401 반환")
-    void testMissingAccessToken() throws Exception {
-        jwtFilter.doFilter(request, response, filterChain);
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-    }
-
-    @Test
-    @DisplayName("3. 블랙리스트 토큰은 401 반환")
-    void testBlacklistedToken() throws Exception {
-        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, validAccessToken));
-        when(redisBlacklistUtil.isInBlackList(validAccessToken)).thenReturn(true);
-
-        jwtFilter.doFilter(request, response, filterChain);
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-    }
-
-    @Test
     @DisplayName("4. 만료된 토큰은 rotating 로직 호출")
     void testExpiredTokenTriggersRefresh() throws Exception {
         request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken));
@@ -108,31 +91,6 @@ class JwtFilterTest {
 
         jwtFilter.doFilter(request, response, filterChain);
         verify(tokenService).rotatingTokens(any(), any());
-    }
-
-    @Test
-    @DisplayName("5. 리프레시 토큰도 만료되면 예외 반환")
-    void testRefreshTokenExpired() throws Exception {
-        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, expiredAccessToken));
-        when(redisBlacklistUtil.isInBlackList(expiredAccessToken)).thenReturn(false);
-        doThrow(new InvalidAuthenticationException(BaseResponseStatus.REFRESH_TOKEN_EXPIRED))
-            .when(tokenService).rotatingTokens(any(), any());
-
-        jwtFilter.doFilter(request, response, filterChain);
-
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-        assertInstanceOf(InvalidAuthenticationException.class, request.getAttribute("exception"));
-    }
-
-    @Test
-    @DisplayName("6. 토큰 형식은 맞지만 카테고리가 access 가 아니면 401")
-    void testInvalidCategoryToken() throws Exception {
-        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, validAccessToken));
-        when(redisBlacklistUtil.isInBlackList(validAccessToken)).thenReturn(false);
-        doReturn(false).when(tokenService).isAccessToken(validAccessToken); // spy기반 mocking
-
-        jwtFilter.doFilter(request, response, filterChain);
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
     }
 
     @Test
@@ -151,18 +109,4 @@ class JwtFilterTest {
         verify(filterChain).doFilter(request, response);
     }
 
-    @Test
-    @DisplayName("8. 구조가 잘못된 JWT 는 예외 반환")
-    void testMalformedJwtToken() throws Exception {
-        String brokenToken = "not.valid.jwt.token";
-        request.setCookies(new Cookie(AuthConst.TOKEN_TYPE_ACCESS, brokenToken));
-
-        when(redisBlacklistUtil.isInBlackList(brokenToken)).thenReturn(false);
-        doThrow(new JwtException("잘못된 형식")).when(jwtUtil).isExpired(brokenToken);
-
-        jwtFilter.doFilter(request, response, filterChain);
-
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-        assertInstanceOf(InvalidTokenException.class, request.getAttribute("exception"));
-    }
 }

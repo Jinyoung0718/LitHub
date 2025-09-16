@@ -23,12 +23,14 @@ import com.sjy.LitHub.record.entity.ReadLogStats;
 import com.sjy.LitHub.record.model.ReadingStatsResponseDTO;
 import com.sjy.LitHub.record.repository.readLog.ReadLogRepository;
 import com.sjy.LitHub.record.repository.readLogStatus.ReadLogStatsRepository;
-import com.sjy.LitHub.record.service.ReadLogStatusService;
+import com.sjy.LitHub.record.service.logs.ReadLogStatusService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class InitialData {
 
     private final UserRepository userRepository;
@@ -40,20 +42,6 @@ public class InitialData {
 
     private static final String PROFILE_KEY_PREFIX = "userProfile:";
     private static final String STATS_KEY_PREFIX = "readingStats:";
-
-    public InitialData(UserRepository userRepository,
-        UserGenFileMapper userGenFileMapper,
-        MyPageCacheManager myPageCacheManager,
-        ReadLogStatusService readLogStatusService,
-        ReadLogRepository readLogRepository,
-        ReadLogStatsRepository readLogStatsRepository) {
-        this.userRepository = userRepository;
-        this.userGenFileMapper = userGenFileMapper;
-        this.myPageCacheManager = myPageCacheManager;
-        this.readLogStatusService = readLogStatusService;
-        this.readLogRepository = readLogRepository;
-        this.readLogStatsRepository = readLogStatsRepository;
-    }
 
     @Bean
     public ApplicationRunner applicationRunner() {

@@ -31,6 +31,7 @@ const AuthProvider = ({ children }) => {
         setAccessToken(null);
       }
     } catch (error) {
+      console.log(error.response);
       setAccessToken(null);
     } finally {
       setIsLoading(false);

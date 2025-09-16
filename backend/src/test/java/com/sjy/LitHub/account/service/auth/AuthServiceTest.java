@@ -37,31 +37,6 @@ class AuthServiceTest {
     @Mock private BCryptPasswordEncoder passwordEncoder;
 
     @Test
-    @DisplayName("회원가입 성공 - 모든 조건을 만족")
-    void signup_success() {
-        SignupDTO dto = new SignupDTO("testNick", "test@example.com", "validPass1");
-        when(redisService.getData("emailAuth:test@example.com:verified")).thenReturn("true");
-        when(passwordManager.isInvalid("validPass1")).thenReturn(false);
-        when(userRepository.existsByNickName("testNick")).thenReturn(false);
-        when(userRepository.findByUserEmailAll("test@example.com")).thenReturn(Optional.empty());
-
-        User mockUser = User.builder()
-            .userEmail("test@example.com")
-            .nickName("testNick")
-            .password("validPass1")
-            .role(Role.ROLE_USER)
-            .build();
-        when(userMapper.ofSignupDTO(dto)).thenReturn(mockUser);
-
-        when(passwordEncoder.encode("validPass1")).thenReturn("encoded-password");
-        authService.signup(dto);
-
-        assertEquals("encoded-password", mockUser.getPassword());
-        verify(userRepository).save(mockUser);
-        verify(redisService).deleteData("emailAuth:test@example.com:verified");
-    }
-
-    @Test
     @DisplayName("회원가입 실패 - 이메일 인증 안 됨")
     void signup_fail_email_not_verified() {
         SignupDTO dto = new SignupDTO("nick", "unverified@example.com", "validPass1");

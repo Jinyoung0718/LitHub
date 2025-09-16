@@ -34,7 +34,9 @@ public class SearchResultCacheStore {
 	public Page<PostSummaryResponseDTO> getOrPut(CachePolicy policy, Supplier<Page<PostSummaryResponseDTO>> dbFetcher, Object... args) {
 		String key = policy.createKey(args);
 		Page<PostSummaryResponseDTO> cached = get(key);
-		if (cached != null) return cached;
+		if (cached != null) {
+			return cached;
+		}
 
 		Page<PostSummaryResponseDTO> result = dbFetcher.get();
 		save(policy, result, args);

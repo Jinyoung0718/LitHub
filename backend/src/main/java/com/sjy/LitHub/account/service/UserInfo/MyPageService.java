@@ -2,7 +2,9 @@ package com.sjy.LitHub.account.service.UserInfo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.function.Supplier;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,14 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sjy.LitHub.account.model.req.NicknameRequestDTO;
 import com.sjy.LitHub.account.model.req.PasswordUpdateRequestDTO;
 import com.sjy.LitHub.account.model.res.MyPageResponseDTO;
+import com.sjy.LitHub.account.model.res.StudyGroupHistoryDTO;
+import com.sjy.LitHub.account.model.res.StudyGroupHistoryListDTO;
 import com.sjy.LitHub.account.model.res.UserProfileResponseDTO;
 import com.sjy.LitHub.account.repository.user.UserRepository;
 import com.sjy.LitHub.account.util.PasswordManager;
+import com.sjy.LitHub.account.util.UserCacheKeyConstants;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
+import com.sjy.LitHub.global.util.TransactionAfterCommitExecutor;
 import com.sjy.LitHub.record.model.ReadingStatsResponseDTO;
-import com.sjy.LitHub.record.service.ReadLogService;
-import com.sjy.LitHub.record.service.ReadLogStatusService;
+import com.sjy.LitHub.record.repository.group.StudyGroupRepository;
+import com.sjy.LitHub.record.service.logs.ReadLogService;
+import com.sjy.LitHub.record.service.logs.ReadLogStatusService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,34 +34,36 @@ public class MyPageService {
 
     private final MyPageCacheManager myPageCacheManager;
     private final UserRepository userRepository;
+    private final StudyGroupRepository studyGroupRepository;
     private final PasswordManager passwordManager;
     private final ReadLogStatusService readLogStatusService;
     private final ReadLogService readLogService;
-
-    private static final String PROFILE_KEY_PREFIX = "userProfile:";
-    private static final String STATS_KEY_PREFIX = "readingStats:";
+    private final TransactionAfterCommitExecutor afterCommitExecutor;
 
     @Transactional(readOnly = true)
     public MyPageResponseDTO getCachedMyPageData(Long userId, int year) {
-        String profileKey = PROFILE_KEY_PREFIX + userId;
-        String statsKey = STATS_KEY_PREFIX + userId + ":" + year;
 
-        UserProfileResponseDTO userProfile = getCachedOrFetch(profileKey,
-            () -> userRepository.getUserProfile(userId), UserProfileResponseDTO.class);
+        UserProfileResponseDTO userProfile = myPageCacheManager.getOrFetchAndPut(
+            UserCacheKeyConstants.profileKey(userId),
+            () -> userRepository.getUserProfile(userId),
+            UserProfileResponseDTO.class
+        );
 
-        ReadingStatsResponseDTO readingStats = getCachedOrFetch(statsKey,
-            () -> readLogStatusService.getReadingStats(userId, year), ReadingStatsResponseDTO.class);
+        ReadingStatsResponseDTO readingStats = myPageCacheManager.getOrFetchAndPut(
+            UserCacheKeyConstants.statsKey(userId, year),
+            () -> readLogStatusService.getReadingStats(userId, year),
+            ReadingStatsResponseDTO.class
+        );
 
-        return MyPageResponseDTO.of(userProfile, readingStats);
-    }
+        StudyGroupHistoryListDTO studiesWrapper = myPageCacheManager.getOrFetchAndPut(
+            UserCacheKeyConstants.studyKey(userId),
+            () -> StudyGroupHistoryListDTO.of(
+                studyGroupRepository.findRecentEndedWithMembersByUser(userId, 10)
+            ),
+            StudyGroupHistoryListDTO.class
+        );
 
-    private <T> T getCachedOrFetch(String key, Supplier<T> fetchData, Class<T> type) {
-        return myPageCacheManager.getCache(key, type)
-            .orElseGet(() -> {
-                T data = fetchData.get();
-                myPageCacheManager.putCache(key, data);
-                return data;
-            });
+        return MyPageResponseDTO.of(userProfile, readingStats, studiesWrapper.getItems());
     }
 
     @Transactional
@@ -63,33 +72,71 @@ public class MyPageService {
             throw new InvalidUserException(BaseResponseStatus.USER_NICKNAME_DUPLICATE);
         }
         UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
-        myPageCacheManager.putCache(PROFILE_KEY_PREFIX + userId, updatedProfile);
+
+        afterCommitExecutor.executeAfterCommit(() ->
+            myPageCacheManager.putCache(UserCacheKeyConstants.profileKey(userId), updatedProfile)
+        );
     }
 
     @Transactional
     public void updatePassword(Long userId, PasswordUpdateRequestDTO requestDto) {
         passwordManager.validatePassword(userId, requestDto.getCurrentPassword(), requestDto.getNewPassword());
         passwordManager.updatePassword(userId, requestDto.getNewPassword());
-        myPageCacheManager.evictCache(PROFILE_KEY_PREFIX + userId);
-    } // 프론트에서 로그아웃 처리 후 재로그인 유도
+
+        afterCommitExecutor.executeAfterCommit(() ->
+            myPageCacheManager.evictCache(UserCacheKeyConstants.profileKey(userId))
+        );
+    }
 
     @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteUserById(userId, LocalDateTime.now());
-        myPageCacheManager.evictCache(PROFILE_KEY_PREFIX + userId);
-        myPageCacheManager.evictCache(STATS_KEY_PREFIX + userId + ":" + LocalDate.now().getYear());
-    } // 로그인 화면으로 리다이렉트
+
+        afterCommitExecutor.executeAfterCommit(() -> {
+            myPageCacheManager.evictCache(UserCacheKeyConstants.profileKey(userId));
+            myPageCacheManager.evictCache(UserCacheKeyConstants.statsKey(userId, LocalDate.now().getYear()));
+            myPageCacheManager.evictCache(UserCacheKeyConstants.studyKey(userId));
+        });
+    }
 
     @Transactional
-    public MyPageResponseDTO saveReadingRecordAndUpdateCache(Long userId, int minutes) {
-        int currentYear = LocalDate.now().getYear();
+    public MyPageResponseDTO savePersonalReadingSession(Long userId, int minutes) {
         readLogService.saveReadingRecord(userId, minutes);
+        int year = LocalDate.now().getYear();
 
-        ReadingStatsResponseDTO updatedStats = readLogStatusService.getReadingStats(userId, currentYear);
-        myPageCacheManager.putCache(STATS_KEY_PREFIX + userId + ":" + currentYear, updatedStats);
-
+        ReadingStatsResponseDTO updatedStats = readLogStatusService.getReadingStats(userId, year);
         UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
-        myPageCacheManager.putCache(PROFILE_KEY_PREFIX + userId, updatedProfile);
-        return MyPageResponseDTO.of(updatedProfile, updatedStats);
-    } // ReadLogService 에서 저장 처리
+
+        afterCommitExecutor.executeAfterCommit(() -> {
+            myPageCacheManager.putCache(UserCacheKeyConstants.statsKey(userId, year), updatedStats);
+            myPageCacheManager.putCache(UserCacheKeyConstants.profileKey(userId), updatedProfile);
+        });
+
+        String studiesKey = UserCacheKeyConstants.studyKey(userId);
+        List<StudyGroupHistoryDTO> studies = myPageCacheManager
+            .getCache(studiesKey, StudyGroupHistoryListDTO.class)
+            .map(StudyGroupHistoryListDTO::getItems)
+            .orElse(Collections.emptyList());
+
+        return MyPageResponseDTO.of(updatedProfile, updatedStats, studies);
+    }
+
+    @Transactional
+    public void saveGroupReadingSession(Collection<Long> userIds, int minutes) {
+        if (userIds == null || userIds.isEmpty()) return;
+        int currentYear = LocalDate.now().getYear();
+
+        for (Long userId : userIds) {
+            readLogService.saveReadingRecord(userId, minutes);
+
+            ReadingStatsResponseDTO updatedStats = readLogStatusService.getReadingStats(userId, currentYear);
+            UserProfileResponseDTO updatedProfile = userRepository.getUserProfile(userId);
+
+            afterCommitExecutor.executeAfterCommit(() -> {
+                myPageCacheManager.putCache(UserCacheKeyConstants.statsKey(userId, currentYear), updatedStats);
+                myPageCacheManager.putCache(UserCacheKeyConstants.profileKey(userId), updatedProfile);
+                myPageCacheManager.evictCache(UserCacheKeyConstants.studyKey(userId));
+            });
+        }
+    }
 }

@@ -16,6 +16,4 @@ public interface PostSortCustom {
 	Page<PostSummaryResponseDTO> findPostsScrappedByUser(Long userId, Pageable pageable);
 
 	List<PostSummaryResponseDTO> findByIds(List<Long> postIds);
-
-	List<PostSummaryResponseDTO> findRecentByUserIds(List<Long> userIds, int limit);
 }

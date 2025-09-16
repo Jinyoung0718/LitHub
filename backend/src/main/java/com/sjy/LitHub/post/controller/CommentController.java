@@ -1,7 +1,6 @@
 package com.sjy.LitHub.post.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,9 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
+import com.sjy.LitHub.global.model.PageResponse;
 import com.sjy.LitHub.post.model.req.CommentCreateRequestDTO;
 import com.sjy.LitHub.post.model.res.comment.CommentResponseDTO;
-import com.sjy.LitHub.post.model.res.comment.CommentTreeDTO;
+import com.sjy.LitHub.post.model.res.comment.ReplyCommentDTO;
+import com.sjy.LitHub.post.model.res.comment.RootCommentDTO;
 import com.sjy.LitHub.post.service.CommentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,22 +27,33 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts/comments")
+@RequestMapping("/api")
 @SecurityRequirement(name = "accessToken")
-@Tag(name = "댓글 관리", description = "댓글 생성, 수정, 삭제 API")
+@Tag(name = "댓글 관리", description = "댓글 생성, 조회, 수정, 삭제 API")
 public class CommentController {
 
 	private final CommentService commentService;
 
-	@Operation(summary = "게시글 댓글 계층 조회", description = "게시글의 댓글과 대댓글을 계층 구조로 조회합니다.")
-	@GetMapping("/post/{postId}")
-	public BaseResponse<List<CommentTreeDTO>> getCommentTree(@PathVariable Long postId) {
-		List<CommentTreeDTO> commentTree = commentService.getCommentTree(postId);
-		return BaseResponse.success(commentTree);
+	@Operation(summary = "루트 댓글 조회 (페이징)", description = "게시글의 루트 댓글을 페이징으로 조회합니다.")
+	@GetMapping("/posts/{postId}/comments")
+	public BaseResponse<PageResponse<RootCommentDTO>> getRootComments(
+		@PathVariable Long postId,
+		Pageable pageable
+	) {
+		return BaseResponse.success(commentService.getRootComments(postId, pageable));
+	}
+
+	@Operation(summary = "대댓글 조회 (페이징)", description = "특정 루트 댓글의 대댓글을 페이징으로 조회합니다.")
+	@GetMapping("/comments/{commentId}/replies")
+	public BaseResponse<PageResponse<ReplyCommentDTO>> getReplies(
+		@PathVariable Long commentId,
+		Pageable pageable
+	) {
+		return BaseResponse.success(commentService.getRepliesComments(commentId, pageable));
 	}
 
 	@Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다. 대댓글도 지원됩니다.")
-	@PostMapping("/{postId}")
+	@PostMapping("/posts/{postId}/comments")
 	public BaseResponse<CommentResponseDTO> createComment(
 		@PathVariable Long postId,
 		@RequestBody @Valid CommentCreateRequestDTO request
@@ -50,7 +62,7 @@ public class CommentController {
 	}
 
 	@Operation(summary = "댓글 수정", description = "본인의 댓글을 수정합니다.")
-	@PatchMapping("/{commentId}")
+	@PatchMapping("/comments/{commentId}")
 	public BaseResponse<CommentResponseDTO> updateComment(
 		@PathVariable Long commentId,
 		@RequestBody @Valid CommentCreateRequestDTO request
@@ -59,7 +71,7 @@ public class CommentController {
 	}
 
 	@Operation(summary = "댓글 삭제", description = "본인의 댓글을 삭제합니다.")
-	@DeleteMapping("/{commentId}")
+	@DeleteMapping("/comments/{commentId}")
 	public BaseResponse<Empty> deleteComment(
 		@PathVariable Long commentId
 	) {

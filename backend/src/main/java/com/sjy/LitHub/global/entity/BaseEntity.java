@@ -11,7 +11,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
-import com.sjy.LitHub.file.util.FileUtil;
+import com.sjy.LitHub.file.util.local.LocalFileUtil;
 
 @Getter
 @Setter
@@ -45,6 +45,6 @@ public abstract class BaseEntity {
 
     public String getModelName() {
         String simpleName = this.getClass().getSimpleName();
-        return FileUtil.firstLowerCase(simpleName);
+        return LocalFileUtil.firstLowerCase(simpleName);
     }
 }

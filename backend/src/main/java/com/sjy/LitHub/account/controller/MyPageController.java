@@ -2,6 +2,9 @@ package com.sjy.LitHub.account.controller;
 
 import java.time.LocalDate;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,15 +73,6 @@ public class MyPageController {
 	public BaseResponse<String> deleteProfileImage( @AuthenticationPrincipal UserPrincipal userPrincipal) {
 		String defaultImageUrl = profileImageService.deleteUserImage(userPrincipal.getUserId());
 		return BaseResponse.success(defaultImageUrl);
-	}
-
-	@Operation(summary = "독서 기록 저장", description = "독서 시간을 추가하고 독서 연속 기록과 색상 레벨을 갱신합니다.")
-	@PostMapping("/reading-log")
-	public BaseResponse<MyPageResponseDTO> saveReadingRecord(
-		@AuthenticationPrincipal UserPrincipal userPrincipal,
-		@RequestParam int minutes) {
-		MyPageResponseDTO myPageResponseDto = myPageService.saveReadingRecordAndUpdateCache(userPrincipal.getUserId(), minutes);
-		return BaseResponse.success(myPageResponseDto);
 	}
 
 	@Operation(summary = "닉네임 수정", description = "중복조회 및 형식 검사를 한 후 닉네임을 수정하는 기능입니다.")

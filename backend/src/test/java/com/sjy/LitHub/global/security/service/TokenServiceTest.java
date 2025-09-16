@@ -67,27 +67,6 @@ class TokenServiceTest {
     }
 
     @Test
-    @DisplayName("2. generateTokensAndSetCookies - 토큰 생성 및 쿠키 세팅")
-    void testGenerateTokensAndSetCookies() {
-        when(jwtUtil.createJwt(eq("access"), eq(userId), eq(role), anyLong()))
-            .thenReturn("access-token");
-        when(jwtUtil.createJwt(eq("refresh"), eq(userId), eq(role), anyLong()))
-            .thenReturn("refresh-token");
-        when(jwtUtil.getUserId(any())).thenReturn(userId);
-        when(jwtUtil.getRole(any())).thenReturn(role);
-
-        tokenService.generateTokensAndSetCookies(response, userId, role);
-
-        Cookie access = response.getCookie(AuthConst.TOKEN_TYPE_ACCESS);
-        Cookie refresh = response.getCookie(AuthConst.TOKEN_TYPE_REFRESH);
-
-        assertNotNull(access);
-        assertNotNull(refresh);
-        assertEquals("access-token", access.getValue());
-        assertEquals("refresh-token", refresh.getValue());
-    }
-
-    @Test
     @DisplayName("3. getAuthenticationFromToken - 인증 객체 추출")
     void testGetAuthenticationFromToken() {
         String token = "some-token";

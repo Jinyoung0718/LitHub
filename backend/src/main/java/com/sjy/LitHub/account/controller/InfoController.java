@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sjy.LitHub.account.entity.User;
-import com.sjy.LitHub.global.AuthUser;
+import com.sjy.LitHub.global.util.AuthUser;
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
 import com.sjy.LitHub.global.security.oauth2.service.token.OAuthTempTokenService;

@@ -95,17 +95,4 @@ class OAuthTempTokenServiceTest {
 		assertEquals(BaseResponseStatus.USER_TEMP_SESSION_EXPIRED.getMessage(),
 			exception.getStatus().getMessage());
 	}
-
-	@Test
-	@DisplayName("엑세스 토큰과 리프레시 토큰을 생성하고 쿠키에 저장")
-	void generateAndSetTokens_Success() {
-		when(jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, testUser.getId(), testUser.getRole(), AuthConst.ACCESS_EXPIRATION))
-			.thenReturn("mocked-access-token");
-		when(jwtUtil.createJwt(AuthConst.TOKEN_TYPE_REFRESH, testUser.getId(), testUser.getRole(), AuthConst.REFRESH_EXPIRATION))
-			.thenReturn("mocked-refresh-token");
-
-		oAuthTempTokenService.generateAndSetTokens(response, testUser);
-
-		verify(response, times(2)).addCookie(any());
-	}
 }

@@ -1,6 +1,8 @@
 package com.sjy.LitHub.account.repository.follow;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,5 +19,5 @@ public interface FollowRepositoryCustom {
 
 	int deleteByFollowerAndFollowee(Long followerId, Long followeeId);
 
-	List<Long> findFolloweeIdsByUserId(Long userId);
+	Map<Long, Long> countFollowersByFolloweeIds(Collection<Long> followeeIds);
 }

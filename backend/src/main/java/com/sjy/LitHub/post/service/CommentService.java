@@ -1,16 +1,17 @@
 package com.sjy.LitHub.post.service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.account.entity.User;
-import com.sjy.LitHub.global.AuthUser;
+import com.sjy.LitHub.global.model.PageResponse;
+import com.sjy.LitHub.global.util.AuthUser;
 import com.sjy.LitHub.global.exception.custom.InvalidUserException;
 import com.sjy.LitHub.global.model.BaseResponseStatus;
 import com.sjy.LitHub.post.entity.Comment;
@@ -18,8 +19,9 @@ import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.mapper.CommentMapper;
 import com.sjy.LitHub.post.model.req.CommentCreateRequestDTO;
 import com.sjy.LitHub.post.model.res.comment.CommentResponseDTO;
-import com.sjy.LitHub.post.model.res.comment.CommentTreeDTO;
-import com.sjy.LitHub.post.repository.CommentRepository;
+import com.sjy.LitHub.post.model.res.comment.ReplyCommentDTO;
+import com.sjy.LitHub.post.model.res.comment.RootCommentDTO;
+import com.sjy.LitHub.post.repository.comment.CommentRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,22 +33,25 @@ public class CommentService {
 	private final CommentMapper commentMapper;
 
 	@Transactional(readOnly = true)
-	public List<CommentTreeDTO> getCommentTree(Long postId) {
-		List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(postId);
-		Map<Long, CommentTreeDTO> dtoMap = new LinkedHashMap<>();
-		List<CommentTreeDTO> roots = new ArrayList<>();
+	public PageResponse<RootCommentDTO> getRootComments(Long postId, Pageable pageable) {
+		Page<Comment> rootComments = commentRepository.findByPostIdAndDepthOrderByCreatedAtAsc(postId, 0, pageable);
 
-		for (Comment comment : comments) {
-			CommentTreeDTO dto = CommentTreeDTO.from(comment);
-			dtoMap.put(dto.getId(), dto);
-			if (comment.getParent() == null || comment.getDepth() == 0) {
-				roots.add(dto);
-			} else {
-				Long parentId = comment.getParent().getId();
-				dtoMap.get(parentId).getChildren().add(dto);
-			}
-		}
-		return roots;
+		List<RootCommentDTO> dtoList = rootComments.stream()
+			.map(c -> RootCommentDTO.from(c, commentRepository.countByParentId(c.getId())))
+			.toList();
+
+		return PageResponse.from(new PageImpl<>(dtoList, pageable, rootComments.getTotalElements()));
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponse<ReplyCommentDTO> getRepliesComments(Long parentId, Pageable pageable) {
+		Page<Comment> replies = commentRepository.findByParentIdOrderByCreatedAtAsc(parentId, pageable);
+
+		List<ReplyCommentDTO> dtoList = replies.stream()
+			.map(ReplyCommentDTO::from)
+			.toList();
+
+		return PageResponse.from(new PageImpl<>(dtoList, pageable, replies.getTotalElements()));
 	}
 
 	@Transactional

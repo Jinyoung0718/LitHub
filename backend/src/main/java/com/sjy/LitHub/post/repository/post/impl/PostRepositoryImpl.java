@@ -52,7 +52,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 			))
 			.from(post)
 			.join(post.user, user)
-			.where(post.id.eq(postId))
+			.where(post.id.eq(postId)
+				.and(post.deleted.isFalse()))
 			.fetchOne();
 
 		return Optional.ofNullable(result);

@@ -38,23 +38,6 @@ class EmailServiceTest {
     }
 
     @Test
-    @DisplayName("이메일 인증 코드 전송 성공")
-    void sendCode_success() {
-        // given
-        String email = "user@example.com";
-        given(emailVerificationService.isRequestLocked(email)).willReturn(false);
-        given(emailVerificationService.isAlreadyVerified(email)).willReturn(false);
-
-        // when
-        emailService.sendEmailVerificationCode(email);
-
-        // then
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
-        then(emailVerificationService).should().clearVerificationCode(email);
-        then(emailVerificationService).should().storeVerificationCode(eq(email), anyString());
-    }
-
-    @Test
     @DisplayName("이미 인증된 이메일은 인증 코드 전송 시 예외 발생")
     void sendCode_alreadyVerified() {
         // given

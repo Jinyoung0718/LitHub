@@ -4,26 +4,6 @@
  */
 
 export interface paths {
-    "/api/user/reading-log": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 독서 기록 저장
-         * @description 독서 시간을 추가하고 독서 연속 기록과 색상 레벨을 갱신합니다.
-         */
-        post: operations["saveReadingRecord"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/user/profile/upload": {
         parameters: {
             query?: never;
@@ -64,6 +44,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timer/single": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 개인 타이머 종료 후 기록 저장
+         * @description 싱글 타이머 종료 후 독서 기록을 저장합니다.
+         */
+        post: operations["savePersonalReadingRecord"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timer/room/{roomId}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디룸 타이머 종료
+         * @description 대표 사용자만 타이머를 종료할 수 있습니다.
+         */
+        post: operations["stopGroupTimer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timer/room/{roomId}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디룸 타이머 시작
+         * @description 대표 사용자가 타이머를 시작하면 같은 방 사용자들에게 공유됩니다.
+         */
+        post: operations["startGroupTimer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timer/room/{roomId}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디룸 타이머 재시작
+         * @description 대표 사용자만 타이머를 재시작할 수 있습니다.
+         */
+        post: operations["resumeGroupTimer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timer/room/{roomId}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디룸 타이머 일시정지
+         * @description 대표 사용자만 타이머를 일시정지할 수 있습니다.
+         */
+        post: operations["pauseGroupTimer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timer/room/{roomId}/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디룸 하트비트
+         * @description  방장만 유효하며, 클라이언트는 약 10초 간격으로 호출하세요. 서버는 하트비트를 TTL 30초로 관리하며, 방장의 하트비트가 끊기면 타이머가 만료됩니다.
+         */
+        post: operations["heartbeat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/posts": {
         parameters: {
             query?: never;
@@ -75,7 +175,7 @@ export interface paths {
         put?: never;
         /**
          * 게시글 생성
-         * @description 제목, 본문, 썸네일 fileName 과 태그를 포함한 게시글을 생성합니다.
+         * @description 제목, 본문, 썸네일 storageKey 및 태그를 포함한 게시글을 생성합니다.
          */
         post: operations["createPost"];
         delete?: never;
@@ -84,7 +184,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/{postId}/scrap": {
+    "/api/posts/{postId}/scraps": {
         parameters: {
             query?: never;
             header?: never;
@@ -104,7 +204,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/{postId}/like": {
+    "/api/posts/{postId}/likes": {
         parameters: {
             query?: never;
             header?: never;
@@ -124,6 +224,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/posts/{postId}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 루트 댓글 조회 (페이징)
+         * @description 게시글의 루트 댓글을 페이징으로 조회합니다.
+         */
+        get: operations["getRootComments"];
+        put?: never;
+        /**
+         * 댓글 작성
+         * @description 게시글에 댓글을 작성합니다. 대댓글도 지원됩니다.
+         */
+        post: operations["createComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/posts/thumbnail": {
         parameters: {
             query?: never;
@@ -135,7 +259,7 @@ export interface paths {
         put?: never;
         /**
          * 썸네일 이미지 업로드
-         * @description 게시글 썸네일 이미지를 업로드하고 fileName 과 URL 을 반환합니다.
+         * @description 게시글 썸네일 이미지를 업로드하고 URL 과 storageKey 를 반환합니다.
          */
         post: operations["uploadThumbnail"];
         delete?: never;
@@ -144,7 +268,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/image": {
+    "/api/posts/images": {
         parameters: {
             query?: never;
             header?: never;
@@ -155,20 +279,16 @@ export interface paths {
         put?: never;
         /**
          * 마크다운 이미지 업로드
-         * @description 마크다운 본문에 삽입할 임시 이미지를 업로드합니다.
+         * @description 마크다운 본문에서 사용할 임시 이미지를 업로드하고 퍼블릭 URL 과 storageKey 를 반환합니다.
          */
         post: operations["uploadMarkdownImage"];
-        /**
-         * 마크다운 이미지 삭제
-         * @description 마크다운 본문에 삽입된 임시 이미지를 삭제합니다.
-         */
-        delete: operations["deleteMarkdownImage"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/posts/comments/{postId}": {
+    "/api/group/{roomId}/join": {
         parameters: {
             query?: never;
             header?: never;
@@ -178,10 +298,70 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 댓글 작성
-         * @description 게시글에 댓글을 작성합니다. 대댓글도 지원됩니다.
+         * 스터디 그룹 참가
+         * @description 초대받은 사용자가 해당 스터디 그룹에 참가합니다. 참가 후에는 SSE 연결을 통해 실시간 방 상태 및 타이머 이벤트를 수신할 수 있습니다.
          */
-        post: operations["createComment"];
+        post: operations["joinRoom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/group/{roomId}/exit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디 그룹 퇴장
+         * @description 사용자가 현재 참여 중인 스터디 그룹에서 퇴장합니다.
+         */
+        post: operations["exitGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/group/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디 그룹 초대
+         * @description roomId에 유저를 초대합니다.
+         */
+        post: operations["inviteUserToRoom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/group/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 스터디 그룹 생성
+         * @description 스터디 그룹을 새로 생성합니다.
+         */
+        post: operations["createGroup"];
         delete?: never;
         options?: never;
         head?: never;
@@ -362,6 +542,31 @@ export interface paths {
         patch: operations["updatePassword"];
         trace?: never;
     };
+    "/api/posts/{postId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 게시글 상세 조회
+         * @description postId를 기반으로 게시글을 상세 조회합니다.
+         */
+        get: operations["getPostDetail"];
+        put?: never;
+        post?: never;
+        /**
+         * 게시글 삭제
+         * @description 해당 게시글을 삭제합니다.
+         */
+        delete: operations["deletePost"];
+        options?: never;
+        head?: never;
+        /** 게시글 제목/본문 수정 */
+        patch: operations["updatePostContent"];
+        trace?: never;
+    };
     "/api/posts/{postId}/thumbnail": {
         parameters: {
             query?: never;
@@ -375,28 +580,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** 게시글 썸네일 수정 */
+        /** 썸네일 이미지 수정 */
         patch: operations["updateThumbnail"];
         trace?: never;
     };
-    "/api/posts/{postId}/content": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** 게시글 제목/본문 수정 */
-        patch: operations["updatePostContent"];
-        trace?: never;
-    };
-    "/api/posts/comments/{commentId}": {
+    "/api/comments/{commentId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -418,6 +606,66 @@ export interface paths {
          * @description 본인의 댓글을 수정합니다.
          */
         patch: operations["updateComment"];
+        trace?: never;
+    };
+    "/api/users/me/scraps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 스크랩한 게시글 조회
+         * @description 내가 스크랩한 게시글 목록을 조회합니다.
+         */
+        get: operations["getScrappedPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내가 작성한 게시글 조회
+         * @description 내가 작성한 게시글 목록을 조회합니다.
+         */
+        get: operations["getMyPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 팔로워 피드
+         * @description 내가 팔로우한 사람들의 게시글
+         */
+        get: operations["getFollowingFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/user/{userId}": {
@@ -460,7 +708,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/{postId}": {
+    "/api/sse/rooms/{roomId}/connect": {
         parameters: {
             query?: never;
             header?: never;
@@ -468,34 +716,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 게시글 상세 조회
-         * @description postId를 기반으로 게시글을 상세 조회합니다.
+         * SSE 연결 - 스터디룸용
+         * @description 스터디룸 타이머 이벤트 수신용 SSE 연결입니다.
          */
-        get: operations["getPostDetail"];
-        put?: never;
-        post?: never;
-        /**
-         * 게시글 삭제
-         * @description 해당 게시글을 삭제합니다.
-         */
-        delete: operations["deletePost"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/posts/tag": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 태그 기반 게시글 검색
-         * @description 태그 기준으로 게시글을 검색합니다.
-         */
-        get: operations["searchByTag"];
+        get: operations["connectRoom"];
         put?: never;
         post?: never;
         delete?: never;
@@ -504,67 +728,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 키워드 기반 게시글 검색
-         * @description 제목 기준으로 게시글을 검색합니다.
-         */
-        get: operations["searchByKeyword"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/posts/scraps": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 스크랩한 게시글 조회
-         * @description 내가 스크랩한 게시글 목록을 조회합니다.
-         */
-        get: operations["getScrappedPosts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/posts/popular": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 일간 인기 게시글 조회
-         * @description 좋아요 + 스크랩 기준으로 인기 게시글을 정렬합니다.
-         */
-        get: operations["getPopularPosts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/posts/popular/tags": {
+    "/api/search/tags/popular": {
         parameters: {
             query?: never;
             header?: never;
@@ -573,7 +737,7 @@ export interface paths {
         };
         /**
          * 실시간 인기 태그 조회
-         * @description ZSet 기반으로 상위 10개의 인기 태그를 반환합니다.
+         * @description 태그 검색 시 ZSet 기반으로 수집된 실시간 인기 태그를 조회합니다.
          */
         get: operations["getPopularTags"];
         put?: never;
@@ -584,7 +748,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/popular/keywords": {
+    "/api/search/posts/title": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 제목 기반 게시글 검색
+         * @description 게시글의 제목을 기준으로 키워드 검색을 수행합니다.
+         */
+        get: operations["searchByTitle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/posts/tag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 태그 기반 게시글 검색
+         * @description 지정된 태그를 기준으로 게시글 검색을 수행합니다.
+         */
+        get: operations["searchByTag"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/posts/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내용 기반 게시글 검색
+         * @description 게시글의 본문 내용을 기준으로 키워드 검색을 수행합니다. (캐싱 없음)
+         */
+        get: operations["searchByContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/posts/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 제목+내용 통합 게시글 검색
+         * @description 제목 또는 내용 중 하나라도 키워드를 포함하는 게시글을 검색합니다. (캐싱 없음)
+         */
+        get: operations["searchByTitleOrContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/keywords/popular": {
         parameters: {
             query?: never;
             header?: never;
@@ -593,7 +837,7 @@ export interface paths {
         };
         /**
          * 실시간 인기 검색어 조회
-         * @description ZSet 기반으로 상위 10개의 인기 검색어를 반환합니다.
+         * @description 검색 시 ZSet 기반으로 수집된 실시간 인기 키워드를 조회합니다.
          */
         get: operations["getPopularKeywords"];
         put?: never;
@@ -604,7 +848,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/mine": {
+    "/api/popular/posts": {
         parameters: {
             query?: never;
             header?: never;
@@ -612,10 +856,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 내가 작성한 게시글 조회
-         * @description 내가 작성한 게시글 목록을 조회합니다.
+         * 인기 게시글 조회
+         * @description ZSet 기반 인기 게시글을 조회합니다.
          */
-        get: operations["getMyPosts"];
+        get: operations["getPopularPosts"];
         put?: never;
         post?: never;
         delete?: never;
@@ -624,23 +868,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/posts/feed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getFollowerFeed"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/posts/comments/post/{postId}": {
+    "/api/notification/invites": {
         parameters: {
             query?: never;
             header?: never;
@@ -648,10 +876,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 게시글 댓글 계층 조회
-         * @description 게시글의 댓글과 대댓글을 계층 구조로 조회합니다.
+         * 초대 알림 목록 조회
+         * @description 현재 로그인한 사용자의 스터디 그룹 초대 알림을 조회합니다.
          */
-        get: operations["getCommentTree"];
+        get: operations["getInviteNotifications"];
         put?: never;
         post?: never;
         delete?: never;
@@ -740,6 +968,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/comments/{commentId}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 대댓글 조회 (페이징)
+         * @description 특정 루트 댓글의 대댓글을 페이징으로 조회합니다.
+         */
+        get: operations["getReplies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/user/profile/delete": {
         parameters: {
             query?: never;
@@ -760,7 +1008,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/follows/followers/{followerId}": {
+    "/api/posts/images/{storageKey}": {
         parameters: {
             query?: never;
             header?: never;
@@ -771,10 +1019,30 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * 팔로워 삭제
-         * @description 내 팔로워 목록에서 특정 사용자를 제거합니다.
+         * 마크다운 이미지 삭제
+         * @description 마크다운 본문에서 사용된 임시 이미지를 삭제합니다. (post 에 연결되지 않은 경우만 삭제 가능)
          */
-        delete: operations["removeFollower"];
+        delete: operations["deleteMarkdownImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notification/invites/{roomId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 초대 알림 삭제
+         * @description roomId에 대한 초대 알림을 삭제합니다. 보통 사용자가 초대를 거절하거나 처리 완료 시 사용합니다.
+         */
+        delete: operations["clearInvite"];
         options?: never;
         head?: never;
         patch?: never;
@@ -784,6 +1052,25 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        BaseResponseString: {
+            success: boolean;
+            /** Format: int32 */
+            code: number;
+            /** Format: int32 */
+            httpStatus: number;
+            message: string;
+            result: string;
+        };
+        BaseResponseEmpty: {
+            success: boolean;
+            /** Format: int32 */
+            code: number;
+            /** Format: int32 */
+            httpStatus: number;
+            message: string;
+            result: components["schemas"]["Empty"];
+        };
+        Empty: Record<string, never>;
         BaseResponseMyPageResponseDTO: {
             success: boolean;
             /** Format: int32 */
@@ -809,6 +1096,7 @@ export interface components {
         MyPageResponseDTO: {
             userProfile: components["schemas"]["UserProfileResponseDTO"];
             readingStats: components["schemas"]["ReadingStatsResponseDTO"];
+            recentStudyHistories: components["schemas"]["StudyGroupHistoryDTO"][];
         };
         ReadingRecordResponseDTO: {
             /** Format: date */
@@ -822,6 +1110,24 @@ export interface components {
             readingRecords: components["schemas"]["ReadingRecordResponseDTO"][];
             monthlyStats: components["schemas"]["MonthlyReadingStatsResponseDTO"][];
         };
+        StudyGroupHistoryDTO: {
+            title: string;
+            content: string;
+            /** Format: int32 */
+            totalMinutes?: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** @enum {string} */
+            status: "WAITING" | "RUNNING" | "ENDED" | "CANCELED";
+            owner: components["schemas"]["UserBriefDTO"];
+            participants: components["schemas"]["UserBriefDTO"][];
+        };
+        UserBriefDTO: {
+            /** Format: int64 */
+            userId?: number;
+            nickname?: string;
+            profileImageUrl?: string;
+        };
         UserProfileResponseDTO: {
             /** Format: int64 */
             userId: number;
@@ -832,25 +1138,6 @@ export interface components {
             /** Format: int32 */
             point: number;
         };
-        BaseResponseString: {
-            success: boolean;
-            /** Format: int32 */
-            code: number;
-            /** Format: int32 */
-            httpStatus: number;
-            message: string;
-            result: string;
-        };
-        BaseResponseEmpty: {
-            success: boolean;
-            /** Format: int32 */
-            code: number;
-            /** Format: int32 */
-            httpStatus: number;
-            message: string;
-            result: components["schemas"]["Empty"];
-        };
-        Empty: Record<string, never>;
         PostCreateRequestDTO: {
             title: string;
             contentMarkdown: string;
@@ -895,19 +1182,6 @@ export interface components {
             /** Format: int64 */
             likeCount?: number;
         };
-        BaseResponseUploadImageResponseDTO: {
-            success: boolean;
-            /** Format: int32 */
-            code: number;
-            /** Format: int32 */
-            httpStatus: number;
-            message: string;
-            result: components["schemas"]["UploadImageResponseDTO"];
-        };
-        UploadImageResponseDTO: {
-            url?: string;
-            fileName?: string;
-        };
         CommentCreateRequestDTO: {
             content?: string;
             /** Format: int64 */
@@ -935,6 +1209,29 @@ export interface components {
             userNickname?: string;
             userProfileImageUrl?: string;
         };
+        BaseResponseUploadImageResponseDTO: {
+            success: boolean;
+            /** Format: int32 */
+            code: number;
+            /** Format: int32 */
+            httpStatus: number;
+            message: string;
+            result: components["schemas"]["UploadImageResponseDTO"];
+        };
+        UploadImageResponseDTO: {
+            url?: string;
+            storageKey?: string;
+        };
+        GroupJoinRequestDTO: {
+            /** Format: int64 */
+            roomId: number;
+            /** Format: int64 */
+            targetUserId: number;
+        };
+        GroupCreateRequestDTO: {
+            title: string;
+            content: string;
+        };
         EmailAuthVerificationDTO: {
             email: string;
             code: string;
@@ -961,37 +1258,6 @@ export interface components {
         PostContentUpdateDTO: {
             title?: string;
             contentMarkdown?: string;
-        };
-        BaseResponsePostDetailResponseDTO: {
-            success: boolean;
-            /** Format: int32 */
-            code: number;
-            /** Format: int32 */
-            httpStatus: number;
-            message: string;
-            result: components["schemas"]["PostDetailResponseDTO"];
-        };
-        PostDetailResponseDTO: {
-            /** Format: int64 */
-            postId?: number;
-            title?: string;
-            contentMarkdown?: string;
-            authorNickname?: string;
-            /** Format: int64 */
-            likeCount?: number;
-            /** Format: int64 */
-            scrapCount?: number;
-            /** Format: int64 */
-            commentCount?: number;
-            liked?: boolean;
-            scrapped?: boolean;
-            editable?: boolean;
-            /** Format: date-time */
-            createdAt?: string;
-            thumbnailImageUrl?: string;
-            profileImageUrl?: string;
-            tagNames?: string[];
-            popular?: boolean;
         };
         Pageable: {
             /** Format: int32 */
@@ -1032,49 +1298,103 @@ export interface components {
             likeCount?: number;
             /** Format: int64 */
             scrapCount?: number;
-            /** Format: int64 */
-            commentCount?: number;
             /** Format: date-time */
             createdAt?: string;
             thumbnailImageUrl?: string;
             profileImageUrl?: string;
-            liked?: boolean;
-            scrapped?: boolean;
             tagNames?: string[];
         };
-        BaseResponseListPopularKeywordResponseDTO: {
+        SseEmitter: {
+            /** Format: int64 */
+            timeout?: number;
+        };
+        BaseResponseListString: {
             success: boolean;
             /** Format: int32 */
             code: number;
             /** Format: int32 */
             httpStatus: number;
             message: string;
-            result: components["schemas"]["PopularKeywordResponseDTO"][];
+            result: string[];
         };
-        PopularKeywordResponseDTO: {
-            keyword?: string;
-        };
-        BaseResponseListCommentTreeDTO: {
+        BaseResponsePostDetailResponseDTO: {
             success: boolean;
             /** Format: int32 */
             code: number;
             /** Format: int32 */
             httpStatus: number;
             message: string;
-            result: components["schemas"]["CommentTreeDTO"][];
+            result: components["schemas"]["PostDetailResponseDTO"];
         };
-        CommentTreeDTO: {
+        PostDetailResponseDTO: {
+            /** Format: int64 */
+            postId?: number;
+            title?: string;
+            contentMarkdown?: string;
+            authorNickname?: string;
+            /** Format: int64 */
+            likeCount?: number;
+            /** Format: int64 */
+            scrapCount?: number;
+            /** Format: int64 */
+            commentCount?: number;
+            liked?: boolean;
+            scrapped?: boolean;
+            editable?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            thumbnailImageUrl?: string;
+            profileImageUrl?: string;
+            tagNames?: string[];
+        };
+        BaseResponsePageResponseRootCommentDTO: {
+            success: boolean;
+            /** Format: int32 */
+            code: number;
+            /** Format: int32 */
+            httpStatus: number;
+            message: string;
+            result: components["schemas"]["PageResponseRootCommentDTO"];
+        };
+        PageResponseRootCommentDTO: {
+            content?: components["schemas"]["RootCommentDTO"][];
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            last?: boolean;
+        };
+        RootCommentDTO: {
             /** Format: int64 */
             id?: number;
             content?: string;
-            /** Format: int32 */
-            depth?: number;
             /** Format: date-time */
             createdAt?: string;
             /** Format: int64 */
             userId?: number;
             userNickname?: string;
             userProfileImageUrl?: string;
+            /** Format: int32 */
+            replyCount?: number;
+        };
+        BaseResponseListNotificationResponseDTO: {
+            success: boolean;
+            /** Format: int32 */
+            code: number;
+            /** Format: int32 */
+            httpStatus: number;
+            message: string;
+            result: components["schemas"]["NotificationResponseDTO"][];
+        };
+        NotificationResponseDTO: {
+            groupName?: string;
+            senderName?: string;
+            /** Format: int64 */
+            groupId?: number;
         };
         BaseResponsePageResponseFollowListResponseDTO: {
             success: boolean;
@@ -1087,13 +1407,13 @@ export interface components {
         };
         FollowListResponseDTO: {
             /** Format: int64 */
-            userId: number;
-            nickName: string;
-            profileImageUrlSmall: string;
+            userId?: number;
+            nickName?: string;
+            profileImageUrlSmall?: string;
             /** @enum {string} */
-            tier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
+            tier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
             /** Format: int32 */
-            point: number;
+            point?: number;
         };
         PageResponseFollowListResponseDTO: {
             content?: components["schemas"]["FollowListResponseDTO"][];
@@ -1107,6 +1427,38 @@ export interface components {
             totalPages?: number;
             last?: boolean;
         };
+        BaseResponsePageResponseReplyCommentDTO: {
+            success: boolean;
+            /** Format: int32 */
+            code: number;
+            /** Format: int32 */
+            httpStatus: number;
+            message: string;
+            result: components["schemas"]["PageResponseReplyCommentDTO"];
+        };
+        PageResponseReplyCommentDTO: {
+            content?: components["schemas"]["ReplyCommentDTO"][];
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            last?: boolean;
+        };
+        ReplyCommentDTO: {
+            /** Format: int64 */
+            id?: number;
+            content?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int64 */
+            userId?: number;
+            userNickname?: string;
+            userProfileImageUrl?: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -1116,28 +1468,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    saveReadingRecord: {
-        parameters: {
-            query: {
-                minutes: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseMyPageResponseDTO"];
-                };
-            };
-        };
-    };
     uploadProfileImage: {
         parameters: {
             query?: never;
@@ -1170,6 +1500,138 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    savePersonalReadingRecord: {
+        parameters: {
+            query: {
+                minutes: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseMyPageResponseDTO"];
+                };
+            };
+        };
+    };
+    stopGroupTimer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    startGroupTimer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    resumeGroupTimer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    pauseGroupTimer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    heartbeat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1253,6 +1715,56 @@ export interface operations {
             };
         };
     };
+    getRootComments: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                postId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponseRootCommentDTO"];
+                };
+            };
+        };
+    };
+    createComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                postId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentCreateRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseCommentResponseDTO"];
+                };
+            };
+        };
+    };
     uploadThumbnail: {
         parameters: {
             query?: never;
@@ -1302,18 +1814,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseString"];
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseUploadImageResponseDTO"];
                 };
             };
         };
     };
-    deleteMarkdownImage: {
+    joinRoom: {
         parameters: {
-            query: {
-                fileName: string;
-            };
+            query?: never;
             header?: never;
-            path?: never;
+            path: {
+                roomId: number;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1329,18 +1841,38 @@ export interface operations {
             };
         };
     };
-    createComment: {
+    exitGroup: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                postId: number;
+                roomId: number;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    inviteUserToRoom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CommentCreateRequestDTO"];
+                "application/json": components["schemas"]["GroupJoinRequestDTO"];
             };
         };
         responses: {
@@ -1350,7 +1882,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseCommentResponseDTO"];
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    createGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupCreateRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseLong"];
                 };
             };
         };
@@ -1580,25 +2136,38 @@ export interface operations {
             };
         };
     };
-    updateThumbnail: {
+    getPostDetail: {
         parameters: {
-            query?: {
-                isPopular?: boolean;
-            };
+            query?: never;
             header?: never;
             path: {
                 postId: number;
             };
             cookie?: never;
         };
-        requestBody?: {
-            content: {
-                "application/json": {
-                    /** Format: binary */
-                    thumbnail: string;
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePostDetailResponseDTO"];
                 };
             };
         };
+    };
+    deletePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                postId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -1613,9 +2182,7 @@ export interface operations {
     };
     updatePostContent: {
         parameters: {
-            query?: {
-                isPopular?: boolean;
-            };
+            query?: never;
             header?: never;
             path: {
                 postId: number;
@@ -1625,6 +2192,35 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PostContentUpdateDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    updateThumbnail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                postId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** Format: binary */
+                    file: string;
+                };
             };
         };
         responses: {
@@ -1687,6 +2283,72 @@ export interface operations {
             };
         };
     };
+    getScrappedPosts: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
+                };
+            };
+        };
+    };
+    getMyPosts: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
+                };
+            };
+        };
+    };
+    getFollowingFeed: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
+                };
+            };
+        };
+    };
     getUserProfile: {
         parameters: {
             query?: {
@@ -1733,14 +2395,14 @@ export interface operations {
             };
         };
     };
-    getPostDetail: {
+    connectRoom: {
         parameters: {
-            query?: {
-                isPopular?: boolean;
+            query?: never;
+            header?: {
+                "Last-Event-ID"?: string;
             };
-            header?: never;
             path: {
-                postId: number;
+                roomId: number;
             };
             cookie?: never;
         };
@@ -1752,20 +2414,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePostDetailResponseDTO"];
+                    "application/json;charset=UTF-8": components["schemas"]["SseEmitter"];
                 };
             };
         };
     };
-    deletePost: {
+    getPopularTags: {
         parameters: {
-            query?: {
-                isPopular?: boolean;
-            };
+            query?: never;
             header?: never;
-            path: {
-                postId: number;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1776,7 +2434,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseListString"];
+                };
+            };
+        };
+    };
+    searchByTitle: {
+        parameters: {
+            query: {
+                keyword: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
                 };
             };
         };
@@ -1804,7 +2485,7 @@ export interface operations {
             };
         };
     };
-    searchByKeyword: {
+    searchByContent: {
         parameters: {
             query: {
                 keyword: string;
@@ -1827,9 +2508,10 @@ export interface operations {
             };
         };
     };
-    getScrappedPosts: {
+    searchByTitleOrContent: {
         parameters: {
             query: {
+                keyword: string;
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -1845,6 +2527,26 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
+                };
+            };
+        };
+    };
+    getPopularKeywords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseListString"];
                 };
             };
         };
@@ -1871,7 +2573,7 @@ export interface operations {
             };
         };
     };
-    getPopularTags: {
+    getInviteNotifications: {
         parameters: {
             query?: never;
             header?: never;
@@ -1886,93 +2588,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseListPopularKeywordResponseDTO"];
-                };
-            };
-        };
-    };
-    getPopularKeywords: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseListPopularKeywordResponseDTO"];
-                };
-            };
-        };
-    };
-    getMyPosts: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
-                };
-            };
-        };
-    };
-    getFollowerFeed: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponsePostSummaryResponseDTO"];
-                };
-            };
-        };
-    };
-    getCommentTree: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                postId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseListCommentTreeDTO"];
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseListNotificationResponseDTO"];
                 };
             };
         };
@@ -2061,6 +2677,30 @@ export interface operations {
             };
         };
     };
+    getReplies: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                commentId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponsePageResponseReplyCommentDTO"];
+                };
+            };
+        };
+    };
     deleteProfileImage: {
         parameters: {
             query?: never;
@@ -2081,12 +2721,34 @@ export interface operations {
             };
         };
     };
-    removeFollower: {
+    deleteMarkdownImage: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                followerId: number;
+                storageKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["BaseResponseEmpty"];
+                };
+            };
+        };
+    };
+    clearInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
             };
             cookie?: never;
         };

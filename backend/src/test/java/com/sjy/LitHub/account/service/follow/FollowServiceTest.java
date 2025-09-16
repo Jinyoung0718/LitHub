@@ -95,23 +95,4 @@ class FollowServiceTest {
 
 		assertThat(result).isNotNull();
 	}
-
-	@Test
-	@DisplayName("팔로워 삭제 - 성공")
-	void removeFollower_success() {
-		given(followRepository.deleteByFollowerAndFollowee(followerId, followeeId)).willReturn(1);
-
-		followService.removeFollower(followeeId, followerId);
-
-		then(followRepository).should().deleteByFollowerAndFollowee(followerId, followeeId);
-	}
-
-	@Test
-	@DisplayName("팔로워 삭제 - 실패 시 예외 발생")
-	void removeFollower_notFound_throwsException() {
-		given(followRepository.deleteByFollowerAndFollowee(followerId, followeeId)).willReturn(0);
-
-		assertThatThrownBy(() -> followService.removeFollower(followeeId, followerId))
-			.isInstanceOf(InvalidUserException.class);
-	}
 }

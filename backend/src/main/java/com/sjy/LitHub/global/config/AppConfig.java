@@ -45,23 +45,22 @@ public class AppConfig {
 	@Getter
 	private static String cookieSameSite;
 
+	// ---------------- S3 설정 ----------------
 	@Getter
-	public static String googleClientId;
+	private static String s3Bucket;
 
 	@Getter
-	public static String googleClientSecret;
+	private static String s3BaseProfileDir;
 
-	@Getter
-	public static String googleRedirectUri;
+	@Value("${custom.s3.bucket}")
+	public void setS3Bucket(String bucket) {
+		AppConfig.s3Bucket = bucket;
+	}
 
-	@Getter
-	public static String naverClientId;
-
-	@Getter
-	public static String naverClientSecret;
-
-	@Getter
-	public static String naverRedirectUri;
+	@Value("${custom.s3.base-profile-dir}")
+	public void setS3BaseProfileDir(String baseDir) {
+		AppConfig.s3BaseProfileDir = baseDir;
+	}
 
 	// ---------------- 기본 설정 ----------------
 
@@ -115,37 +114,6 @@ public class AppConfig {
 		AppConfig.cookieSameSite = sameSite;
 	}
 
-	// ---------------- OAuth 설정 ----------------
-
-	@Value("${custom.google-oauth.client-id}")
-	public void setGoogleClientId(String value) {
-		AppConfig.googleClientId = value;
-	}
-
-	@Value("${custom.google-oauth.client-secret}")
-	public void setGoogleClientSecret(String value) {
-		AppConfig.googleClientSecret = value;
-	}
-
-	@Value("${custom.naver-oauth.client-id}")
-	public void setNaverClientId(String value) {
-		AppConfig.naverClientId = value;
-	}
-
-	@Value("${custom.naver-oauth.client-secret}")
-	public void setNaverClientSecret(String value) {
-		AppConfig.naverClientSecret = value;
-	}
-
-	@Value("${custom.${spring.profiles.active}.oauth.google.redirect-uri}")
-	public void setGoogleRedirectUri(String value) {
-		AppConfig.googleRedirectUri = value;
-	}
-
-	@Value("${custom.${spring.profiles.active}.oauth.naver.redirect-uri}")
-	public void setNaverRedirectUri(String value) {
-		AppConfig.naverRedirectUri = value;
-	}
 
 	// ---------------- 기타 주입 ----------------
 

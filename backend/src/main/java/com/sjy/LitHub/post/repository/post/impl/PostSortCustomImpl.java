@@ -1,7 +1,9 @@
 package com.sjy.LitHub.post.repository.post.impl;
 
-import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -56,33 +58,22 @@ public class PostSortCustomImpl implements PostSortCustom {
 
 	@Override
 	public List<PostSummaryResponseDTO> findByIds(List<Long> postIds) {
-		if (postIds == null || postIds.isEmpty()) return List.of();
-
-		return queryFactory
+		List<PostSummaryResponseDTO> rows = queryFactory
 			.select(summaryProjection())
 			.from(post)
 			.join(post.user, user)
 			.where(post.id.in(postIds))
 			.fetch();
-	}
 
-	@Override
-	public List<PostSummaryResponseDTO> findRecentByUserIds(List<Long> userIds, int limit) {
-		if (userIds == null || userIds.isEmpty()) return List.of();
+		Map<Long, Integer> orderMap = new HashMap<>();
 
-		LocalDateTime monthAgo = LocalDateTime.now().minusDays(30);
+		int i = 0;
+		for (Long postId : postIds) {
+			orderMap.put(postId, i++);
+		}
 
-		return queryFactory
-			.select(summaryProjection())
-			.from(post)
-			.join(post.user, user)
-			.where(
-				post.user.id.in(userIds)
-					.and(post.createdAt.after(monthAgo))
-			)
-			.orderBy(post.createdAt.desc())
-			.limit(limit)
-			.fetch();
+		rows.sort(Comparator.comparingInt(dto -> orderMap.get(dto.getPostId())));
+		return rows;
 	}
 
 	private Page<PostSummaryResponseDTO> fetchPostPage(BooleanExpression whereCondition, OrderSpecifier<?> orderBy, Pageable pageable) {

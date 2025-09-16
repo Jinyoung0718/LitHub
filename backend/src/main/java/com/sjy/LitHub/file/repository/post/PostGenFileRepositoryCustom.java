@@ -14,4 +14,8 @@ public interface PostGenFileRepositoryCustom {
 	List<PostGenFile> findMarkdownImagesByPostId(Long postId);
 
 	List<PostGenFile> findThumbnailsByPostIds(List<Long> postIds);
+
+	List<PostGenFile> findMarkdownImagesToDelete(Long postId, List<String> usedFileNames);
+
+	List<PostGenFile> findMarkdownImagesOrdered(Long userId, List<String> usedFileNames);
 }

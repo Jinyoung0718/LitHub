@@ -39,4 +39,14 @@ public class PageResponse<T> {
 			true
 		);
 	}
+
+	public static <T> PageResponse<T> empty(Pageable pageable) {
+		return new PageResponse<>(
+			List.of(),
+			pageable.getPageNumber(),
+			pageable.getPageSize(),
+			0,
+			0,
+			true);
+	}
 }

@@ -7,7 +7,8 @@ import java.util.List;
 @Getter
 public enum ImageType {
     PROFILE(List.of(256, 512)),
-    POST_THUMBNAIL(List.of(600));
+    POST_THUMBNAIL(List.of(600)),
+    POST_MARKDOWN(List.of(1024));
 
     private final List<Integer> sizes;
 

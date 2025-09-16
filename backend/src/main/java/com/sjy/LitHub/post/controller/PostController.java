@@ -8,12 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sjy.LitHub.file.service.post.MarkdownImageService;
-import com.sjy.LitHub.file.service.post.ThumbnailImageService;
+import com.sjy.LitHub.file.service.post.MarkdownFileService;
+import com.sjy.LitHub.file.service.post.ThumbnailPostService;
 import com.sjy.LitHub.global.model.BaseResponse;
 import com.sjy.LitHub.global.model.Empty;
 import com.sjy.LitHub.post.model.req.PostCreateRequestDTO;
@@ -36,23 +35,10 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
 
 	private final PostService postService;
-	private final ThumbnailImageService thumbnailImageService;
-	private final MarkdownImageService markdownImageService;
+	private final ThumbnailPostService thumbnailPostService;
+	private final MarkdownFileService markdownFileService;
 
-	@Operation(summary = "썸네일 이미지 업로드", description = "게시글 썸네일 이미지를 업로드하고 fileName 과 URL 을 반환합니다.")
-	@PostMapping("/thumbnail")
-	public BaseResponse<UploadImageResponseDTO> uploadThumbnail(@RequestPart("file") MultipartFile file) {
-		return BaseResponse.success(thumbnailImageService.uploadTempThumbnailImage(file));
-	}
-
-	@Operation(summary = "썸네일 이미지 수정")
-	@PatchMapping("/{postId}/thumbnail")
-	public BaseResponse<Empty> updateThumbnail(@PathVariable Long postId, @RequestPart MultipartFile thumbnail) {
-		postService.updatePostThumbnail(postId, thumbnail);
-		return BaseResponse.success();
-	}
-
-	@Operation(summary = "게시글 생성", description = "제목, 본문, 썸네일 fileName 과 태그를 포함한 게시글을 생성합니다.")
+	@Operation(summary = "게시글 생성", description = "제목, 본문, 썸네일 storageKey 및 태그를 포함한 게시글을 생성합니다.")
 	@PostMapping
 	public BaseResponse<Long> createPost(@Valid @RequestBody PostCreateRequestDTO request) {
 		return BaseResponse.success(postService.createPost(request));
@@ -65,32 +51,52 @@ public class PostController {
 	}
 
 	@Operation(summary = "게시글 제목/본문 수정")
-	@PatchMapping("/{postId}/content")
-	public BaseResponse<Empty> updatePostContent(
-		@PathVariable Long postId,
-		@RequestBody @Valid PostContentUpdateDTO request) {
+	@PatchMapping("/{postId}")
+	public BaseResponse<Empty> updatePostContent(@PathVariable Long postId,
+		@Valid @RequestBody PostContentUpdateDTO request) {
 		postService.updatePostContent(postId, request);
 		return BaseResponse.success();
 	}
 
 	@Operation(summary = "게시글 삭제", description = "해당 게시글을 삭제합니다.")
 	@DeleteMapping("/{postId}")
-	public BaseResponse<Empty> deletePost(
-		@PathVariable Long postId) {
+	public BaseResponse<Empty> deletePost(@PathVariable Long postId) {
 		postService.deletePost(postId);
 		return BaseResponse.success();
 	}
 
-	@Operation(summary = "마크다운 이미지 업로드", description = "마크다운 본문에 삽입할 임시 이미지를 업로드합니다.")
-	@PostMapping("/image")
-	public BaseResponse<String> uploadMarkdownImage(@RequestPart("file") MultipartFile file) {
-		return BaseResponse.success(markdownImageService.uploadTempMarkdownImage(file));
+	@Operation(summary = "썸네일 이미지 업로드", description = "게시글 썸네일 이미지를 업로드하고 URL 과 storageKey 를 반환합니다.")
+	@PostMapping("/thumbnail")
+	public BaseResponse<UploadImageResponseDTO> uploadThumbnail(
+		@RequestParam("file") MultipartFile file
+	) {
+		return BaseResponse.success(thumbnailPostService.uploadTempThumbnailImage(file));
 	}
 
-	@Operation(summary = "마크다운 이미지 삭제", description = "마크다운 본문에 삽입된 임시 이미지를 삭제합니다.")
-	@DeleteMapping("/image")
-	public BaseResponse<Empty> deleteMarkdownImage(@RequestParam String fileName) {
-		markdownImageService.deleteTempMarkdownImage(fileName);
+	@Operation(summary = "썸네일 이미지 수정")
+	@PatchMapping("/{postId}/thumbnail")
+	public BaseResponse<Empty> updateThumbnail(
+		@PathVariable Long postId,
+		@RequestParam("file") MultipartFile thumbnail
+	) {
+		postService.updatePostThumbnail(postId, thumbnail);
+		return BaseResponse.success();
+	}
+
+	@Operation(summary = "마크다운 이미지 업로드", description = "마크다운 본문에서 사용할 임시 이미지를 업로드하고 퍼블릭 URL 과 storageKey 를 반환합니다.")
+	@PostMapping("/images")
+	public BaseResponse<UploadImageResponseDTO> uploadMarkdownImage(
+		@RequestParam("file") MultipartFile file
+	) {
+		return BaseResponse.success(markdownFileService.uploadTempMarkdownImage(file));
+	}
+
+	@Operation(summary = "마크다운 이미지 삭제", description = "마크다운 본문에서 사용된 임시 이미지를 삭제합니다. (post 에 연결되지 않은 경우만 삭제 가능)")
+	@DeleteMapping("/images/{storageKey}")
+	public BaseResponse<Empty> deleteMarkdownImage(
+		@PathVariable String storageKey
+	) {
+		markdownFileService.deleteTempMarkdownImage(storageKey);
 		return BaseResponse.success();
 	}
 }

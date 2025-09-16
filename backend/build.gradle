@@ -51,6 +51,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+	implementation 'net.javacrumbs.shedlock:shedlock-spring:5.10.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:5.10.0'
 
 	// 마크 다운
 	implementation 'org.jsoup:jsoup:1.17.2'
@@ -69,7 +71,6 @@ dependencies {
 	// bucket4j ddos 제어 의존성
 	implementation 'com.bucket4j:bucket4j-core:8.9.0'
 	implementation 'com.bucket4j:bucket4j-redis:8.9.0'
-
 
 	// 이미지 처리 (WebP)
 	implementation 'com.sksamuel.scrimage:scrimage-core:4.0.40'

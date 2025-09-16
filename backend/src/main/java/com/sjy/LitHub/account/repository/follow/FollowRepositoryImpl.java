@@ -1,6 +1,10 @@
 package com.sjy.LitHub.account.repository.follow;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -45,7 +49,7 @@ public class FollowRepositoryImpl implements FollowRepositoryCustom {
 				FollowListResponseDTO.class,
 				user.id,
 				user.nickName,
-				file.filePath,
+				file.storageKey,
 				user.tier,
 				user.point
 			))
@@ -76,7 +80,7 @@ public class FollowRepositoryImpl implements FollowRepositoryCustom {
 				user.id,
 				user.nickName,
 				JPAExpressions
-					.select(file.filePath)
+					.select(file.storageKey)
 					.from(file)
 					.where(file.user.id.eq(user.id),
 						file.typeCode.eq(UserGenFile.TypeCode.PROFILE_256))
@@ -115,11 +119,18 @@ public class FollowRepositoryImpl implements FollowRepositoryCustom {
 	}
 
 	@Override
-	public List<Long> findFolloweeIdsByUserId(Long userId) {
+	public Map<Long, Long> countFollowersByFolloweeIds(Collection<Long> followeeIds) {
+		if (followeeIds == null || followeeIds.isEmpty()) return Map.of();
+
 		return queryFactory
-			.select(follow.followee.id)
-			.from(follow)
-			.where(follow.follower.id.eq(userId))
-			.fetch();
+			.select(user.id, user.followerCount)
+			.from(user)
+			.where(user.id.in(followeeIds))
+			.fetch()
+			.stream()
+			.collect(Collectors.toMap(
+				row -> row.get(user.id),
+				row -> Optional.ofNullable(row.get(user.followerCount)).orElse(0L)
+			));
 	}
 }

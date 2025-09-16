@@ -14,7 +14,7 @@ const OAuthLogin = () => {
         <SocialIcon as="button" onClick={() => handleOAuth2Login("google")}>
           <img src={googleIcon} alt="Google 로그인" />
         </SocialIcon>
-        <SocialIcon as="button" onClick={() => handleOAuth2Login("naver")}>
+        <SocialIcon as="button" onClick={() => handleOAuth2Login("kakao")}>
           <img src={naverIcon} alt="Naver 로그인" />
         </SocialIcon>
       </SocialIcons>

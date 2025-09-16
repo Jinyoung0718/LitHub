@@ -5,9 +5,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sjy.LitHub.account.entity.User;
 import com.sjy.LitHub.account.repository.user.UserRepository;
-import com.sjy.LitHub.global.AuthUser;
-import com.sjy.LitHub.post.cache.interaction.InteractionStateManager;
-import com.sjy.LitHub.post.cache.interaction.PostInteractionState;
+import com.sjy.LitHub.global.message.model.LikeToggledEvent;
+import com.sjy.LitHub.global.message.model.ScrapToggledEvent;
+import com.sjy.LitHub.global.util.AuthUser;
+import com.sjy.LitHub.post.cache.interaction.InteractionEventPublisher;
 import com.sjy.LitHub.post.entity.Likes;
 import com.sjy.LitHub.post.entity.Post;
 import com.sjy.LitHub.post.entity.Scrap;
@@ -29,7 +30,7 @@ public class ToggleService {
 	private final ScrapRepository scrapRepository;
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
-	private final InteractionStateManager interactionStateManager;
+	private final InteractionEventPublisher eventPublisher;
 
 	@Transactional
 	public LikeResponseDTO toggleLikes(Long postId) {
@@ -39,16 +40,19 @@ public class ToggleService {
 
 		boolean alreadyLiked = likesRepository.existsByPostIdAndUserId(postId, userId);
 
+		boolean nowLiked;
 		if (alreadyLiked) {
 			likesRepository.deleteByPostIdAndUserId(postId, userId);
-			interactionStateManager.onUnlike(postId, userId);
+			nowLiked = false;
 		} else {
 			likesRepository.save(Likes.of(post, user));
-			interactionStateManager.onLike(postId, userId);
+			nowLiked = true;
 		}
 
-		PostInteractionState state = interactionStateManager.resolve(postId, userId);
-		return new LikeResponseDTO(state.liked(), state.likeCount());
+		// MQ 발행
+		eventPublisher.publishLikeToggled(new LikeToggledEvent(postId, userId, nowLiked));
+		long newCount = likesRepository.countByPostId(postId);
+		return new LikeResponseDTO(nowLiked, newCount);
 	}
 
 	@Transactional
@@ -59,15 +63,18 @@ public class ToggleService {
 
 		boolean alreadyScrapped = scrapRepository.existsByPostIdAndUserId(postId, userId);
 
+		boolean nowScrapped;
 		if (alreadyScrapped) {
 			scrapRepository.deleteByPostIdAndUserId(postId, userId);
-			interactionStateManager.onUnscrap(postId, userId);
+			nowScrapped = false;
 		} else {
 			scrapRepository.save(Scrap.of(post, user));
-			interactionStateManager.onScrap(postId, userId);
+			nowScrapped = true;
 		}
 
-		PostInteractionState state = interactionStateManager.resolve(postId, userId);
-		return new ScrapResponseDTO(state.scrapped(), state.scrapCount());
+		// MQ 발행
+		eventPublisher.publishScrapToggled(new ScrapToggledEvent(postId, userId, nowScrapped));
+		long newCount = scrapRepository.countByPostId(postId);
+		return new ScrapResponseDTO(nowScrapped, newCount);
 	}
 }
