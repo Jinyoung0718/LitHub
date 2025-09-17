@@ -62,8 +62,8 @@ custom:
     front-url: ${custom.prod.site.front-url}
 
   s3:
-    bucket: ${custom.s3.bucket}
-    base-profile-dir: ${custom.s3.base-profile-dir}
+    bucket: lithub-bucket-1
+    base-profile-dir: base-profile
 
   redis:
     cache:
