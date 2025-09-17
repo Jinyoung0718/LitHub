@@ -6,3 +6,6 @@ secrets.tf
 terraform.tfstate.backup
 variables.tf
 terraform.tfstate
+.terraform/
+*.tfstate
+*.tfstate.backup
