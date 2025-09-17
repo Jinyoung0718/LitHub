@@ -62,3 +62,4 @@ jobs:
           aws ec2 create-tags --resources ${{ env.GREEN_ID }} --tags Key=Role,Value=standby
 
           echo "Initial deployment complete. Blue=active, Green=standby"
+
