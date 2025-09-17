@@ -45,6 +45,9 @@ jobs:
             docker stop app 2>/dev/null || true && \
             docker rm app 2>/dev/null || true && \
             docker run -d --name app --network common -p 8080:8080 \
+              -e AWS_REGION=ap-northeast-2 \
+              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
               ghcr.io/${{ github.repository_owner }}/app250418:latest && \
             docker rmi $(docker images -f "dangling=true" -q) || true
 
@@ -53,4 +56,5 @@ jobs:
         run: |
           aws ec2 create-tags --resources ${{ env.BLUE_ID }} --tags Key=Role,Value=active
           aws ec2 create-tags --resources ${{ env.GREEN_ID }} --tags Key=Role,Value=standby
+
           echo "Initial deployment complete. Blue=active, Green=standby"
