@@ -46,9 +46,10 @@ spring:
 custom:
   oauth:
     google:
-      redirect-uri: ${custom.prod.oauth.google.redirect-uri}
+      redirect-uri: https://www.app.lithub.site/login/oauth2/code/google
     naver:
-      redirect-uri: ${custom.prod.oauth.naver.redirect-uri}
+      redirect-uri: https://www.app.lithub.site/login/oauth2/code/naver
+
 
   cookie:
     secure: true

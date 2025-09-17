@@ -52,6 +52,7 @@ custom:
     naver:
       redirect-uri: http://localhost:8080/login/oauth2/code/naver
 
+
   cookie:
     secure: false
     http-only: false

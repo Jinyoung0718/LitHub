@@ -88,6 +88,18 @@ public class RedisCacheConfig {
 	}
 
 	@Bean
+	public RedisTemplate<String, Object> redisTemplate(
+		@Qualifier("CacheRedisConnectionFactory") RedisConnectionFactory factory,
+		ObjectMapper redisObjectMapper
+	) {
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(factory);
+		template.setKeySerializer(new StringRedisSerializer());
+		template.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
+		return template;
+	}
+
+	@Bean
 	public ProxyManager<String> lettuceBasedProxyManager() {
 		RedisURI uri = RedisURI.builder()
 			.withHost(host)
