@@ -4,9 +4,6 @@ server:
   forward-headers-strategy: native
 
 spring:
-  profiles:
-    include: secret
-
   datasource:
     url: ${custom.prod.db.url}
     username: ${custom.prod.db.username}
