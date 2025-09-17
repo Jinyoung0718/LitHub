@@ -71,6 +71,13 @@ custom:
       port: ${custom.prod.redis.cache-port}
       password: ${custom.prod.redis.password}
 
+  file:
+    upload-dir: /app/uploads
+
+  upload:
+    max-image-size: 5MB
+    max-file-size: 20MB
+
 management:
   endpoints:
     web:
