@@ -30,7 +30,7 @@ jobs:
           echo "Blue = $BLUE_ID"
           echo "Green = $GREEN_ID"
 
-      # 블루에 컨테이너 배포
+      # Blue 인스턴스에 application-secret.yml 생성 후 컨테이너 실행
       - name: Deploy to Blue
         uses: peterkimzz/aws-ssm-send-command@master
         with:
@@ -41,10 +41,16 @@ jobs:
           working-directory: /
           comment: Initial Deploy to Blue
           command: |
+            # 1. application-secret.yml 생성
+            echo '${{ secrets.APPLICATION_SECRET }}' > /home/ec2-user/application-secret.yml
+
+            # 2. 컨테이너 실행
             docker pull ghcr.io/${{ github.repository_owner }}/app250418:latest && \
             docker stop app 2>/dev/null || true && \
             docker rm app 2>/dev/null || true && \
             docker run -d --name app --network common -p 8080:8080 \
+              -v /home/ec2-user/application-secret.yml:/app/config/application-secret.yml \
+              -e SPRING_CONFIG_ADDITIONAL_LOCATION=classpath:/,file:/app/config/ \
               -e AWS_REGION=ap-northeast-2 \
               ghcr.io/${{ github.repository_owner }}/app250418:latest && \
             docker rmi $(docker images -f "dangling=true" -q) || true
@@ -56,5 +62,3 @@ jobs:
           aws ec2 create-tags --resources ${{ env.GREEN_ID }} --tags Key=Role,Value=standby
 
           echo "Initial deployment complete. Blue=active, Green=standby"
-
-
